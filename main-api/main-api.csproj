@@ -4,8 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>educode_backend</RootNamespace>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RootNamespace>main_api</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
