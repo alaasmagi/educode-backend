@@ -1,0 +1,6 @@
+@educode_backend_HostAddress = http://localhost:5068
+
+GET {{educode_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+﻿services:
+  educode-backend:
+    image: educode-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
