@@ -1,8 +1,7 @@
-﻿namespace Domain;
+﻿namespace App.Domain;
 
-public class CourseAttendanceEntity
+public class CourseAttendanceEntity : BaseEntity
 {
-    public int Id { get; set; }
     public int TeacherId { get; set; }
     public string CourseCode { get; set; } = default!;
     public int AttendanceTypeId { get; set; }

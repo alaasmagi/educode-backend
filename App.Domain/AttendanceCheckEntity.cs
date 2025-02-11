@@ -1,8 +1,7 @@
-﻿namespace Domain;
+﻿namespace App.Domain;
 
-public class AttendanceCheckEntity
+public class AttendanceCheckEntity : BaseEntity
 {
-    public int Id { get; set; }
     public int StudentId { get; set; }
     public int CourseAttendanceId { get; set; }
     public int? WorkplaceId { get; set; }

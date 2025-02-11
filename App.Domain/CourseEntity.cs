@@ -1,8 +1,7 @@
-﻿namespace Domain;
+﻿namespace App.Domain;
 
-public class CourseEntity
+public class CourseEntity : BaseEntity
 {
-    public int Id { get; set; }
     public string CourseCode { get; set; } = default!;
     public string CourseName { get; set; } = default!;
     public ECourseValidStatus CourseValidStatus { get; set; }

@@ -1,8 +1,7 @@
-﻿namespace Domain;
+﻿namespace App.Domain;
 
-public class WorkplaceEntity
+public class WorkplaceEntity : BaseEntity
 {
-    public int Id { get; set; }
     public string ClassRoom { get; set; } = default!;
     public string ComputerCode { get; set; } = default!;
 }

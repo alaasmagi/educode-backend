@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace App.Domain;
 
 public enum ECourseValidStatus
 {
