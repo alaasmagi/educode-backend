@@ -1,8 +1,12 @@
-﻿using Base.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using Base.Domain;
 
 namespace App.Domain;
 
 public class UserTypeEntity : BaseEntity
 {
+    [MaxLength(128)]
     public string UserType { get; set; } = default!;
+    
+    public ICollection<UserEntity>? Users { get; set; }
 }

@@ -1,11 +1,24 @@
 using App.DAL.EF;
-using IDbConnection = System.Data.IDbConnection;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IDataConnection, LocalDataConnection>();
+
+DotNetEnv.Env.Load("../.env");
+var host = Environment.GetEnvironmentVariable("HOST");
+var port = Environment.GetEnvironmentVariable("PORT");
+var user = Environment.GetEnvironmentVariable("DB");
+var key = Environment.GetEnvironmentVariable("KEY");
+
+var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={key};";
+Console.WriteLine(connectionString);
+
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
 
 var app = builder.Build();
 
