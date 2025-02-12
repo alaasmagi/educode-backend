@@ -1,7 +1,11 @@
+using App.DAL.EF;
+using IDbConnection = System.Data.IDbConnection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IDataConnection, LocalDataConnection>();
 
 var app = builder.Build();
 

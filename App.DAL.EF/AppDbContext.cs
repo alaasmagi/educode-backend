@@ -2,7 +2,7 @@ using App.Domain;
 using Microsoft.EntityFrameworkCore;
 namespace App.DAL.EF;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<AttendanceCheckEntity> AttendanceChecks { get; set; }
     public DbSet<AttendanceTypeEntity> AttendanceTypes { get; set; }
@@ -12,9 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<UserTypeEntity> UserTypes { get; set; }
     public DbSet<WorkplaceEntity> Workplaces { get; set; }
-    
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AttendanceCheckEntity>().ToTable("AttendanceChecks");
