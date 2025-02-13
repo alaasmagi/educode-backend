@@ -13,5 +13,4 @@ public class CourseEntity : BaseEntity
     public ECourseValidStatus CourseValidStatus { get; set; }
 
     public ICollection<CourseTeacherEntity> CourseTeacherEntities { get; set; } = new List<CourseTeacherEntity>();
-    public ICollection<CourseAttendanceEntity> CourseAttendanceEntities { get; set; } = new List<CourseAttendanceEntity>();
 }

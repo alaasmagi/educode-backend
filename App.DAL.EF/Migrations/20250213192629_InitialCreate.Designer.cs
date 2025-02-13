@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250212223647_InitialCreate")]
+    [Migration("20250213192629_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -61,8 +61,6 @@ namespace App.DAL.EF.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseAttendanceId");
-
-                    b.HasIndex("StudentId");
 
                     b.HasIndex("WorkplaceId");
 
@@ -402,26 +400,15 @@ namespace App.DAL.EF.Migrations
 
             modelBuilder.Entity("App.Domain.AttendanceCheckEntity", b =>
                 {
-                    b.HasOne("App.Domain.CourseAttendanceEntity", "CourseAttendance")
+                    b.HasOne("App.Domain.CourseAttendanceEntity", null)
                         .WithMany("AttendanceChecks")
                         .HasForeignKey("CourseAttendanceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("App.Domain.UserEntity", "Student")
-                        .WithMany("AttendanceChecks")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("App.Domain.WorkplaceEntity", "Workplace")
-                        .WithMany("AttendanceChecks")
-                        .HasForeignKey("WorkplaceId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("CourseAttendance");
-
-                    b.Navigation("Student");
+                        .WithMany()
+                        .HasForeignKey("WorkplaceId");
 
                     b.Navigation("Workplace");
                 });
@@ -429,13 +416,13 @@ namespace App.DAL.EF.Migrations
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>
                 {
                     b.HasOne("App.Domain.AttendanceTypeEntity", "AttendanceType")
-                        .WithMany("CourseAttendanceEntities")
+                        .WithMany()
                         .HasForeignKey("AttendanceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("App.Domain.CourseEntity", "Course")
-                        .WithMany("CourseAttendanceEntities")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -454,9 +441,9 @@ namespace App.DAL.EF.Migrations
                         .IsRequired();
 
                     b.HasOne("App.Domain.UserEntity", "Teacher")
-                        .WithMany("CourseTeachers")
+                        .WithMany()
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -467,9 +454,9 @@ namespace App.DAL.EF.Migrations
             modelBuilder.Entity("App.Domain.UserAuthTokenEntity", b =>
                 {
                     b.HasOne("App.Domain.UserEntity", "User")
-                        .WithMany("UserAuthTokens")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -478,16 +465,10 @@ namespace App.DAL.EF.Migrations
             modelBuilder.Entity("App.Domain.UserEntity", b =>
                 {
                     b.HasOne("App.Domain.UserTypeEntity", "UserType")
-                        .WithMany("Users")
-                        .HasForeignKey("UserTypeId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("UserTypeId");
 
                     b.Navigation("UserType");
-                });
-
-            modelBuilder.Entity("App.Domain.AttendanceTypeEntity", b =>
-                {
-                    b.Navigation("CourseAttendanceEntities");
                 });
 
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>
@@ -497,28 +478,7 @@ namespace App.DAL.EF.Migrations
 
             modelBuilder.Entity("App.Domain.CourseEntity", b =>
                 {
-                    b.Navigation("CourseAttendanceEntities");
-
                     b.Navigation("CourseTeacherEntities");
-                });
-
-            modelBuilder.Entity("App.Domain.UserEntity", b =>
-                {
-                    b.Navigation("AttendanceChecks");
-
-                    b.Navigation("CourseTeachers");
-
-                    b.Navigation("UserAuthTokens");
-                });
-
-            modelBuilder.Entity("App.Domain.UserTypeEntity", b =>
-                {
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("App.Domain.WorkplaceEntity", b =>
-                {
-                    b.Navigation("AttendanceChecks");
                 });
 #pragma warning restore 612, 618
         }

@@ -169,8 +169,7 @@ namespace App.DAL.EF.Migrations
                         name: "FK_Users_UserTypes_UserTypeId",
                         column: x => x.UserTypeId,
                         principalTable: "UserTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -198,19 +197,12 @@ namespace App.DAL.EF.Migrations
                         column: x => x.CourseAttendanceId,
                         principalTable: "CourseAttendances",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AttendanceChecks_Users_StudentId",
-                        column: x => x.StudentId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AttendanceChecks_Workplaces_WorkplaceId",
                         column: x => x.WorkplaceId,
                         principalTable: "Workplaces",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -243,7 +235,7 @@ namespace App.DAL.EF.Migrations
                         column: x => x.TeacherId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -272,7 +264,7 @@ namespace App.DAL.EF.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -280,11 +272,6 @@ namespace App.DAL.EF.Migrations
                 name: "IX_AttendanceChecks_CourseAttendanceId",
                 table: "AttendanceChecks",
                 column: "CourseAttendanceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AttendanceChecks_StudentId",
-                table: "AttendanceChecks",
-                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceChecks_WorkplaceId",

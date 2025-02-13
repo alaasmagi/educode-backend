@@ -9,6 +9,4 @@ public class WorkplaceEntity : BaseEntity
     public string ClassRoom { get; set; } = default!;
     [MaxLength(128)]
     public string ComputerCode { get; set; } = default!;
-
-    public ICollection<AttendanceCheckEntity>? AttendanceChecks { get; set; }
 }

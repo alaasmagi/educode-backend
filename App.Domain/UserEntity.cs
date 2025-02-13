@@ -17,8 +17,4 @@ public class UserEntity : BaseEntity
     public string FirstName { get; set; } = default!;
     [MaxLength(128)]
     public string LastName { get; set; } = default!;
-
-    public ICollection<AttendanceCheckEntity>? AttendanceChecks { get; set; }= new List<AttendanceCheckEntity>();
-    public ICollection<UserAuthTokenEntity>? UserAuthTokens { get; set; } = new List<UserAuthTokenEntity>();
-    public ICollection<CourseTeacherEntity>? CourseTeachers { get; set; } = new List<CourseTeacherEntity>();
 }
