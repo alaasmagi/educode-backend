@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSwaggerGen();
 
 DotNetEnv.Env.Load("../.env");
 var host = Environment.GetEnvironmentVariable("HOST");
@@ -34,6 +35,11 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI(c => {
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Educode API");
+});
 
 app.MapStaticAssets();
 
