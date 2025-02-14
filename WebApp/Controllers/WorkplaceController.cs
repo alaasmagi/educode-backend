@@ -10,23 +10,22 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class UserController : Controller
+    public class WorkplaceController : Controller
     {
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public WorkplaceController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: User
+        // GET: Workplace
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Users.Include(u => u.UserType);
-            return View(await appDbContext.ToListAsync());
+            return View(await _context.Workplaces.ToListAsync());
         }
 
-        // GET: User/Details/5
+        // GET: Workplace/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +33,39 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var workplaceEntity = await _context.Workplaces
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (workplaceEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(workplaceEntity);
         }
 
-        // GET: User/Create
+        // GET: Workplace/Create
         public IActionResult Create()
         {
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy");
             return View();
         }
 
-        // POST: User/Create
+        // POST: Workplace/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(userEntity);
+                _context.Add(workplaceEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(workplaceEntity);
         }
 
-        // GET: User/Edit/5
+        // GET: Workplace/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +73,22 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity == null)
+            var workplaceEntity = await _context.Workplaces.FindAsync(id);
+            if (workplaceEntity == null)
             {
                 return NotFound();
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(workplaceEntity);
         }
 
-        // POST: User/Edit/5
+        // POST: Workplace/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
         {
-            if (id != userEntity.Id)
+            if (id != workplaceEntity.Id)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(userEntity);
+                    _context.Update(workplaceEntity);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserEntityExists(userEntity.Id))
+                    if (!WorkplaceEntityExists(workplaceEntity.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +113,10 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(workplaceEntity);
         }
 
-        // GET: User/Delete/5
+        // GET: Workplace/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +124,34 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var workplaceEntity = await _context.Workplaces
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (workplaceEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(workplaceEntity);
         }
 
-        // POST: User/Delete/5
+        // POST: Workplace/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity != null)
+            var workplaceEntity = await _context.Workplaces.FindAsync(id);
+            if (workplaceEntity != null)
             {
-                _context.Users.Remove(userEntity);
+                _context.Workplaces.Remove(workplaceEntity);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserEntityExists(int id)
+        private bool WorkplaceEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Workplaces.Any(e => e.Id == id);
         }
     }
 }

@@ -10,23 +10,23 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class UserController : Controller
+    public class AuthTokenController : Controller
     {
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public AuthTokenController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: User
+        // GET: AuthToken
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Users.Include(u => u.UserType);
+            var appDbContext = _context.UserAuthTokens.Include(u => u.User);
             return View(await appDbContext.ToListAsync());
         }
 
-        // GET: User/Details/5
+        // GET: AuthToken/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +34,42 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var userAuthTokenEntity = await _context.UserAuthTokens
+                .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (userAuthTokenEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(userAuthTokenEntity);
         }
 
-        // GET: User/Create
+        // GET: AuthToken/Create
         public IActionResult Create()
         {
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy");
             return View();
         }
 
-        // POST: User/Create
+        // POST: AuthToken/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("UserId,Token,ExpireTime,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthTokenEntity userAuthTokenEntity)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(userEntity);
+                _context.Add(userAuthTokenEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthTokenEntity.UserId);
+            return View(userAuthTokenEntity);
         }
 
-        // GET: User/Edit/5
+        // GET: AuthToken/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +77,23 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity == null)
+            var userAuthTokenEntity = await _context.UserAuthTokens.FindAsync(id);
+            if (userAuthTokenEntity == null)
             {
                 return NotFound();
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthTokenEntity.UserId);
+            return View(userAuthTokenEntity);
         }
 
-        // POST: User/Edit/5
+        // POST: AuthToken/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,Token,ExpireTime,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthTokenEntity userAuthTokenEntity)
         {
-            if (id != userEntity.Id)
+            if (id != userAuthTokenEntity.Id)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(userEntity);
+                    _context.Update(userAuthTokenEntity);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserEntityExists(userEntity.Id))
+                    if (!UserAuthTokenEntityExists(userAuthTokenEntity.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthTokenEntity.UserId);
+            return View(userAuthTokenEntity);
         }
 
-        // GET: User/Delete/5
+        // GET: AuthToken/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +130,35 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var userAuthTokenEntity = await _context.UserAuthTokens
+                .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (userAuthTokenEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(userAuthTokenEntity);
         }
 
-        // POST: User/Delete/5
+        // POST: AuthToken/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity != null)
+            var userAuthTokenEntity = await _context.UserAuthTokens.FindAsync(id);
+            if (userAuthTokenEntity != null)
             {
-                _context.Users.Remove(userEntity);
+                _context.UserAuthTokens.Remove(userAuthTokenEntity);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserEntityExists(int id)
+        private bool UserAuthTokenEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.UserAuthTokens.Any(e => e.Id == id);
         }
     }
 }

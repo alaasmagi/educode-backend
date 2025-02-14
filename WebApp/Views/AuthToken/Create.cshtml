@@ -1,4 +1,4 @@
-@model App.Domain.UserEntity
+@model App.Domain.UserAuthTokenEntity
 
 @{
     ViewData["Title"] = "Create";
@@ -6,35 +6,25 @@
 
 <h1>Create</h1>
 
-<h4>UserEntity</h4>
+<h4>UserAuthTokenEntity</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="UserTypeId" class="control-label"></label>
-                <select asp-for="UserTypeId" class ="form-control" asp-items="ViewBag.UserTypeId"></select>
+                <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="UniId" class="control-label"></label>
-                <input asp-for="UniId" class="form-control" />
-                <span asp-validation-for="UniId" class="text-danger"></span>
+                <label asp-for="Token" class="control-label"></label>
+                <input asp-for="Token" class="form-control" />
+                <span asp-validation-for="Token" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MatriculationNumber" class="control-label"></label>
-                <input asp-for="MatriculationNumber" class="form-control" />
-                <span asp-validation-for="MatriculationNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
+                <label asp-for="ExpireTime" class="control-label"></label>
+                <input asp-for="ExpireTime" class="form-control" />
+                <span asp-validation-for="ExpireTime" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="CreatedBy" class="control-label"></label>

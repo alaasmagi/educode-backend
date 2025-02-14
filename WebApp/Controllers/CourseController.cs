@@ -10,23 +10,22 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class UserController : Controller
+    public class CourseController : Controller
     {
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public CourseController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: User
+        // GET: Course
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Users.Include(u => u.UserType);
-            return View(await appDbContext.ToListAsync());
+            return View(await _context.Courses.ToListAsync());
         }
 
-        // GET: User/Details/5
+        // GET: Course/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +33,39 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var courseEntity = await _context.Courses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (courseEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(courseEntity);
         }
 
-        // GET: User/Create
+        // GET: Course/Create
         public IActionResult Create()
         {
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy");
             return View();
         }
 
-        // POST: User/Create
+        // POST: Course/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(userEntity);
+                _context.Add(courseEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(courseEntity);
         }
 
-        // GET: User/Edit/5
+        // GET: Course/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +73,22 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity == null)
+            var courseEntity = await _context.Courses.FindAsync(id);
+            if (courseEntity == null)
             {
                 return NotFound();
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(courseEntity);
         }
 
-        // POST: User/Edit/5
+        // POST: Course/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
         {
-            if (id != userEntity.Id)
+            if (id != courseEntity.Id)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(userEntity);
+                    _context.Update(courseEntity);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserEntityExists(userEntity.Id))
+                    if (!CourseEntityExists(courseEntity.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +113,10 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            return View(courseEntity);
         }
 
-        // GET: User/Delete/5
+        // GET: Course/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +124,34 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var courseEntity = await _context.Courses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (courseEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(courseEntity);
         }
 
-        // POST: User/Delete/5
+        // POST: Course/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity != null)
+            var courseEntity = await _context.Courses.FindAsync(id);
+            if (courseEntity != null)
             {
-                _context.Users.Remove(userEntity);
+                _context.Courses.Remove(courseEntity);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserEntityExists(int id)
+        private bool CourseEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Courses.Any(e => e.Id == id);
         }
     }
 }

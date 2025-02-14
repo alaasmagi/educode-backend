@@ -10,23 +10,23 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class UserController : Controller
+    public class AttendanceCheckController : Controller
     {
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public AttendanceCheckController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: User
+        // GET: AttendanceCheck
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Users.Include(u => u.UserType);
+            var appDbContext = _context.AttendanceChecks.Include(a => a.Workplace);
             return View(await appDbContext.ToListAsync());
         }
 
-        // GET: User/Details/5
+        // GET: AttendanceCheck/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +34,42 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var attendanceCheckEntity = await _context.AttendanceChecks
+                .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (attendanceCheckEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(attendanceCheckEntity);
         }
 
-        // GET: User/Create
+        // GET: AttendanceCheck/Create
         public IActionResult Create()
         {
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy");
+            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom");
             return View();
         }
 
-        // POST: User/Create
+        // POST: AttendanceCheck/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceCheckEntity attendanceCheckEntity)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(userEntity);
+                _context.Add(attendanceCheckEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            return View(attendanceCheckEntity);
         }
 
-        // GET: User/Edit/5
+        // GET: AttendanceCheck/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +77,23 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity == null)
+            var attendanceCheckEntity = await _context.AttendanceChecks.FindAsync(id);
+            if (attendanceCheckEntity == null)
             {
                 return NotFound();
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            return View(attendanceCheckEntity);
         }
 
-        // POST: User/Edit/5
+        // POST: AttendanceCheck/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserTypeId,UniId,MatriculationNumber,FirstName,LastName,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceCheckEntity attendanceCheckEntity)
         {
-            if (id != userEntity.Id)
+            if (id != attendanceCheckEntity.Id)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(userEntity);
+                    _context.Update(attendanceCheckEntity);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserEntityExists(userEntity.Id))
+                    if (!AttendanceCheckEntityExists(attendanceCheckEntity.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserTypeId"] = new SelectList(_context.UserTypes, "Id", "CreatedBy", userEntity.UserTypeId);
-            return View(userEntity);
+            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            return View(attendanceCheckEntity);
         }
 
-        // GET: User/Delete/5
+        // GET: AttendanceCheck/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +130,35 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await _context.Users
-                .Include(u => u.UserType)
+            var attendanceCheckEntity = await _context.AttendanceChecks
+                .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userEntity == null)
+            if (attendanceCheckEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userEntity);
+            return View(attendanceCheckEntity);
         }
 
-        // POST: User/Delete/5
+        // POST: AttendanceCheck/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity != null)
+            var attendanceCheckEntity = await _context.AttendanceChecks.FindAsync(id);
+            if (attendanceCheckEntity != null)
             {
-                _context.Users.Remove(userEntity);
+                _context.AttendanceChecks.Remove(attendanceCheckEntity);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserEntityExists(int id)
+        private bool AttendanceCheckEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.AttendanceChecks.Any(e => e.Id == id);
         }
     }
 }

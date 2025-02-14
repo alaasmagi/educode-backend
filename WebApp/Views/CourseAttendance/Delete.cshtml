@@ -1,4 +1,4 @@
-@model App.Domain.UserEntity
+@model App.Domain.CourseAttendanceEntity
 
 @{
     ViewData["Title"] = "Delete";
@@ -8,38 +8,38 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>UserEntity</h4>
+    <h4>CourseAttendanceEntity</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserType)
+            @Html.DisplayNameFor(model => model.Course)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserType.CreatedBy)
+            @Html.DisplayFor(model => model.Course.CourseCode)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UniId)
+            @Html.DisplayNameFor(model => model.AttendanceType)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UniId)
+            @Html.DisplayFor(model => model.AttendanceType.AttendanceType)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MatriculationNumber)
+            @Html.DisplayNameFor(model => model.StartTime)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MatriculationNumber)
+            @Html.DisplayFor(model => model.StartTime)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
+            @Html.DisplayNameFor(model => model.EndTime)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
+            @Html.DisplayFor(model => model.EndTime)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
+            @Html.DisplayNameFor(model => model.OnlineRegistration)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
+            @Html.DisplayFor(model => model.OnlineRegistration)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.CreatedBy)

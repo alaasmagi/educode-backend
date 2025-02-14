@@ -1,4 +1,4 @@
-@model IEnumerable<App.Domain.UserEntity>
+@model IEnumerable<App.Domain.CourseEntity>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,19 +13,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.UserType)
+                @Html.DisplayNameFor(model => model.CourseCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UniId)
+                @Html.DisplayNameFor(model => model.CourseName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MatriculationNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                @Html.DisplayNameFor(model => model.CourseValidStatus)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
@@ -46,19 +40,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.UserType.CreatedBy)
+                @Html.DisplayFor(modelItem => item.CourseCode)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UniId)
+                @Html.DisplayFor(modelItem => item.CourseName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MatriculationNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
+                @Html.DisplayFor(modelItem => item.CourseValidStatus)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedBy)
