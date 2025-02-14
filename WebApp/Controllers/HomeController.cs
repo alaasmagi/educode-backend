@@ -4,11 +4,11 @@ using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class HomeController : Controller
+public class AdminPanelController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<AdminPanelController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public AdminPanelController(ILogger<AdminPanelController> logger)
     {
         _logger = logger;
     }
