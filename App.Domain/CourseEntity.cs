@@ -12,5 +12,5 @@ public class CourseEntity : BaseEntity
     public string CourseName { get; set; } = default!;
     public ECourseValidStatus CourseValidStatus { get; set; }
 
-    public ICollection<CourseTeacherEntity> CourseTeacherEntities { get; set; } = new List<CourseTeacherEntity>();
+    public ICollection<CourseTeacherEntity>? CourseTeacherEntities { get; set; }
 }

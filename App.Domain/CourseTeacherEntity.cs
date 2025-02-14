@@ -8,9 +8,9 @@ public class CourseTeacherEntity : BaseEntity
 {
     [ForeignKey("Course")]
     public int CourseId { get; set; }
-    public CourseEntity Course { get; set; } = default!;
+    public CourseEntity? Course { get; set; }
     
     [ForeignKey("Teacher")]
     public int TeacherId { get; set; }
-    public UserEntity Teacher { get; set; } = default!;
+    public UserEntity? Teacher { get; set; }
 }
