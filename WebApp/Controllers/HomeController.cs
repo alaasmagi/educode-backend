@@ -1,26 +1,45 @@
 using System.Diagnostics;
+using App.BLL;
+using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController : Controller
+public class AdminPanelController(ILogger<AdminPanelController> logger) : Controller
 {
-    private readonly ILogger<AdminPanelController> _logger;
+    private readonly ILogger<AdminPanelController> _logger = logger;
+    private AccessManagement access = new();
 
-    public AdminPanelController(ILogger<AdminPanelController> logger)
+    [HttpGet]
+    public IActionResult Index(string? message)
     {
-        _logger = logger;
+        var model = new LoginModel
+        {
+            Message = message ?? string.Empty
+        };
+
+        return View(model);
     }
 
-    public IActionResult Index()
+    [HttpPost]
+    public IActionResult Index([Bind("Username", "Password")] LoginModel model)
     {
-        return View();
+        return !access.AdminAccessGrant(model.Username, model.Password) ? Index("Wrong username or password!") : RedirectToAction("Home");
     }
 
     public IActionResult Privacy()
     {
         return View();
+    }
+
+    public IActionResult Home(string? message)
+    {
+        var model = new LoginModel
+        {
+            Message = message ?? string.Empty
+        };
+        return View(model);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

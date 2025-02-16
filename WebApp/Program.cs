@@ -41,6 +41,8 @@ app.UseSwaggerUI(c => {
 
 app.MapStaticAssets();
 
+app.UseStaticFiles();
+
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=AdminPanel}/{action=Index}/{id?}")
