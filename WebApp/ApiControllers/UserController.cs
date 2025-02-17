@@ -12,27 +12,20 @@ namespace WebApp.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(AppDbContext context) : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public UserController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await context.Users.ToListAsync();
         }
 
         // GET: api/User/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
+            var userEntity = await context.Users.FindAsync(id);
 
             if (userEntity == null)
             {
@@ -52,11 +45,11 @@ namespace WebApp.ApiControllers
                 return BadRequest();
             }
 
-            _context.Entry(userEntity).State = EntityState.Modified;
+            context.Entry(userEntity).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace WebApp.ApiControllers
         [HttpPost]
         public async Task<ActionResult<UserEntity>> PostUserEntity(UserEntity userEntity)
         {
-            _context.Users.Add(userEntity);
-            await _context.SaveChangesAsync();
+            context.Users.Add(userEntity);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserEntity", new { id = userEntity.Id }, userEntity);
         }
@@ -88,21 +81,21 @@ namespace WebApp.ApiControllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserEntity(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
+            var userEntity = await context.Users.FindAsync(id);
             if (userEntity == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(userEntity);
-            await _context.SaveChangesAsync();
+            context.Users.Remove(userEntity);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool UserEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return context.Users.Any(e => e.Id == id);
         }
     }
 }

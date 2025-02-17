@@ -12,27 +12,20 @@ namespace WebApp.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthTokenController : ControllerBase
+    public class AuthTokenController(AppDbContext context) : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public AuthTokenController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/AuthToken
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserAuthTokenEntity>>> GetUserAuthTokens()
         {
-            return await _context.UserAuthTokens.Include(u=> u.User).Include(u=> u.User.UserType).ToListAsync();
+            return await context.UserAuthTokens.Include(u=> u.User).Include(u=> u.User.UserType).ToListAsync();
         }
 
         // GET: api/AuthToken/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserAuthTokenEntity>> GetUserAuthTokenEntity(int id)
         {
-            var userAuthTokenEntity = await _context.UserAuthTokens.FindAsync(id);
+            var userAuthTokenEntity = await context.UserAuthTokens.FindAsync(id);
 
             if (userAuthTokenEntity == null)
             {
@@ -52,11 +45,11 @@ namespace WebApp.ApiControllers
                 return BadRequest();
             }
 
-            _context.Entry(userAuthTokenEntity).State = EntityState.Modified;
+            context.Entry(userAuthTokenEntity).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace WebApp.ApiControllers
         [HttpPost]
         public async Task<ActionResult<UserAuthTokenEntity>> PostUserAuthTokenEntity(UserAuthTokenEntity userAuthTokenEntity)
         {
-            _context.UserAuthTokens.Add(userAuthTokenEntity);
-            await _context.SaveChangesAsync();
+            context.UserAuthTokens.Add(userAuthTokenEntity);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserAuthTokenEntity", new { id = userAuthTokenEntity.Id }, userAuthTokenEntity);
         }
@@ -88,21 +81,21 @@ namespace WebApp.ApiControllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserAuthTokenEntity(int id)
         {
-            var userAuthTokenEntity = await _context.UserAuthTokens.FindAsync(id);
+            var userAuthTokenEntity = await context.UserAuthTokens.FindAsync(id);
             if (userAuthTokenEntity == null)
             {
                 return NotFound();
             }
 
-            _context.UserAuthTokens.Remove(userAuthTokenEntity);
-            await _context.SaveChangesAsync();
+            context.UserAuthTokens.Remove(userAuthTokenEntity);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool UserAuthTokenEntityExists(int id)
         {
-            return _context.UserAuthTokens.Any(e => e.Id == id);
+            return context.UserAuthTokens.Any(e => e.Id == id);
         }
     }
 }
