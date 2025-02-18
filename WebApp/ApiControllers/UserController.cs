@@ -21,11 +21,25 @@ namespace WebApp.ApiControllers
             return await context.Users.ToListAsync();
         }
 
-        // GET: api/User/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
+        // GET: api/User/Id/{userId}
+        [HttpGet("Id/{Id}")]
+        public async Task<ActionResult<UserEntity>> GetUserEntity(int Id)
         {
-            var userEntity = await context.Users.FindAsync(id);
+            var userEntity = await context.Users.FindAsync(Id);
+
+            if (userEntity == null)
+            {
+                return NotFound();
+            }
+
+            return userEntity;
+        }
+        
+        // GET: api/User/UniId/{uniId}
+        [HttpGet("UniId/{uniId}")]
+        public async Task<ActionResult<UserEntity>> GetUserEntity(string uniId)
+        {
+            var userEntity = await context.Users.Include(x => x.UserType).FirstOrDefaultAsync(x => x.UniId == uniId);
 
             if (userEntity == null)
             {
