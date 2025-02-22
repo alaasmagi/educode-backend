@@ -12,8 +12,15 @@ public class AuthBrain
 {
     private readonly IConfiguration _config;
 
+    private readonly string _secret;
+    private readonly string _issuer;
+    private readonly string _audience;
+
     public AuthBrain(IConfiguration config)
     {
+        _secret = config["Jwt:Secret"]!;
+        _issuer = config["Jwt:Issuer"]!;
+        _audience = config["Jwt:Audience"]!;
         _config = config;
     }
 
@@ -39,5 +46,32 @@ public class AuthBrain
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+    
+    public ClaimsPrincipal? ValidateJwtToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWTKEY")!);
+
+        try
+        {
+            var parameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = _issuer,
+                ValidateAudience = true,
+                ValidAudience = _audience,
+                ValidateLifetime = true
+            };
+
+            var principal = tokenHandler.ValidateToken(token, parameters, out _);
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

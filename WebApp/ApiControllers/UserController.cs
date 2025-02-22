@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using App.BLL;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using App.BLL;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
@@ -12,8 +9,9 @@ using WebApp.Models;
 
 namespace WebApp.ApiControllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -42,18 +40,30 @@ namespace WebApp.ApiControllers
             var token = authService.GenerateJwtToken(user);
             return Ok(new { Token = token });
         }
-
         
-
         // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
+        
+        // GET: api/User/UniId/<uni-id>
+        [HttpGet("/UniId/{id}")]
+        public async Task<ActionResult<UserEntity>> GetUserEntityByUniId(string uniId)
+        {
+            var userEntity = await _context.Users.FindAsync(uniId);
 
-        // GET: api/User/5
-        [HttpGet("{id}")]
+            if (userEntity == null)
+            {
+                return NotFound();
+            }
+
+            return userEntity;
+        }
+        
+        // GET: api/User/Id/5
+        [HttpGet("/Id/{id}")]
         public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
         {
             var userEntity = await _context.Users.FindAsync(id);
