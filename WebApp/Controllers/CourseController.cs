@@ -69,7 +69,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,UpdatedBy")] CourseEntity courseEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,6 +78,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                courseEntity.UpdatedAt = DateTime.Now;
+                courseEntity.CreatedAt = DateTime.Now;
                 _context.Add(courseEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +113,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseEntity courseEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -127,6 +129,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    courseEntity.UpdatedAt = DateTime.Now;
                     _context.Update(courseEntity);
                     await _context.SaveChangesAsync();
                 }

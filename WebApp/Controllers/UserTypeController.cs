@@ -69,7 +69,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,UpdatedBy")] UserTypeEntity userTypeEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,6 +78,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                userTypeEntity.UpdatedAt = DateTime.Now;
+                userTypeEntity.CreatedAt = DateTime.Now;
                 _context.Add(userTypeEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +113,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy")] UserTypeEntity userTypeEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -127,6 +129,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    userTypeEntity.UpdatedAt = DateTime.Now;
                     _context.Update(userTypeEntity);
                     await _context.SaveChangesAsync();
                 }

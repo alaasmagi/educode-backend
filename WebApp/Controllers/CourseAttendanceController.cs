@@ -74,7 +74,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseAttendanceEntity courseAttendanceEntity)
+        public async Task<IActionResult> Create([Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -83,6 +83,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                courseAttendanceEntity.UpdatedAt = DateTime.Now;
+                courseAttendanceEntity.CreatedAt = DateTime.Now;
                 _context.Add(courseAttendanceEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -120,7 +122,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseAttendanceEntity courseAttendanceEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -136,6 +138,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    courseAttendanceEntity.UpdatedAt = DateTime.Now;
                     _context.Update(courseAttendanceEntity);
                     await _context.SaveChangesAsync();
                 }

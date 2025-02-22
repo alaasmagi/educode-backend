@@ -63,7 +63,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewData["UserId"] = new SelectList(_context.Users, "User", "User");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode");
             return View();
         }
 
@@ -72,7 +72,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthEntity userAuthEntity)
+        public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,UpdatedBy")] UserAuthEntity userAuthEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -81,11 +81,13 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                userAuthEntity.UpdatedAt = DateTime.Now;
+                userAuthEntity.CreatedAt = DateTime.Now;
                 _context.Add(userAuthEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "User", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 
@@ -107,7 +109,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode");
             return View(userAuthEntity);
         }
 
@@ -116,7 +118,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthEntity userAuthEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy")] UserAuthEntity userAuthEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -132,6 +134,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    userAuthEntity.UpdatedAt = DateTime.Now;
                     _context.Update(userAuthEntity);
                     await _context.SaveChangesAsync();
                 }
@@ -148,7 +151,7 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 

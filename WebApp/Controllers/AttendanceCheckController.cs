@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebApp.Controllers
 {
@@ -69,7 +70,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Create([Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,6 +79,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                attendanceCheckEntity.UpdatedAt = DateTime.Now;
+                attendanceCheckEntity.CreatedAt = DateTime.Now;
                 _context.Add(attendanceCheckEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -113,7 +116,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -129,6 +132,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    attendanceCheckEntity.UpdatedAt = DateTime.Now;
                     _context.Update(attendanceCheckEntity);
                     await _context.SaveChangesAsync();
                 }

@@ -69,7 +69,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Create([Bind("ClassRoom,ComputerCode,Id,CreatedBy,UpdatedBy")] WorkplaceEntity workplaceEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,6 +78,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                workplaceEntity.UpdatedAt = DateTime.Now;
+                workplaceEntity.CreatedAt = DateTime.Now;
                 _context.Add(workplaceEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +113,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy")] WorkplaceEntity workplaceEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -127,6 +129,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    workplaceEntity.UpdatedAt = DateTime.Now;
                     _context.Update(workplaceEntity);
                     await _context.SaveChangesAsync();
                 }

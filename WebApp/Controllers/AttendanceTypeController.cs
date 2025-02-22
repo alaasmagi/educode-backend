@@ -69,7 +69,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceTypeEntity attendanceTypeEntity)
+        public async Task<IActionResult> Create([Bind("AttendanceType,Id,CreatedBy,UpdatedBy")] AttendanceTypeEntity attendanceTypeEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,6 +78,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
+                attendanceTypeEntity.UpdatedAt = DateTime.Now;
+                attendanceTypeEntity.CreatedAt = DateTime.Now;
                 _context.Add(attendanceTypeEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +113,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] AttendanceTypeEntity attendanceTypeEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy")] AttendanceTypeEntity attendanceTypeEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -127,6 +129,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    attendanceTypeEntity.UpdatedAt = DateTime.Now;
                     _context.Update(attendanceTypeEntity);
                     await _context.SaveChangesAsync();
                 }
