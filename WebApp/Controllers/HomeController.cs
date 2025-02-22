@@ -10,8 +10,7 @@ namespace WebApp.Controllers;
 public class AdminPanelController : BaseController
 {
     private readonly ILogger<AdminPanelController> _logger;
-    private readonly AccessManagement _access;
-    private readonly UserManagement _userService;
+    private readonly AdminAccessManagement _access;
     private readonly AuthBrain _auth;
     public AdminPanelController(
         ILogger<AdminPanelController> logger,
@@ -19,9 +18,8 @@ public class AdminPanelController : BaseController
         IConfiguration configuration)
     {
         _logger = logger;
-        _userService = new UserManagement(context);
         _auth = new AuthBrain(configuration);
-        _access = new AccessManagement();
+        _access = new AdminAccessManagement();
     }
 
     [HttpGet]

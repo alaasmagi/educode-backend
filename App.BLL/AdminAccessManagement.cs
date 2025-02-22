@@ -4,7 +4,7 @@ using System.Text;
 namespace App.BLL;
 using BCrypt.Net;
 
-public class AccessManagement
+public class AdminAccessManagement
 {
     public bool AdminAccessGrant(string enteredUsername, string enteredPassword)
     {
@@ -34,7 +34,7 @@ public class AccessManagement
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
-
+    
     public bool CompareHashedTokens(string inputToken, string hashedInputToken)
     {
         var hashedToken = GetHashedAdminAccessToken(inputToken);

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -27,8 +23,8 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var appDbContext = _context.Users.Include(u => u.UserType);
-            return View(await appDbContext.ToListAsync());
+            var users = _context.Users.Include(u => u.UserType);
+            return View(await users.ToListAsync());
         }
 
         // GET: User/Details/5

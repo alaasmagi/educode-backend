@@ -5,7 +5,7 @@ namespace WebApp.Controllers;
 
 public class BaseController : Controller
 {
-    private readonly AccessManagement _access = new AccessManagement();
+    private readonly AdminAccessManagement _access = new AdminAccessManagement();
     public bool IsTokenValid(HttpContext httpContext)
     {
         var sessionToken = httpContext.Session.GetString("token");
