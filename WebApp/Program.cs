@@ -1,26 +1,52 @@
 using App.DAL.EF;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using App.BLL;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddSwaggerGen();
+
 
 DotNetEnv.Env.Load("../.env");
 var host = Environment.GetEnvironmentVariable("HOST");
 var port = Environment.GetEnvironmentVariable("PORT");
 var user = Environment.GetEnvironmentVariable("DB");
-var key = Environment.GetEnvironmentVariable("KEY");
+var dbKey = Environment.GetEnvironmentVariable("KEY");
 
-var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={key};";
+var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={dbKey};";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true
+        };
+    });
+builder.Services.AddAuthorization(); 
+builder.Services.AddControllersWithViews();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -30,6 +56,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseSession();
 app.UseRouting();
 
 app.UseAuthorization();
@@ -48,5 +75,6 @@ app.MapControllerRoute(
         pattern: "{controller=AdminPanel}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

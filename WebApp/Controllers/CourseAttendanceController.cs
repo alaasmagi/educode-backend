@@ -10,7 +10,7 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class CourseAttendanceController : Controller
+    public class CourseAttendanceController : BaseController
     {
         private readonly AppDbContext _context;
 
@@ -22,6 +22,11 @@ namespace WebApp.Controllers
         // GET: CourseAttendance
         public async Task<IActionResult> Index()
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             var appDbContext = _context.CourseAttendances.Include(c => c.AttendanceType).Include(c => c.Course);
             return View(await appDbContext.ToListAsync());
         }
@@ -29,6 +34,11 @@ namespace WebApp.Controllers
         // GET: CourseAttendance/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id == null)
             {
                 return NotFound();
@@ -49,6 +59,11 @@ namespace WebApp.Controllers
         // GET: CourseAttendance/Create
         public IActionResult Create()
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             ViewData["AttendanceTypeId"] = new SelectList(_context.AttendanceTypes, "Id", "AttendanceType");
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode");
             return View();
@@ -61,6 +76,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseAttendanceEntity courseAttendanceEntity)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (ModelState.IsValid)
             {
                 _context.Add(courseAttendanceEntity);
@@ -75,6 +95,11 @@ namespace WebApp.Controllers
         // GET: CourseAttendance/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }            
+            
             if (id == null)
             {
                 return NotFound();
@@ -97,6 +122,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseAttendanceEntity courseAttendanceEntity)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id != courseAttendanceEntity.Id)
             {
                 return NotFound();
@@ -130,6 +160,11 @@ namespace WebApp.Controllers
         // GET: CourseAttendance/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id == null)
             {
                 return NotFound();
@@ -152,6 +187,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             var courseAttendanceEntity = await _context.CourseAttendances.FindAsync(id);
             if (courseAttendanceEntity != null)
             {

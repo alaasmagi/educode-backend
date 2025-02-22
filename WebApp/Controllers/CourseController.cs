@@ -10,7 +10,7 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class CourseController : Controller
+    public class CourseController : BaseController
     {
         private readonly AppDbContext _context;
 
@@ -22,12 +22,22 @@ namespace WebApp.Controllers
         // GET: Course
         public async Task<IActionResult> Index()
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             return View(await _context.Courses.ToListAsync());
         }
 
         // GET: Course/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id == null)
             {
                 return NotFound();
@@ -46,6 +56,11 @@ namespace WebApp.Controllers
         // GET: Course/Create
         public IActionResult Create()
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             return View();
         }
 
@@ -56,6 +71,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (ModelState.IsValid)
             {
                 _context.Add(courseEntity);
@@ -68,6 +88,11 @@ namespace WebApp.Controllers
         // GET: Course/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id == null)
             {
                 return NotFound();
@@ -88,6 +113,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] CourseEntity courseEntity)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id != courseEntity.Id)
             {
                 return NotFound();
@@ -119,6 +149,11 @@ namespace WebApp.Controllers
         // GET: Course/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             if (id == null)
             {
                 return NotFound();
@@ -139,6 +174,11 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!IsTokenValid(HttpContext))
+            {
+                return Unauthorized("You cannot access admin panel without logging in!");
+            }
+            
             var courseEntity = await _context.Courses.FindAsync(id);
             if (courseEntity != null)
             {

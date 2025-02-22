@@ -12,9 +12,7 @@ public class UserEntity : BaseEntity
     [MaxLength(128)]
     public string UniId { get; set; } = default!;
     [MaxLength(128)]
-    public string? MatriculationNumber { get; set; }
-    [MaxLength(128)]
-    public string FirstName { get; set; } = default!;
-    [MaxLength(128)]
-    public string LastName { get; set; } = default!;
+    public string? StudentCode { get; set; }
+    [MaxLength(255)]
+    public string FullName { get; set; } = default!;
 }

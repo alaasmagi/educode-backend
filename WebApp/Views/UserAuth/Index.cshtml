@@ -1,4 +1,4 @@
-@model IEnumerable<App.Domain.UserAuthTokenEntity>
+@model IEnumerable<App.Domain.UserAuthEntity>
 
 @{
     ViewData["Title"] = "Index";
@@ -16,10 +16,7 @@
                 @Html.DisplayNameFor(model => model.User)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Token)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ExpireTime)
+                @Html.DisplayNameFor(model => model.PasswordHash)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
@@ -43,10 +40,7 @@
                 @Html.DisplayFor(modelItem => item.User.CreatedBy)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Token)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExpireTime)
+                @Html.DisplayFor(modelItem => item.PasswordHash)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedBy)

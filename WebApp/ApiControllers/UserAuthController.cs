@@ -12,47 +12,47 @@ namespace WebApp.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserAuthController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public UserAuthController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/User
+        // GET: api/UserAuth
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserAuthEntity>>> GetUserAuthData()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.UserAuthData.ToListAsync();
         }
 
-        // GET: api/User/5
+        // GET: api/UserAuth/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
+        public async Task<ActionResult<UserAuthEntity>> GetUserAuthEntity(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
+            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
 
-            if (userEntity == null)
+            if (userAuthEntity == null)
             {
                 return NotFound();
             }
 
-            return userEntity;
+            return userAuthEntity;
         }
 
-        // PUT: api/User/5
+        // PUT: api/UserAuth/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserEntity(int id, UserEntity userEntity)
+        public async Task<IActionResult> PutUserAuthEntity(int id, UserAuthEntity userAuthEntity)
         {
-            if (id != userEntity.Id)
+            if (id != userAuthEntity.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(userEntity).State = EntityState.Modified;
+            _context.Entry(userAuthEntity).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace WebApp.ApiControllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserEntityExists(id))
+                if (!UserAuthEntityExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace WebApp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/User
+        // POST: api/UserAuth
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserEntity>> PostUserEntity(UserEntity userEntity)
+        public async Task<ActionResult<UserAuthEntity>> PostUserAuthEntity(UserAuthEntity userAuthEntity)
         {
-            _context.Users.Add(userEntity);
+            _context.UserAuthData.Add(userAuthEntity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserEntity", new { id = userEntity.Id }, userEntity);
+            return CreatedAtAction("GetUserAuthEntity", new { id = userAuthEntity.Id }, userAuthEntity);
         }
 
-        // DELETE: api/User/5
+        // DELETE: api/UserAuth/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserEntity(int id)
+        public async Task<IActionResult> DeleteUserAuthEntity(int id)
         {
-            var userEntity = await _context.Users.FindAsync(id);
-            if (userEntity == null)
+            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
+            if (userAuthEntity == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(userEntity);
+            _context.UserAuthData.Remove(userAuthEntity);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserEntityExists(int id)
+        private bool UserAuthEntityExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.UserAuthData.Any(e => e.Id == id);
         }
     }
 }

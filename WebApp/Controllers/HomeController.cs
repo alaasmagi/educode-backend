@@ -1,15 +1,28 @@
 using System.Diagnostics;
 using App.BLL;
+using App.DAL.EF;
 using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController(ILogger<AdminPanelController> logger) : Controller
+public class AdminPanelController : BaseController
 {
-    private readonly ILogger<AdminPanelController> _logger = logger;
-    private AccessManagement access = new();
+    private readonly ILogger<AdminPanelController> _logger;
+    private readonly AccessManagement _access;
+    private readonly UserManagement _userService;
+    private readonly AuthBrain _auth;
+    public AdminPanelController(
+        ILogger<AdminPanelController> logger,
+        AppDbContext context,
+        IConfiguration configuration)
+    {
+        _logger = logger;
+        _userService = new UserManagement(context);
+        _auth = new AuthBrain(configuration);
+        _access = new AccessManagement();
+    }
 
     [HttpGet]
     public IActionResult Index(string? message)
@@ -25,7 +38,13 @@ public class AdminPanelController(ILogger<AdminPanelController> logger) : Contro
     [HttpPost]
     public IActionResult Index([Bind("Username", "Password")] LoginModel model)
     {
-        return !access.AdminAccessGrant(model.Username, model.Password) ? Index("Wrong username or password!") : RedirectToAction("Home");
+        if (!_access.AdminAccessGrant(model.Username, model.Password))
+        {
+            return Index("Wrong username or password!");
+        }
+        
+        SetTokens();
+        return  RedirectToAction("Home");
     }
 
     public IActionResult Privacy()
@@ -35,6 +54,11 @@ public class AdminPanelController(ILogger<AdminPanelController> logger) : Contro
 
     public IActionResult Home(string? message)
     {
+        if (!IsTokenValid(HttpContext))
+        {
+            return Unauthorized("You cannot access admin panel without logging in!");
+        }
+        
         var model = new LoginModel
         {
             Message = message ?? string.Empty

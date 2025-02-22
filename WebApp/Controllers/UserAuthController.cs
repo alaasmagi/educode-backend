@@ -10,16 +10,16 @@ using App.Domain;
 
 namespace WebApp.Controllers
 {
-    public class WorkplaceController : BaseController
+    public class UserAuthController : BaseController
     {
         private readonly AppDbContext _context;
 
-        public WorkplaceController(AppDbContext context)
+        public UserAuthController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: Workplace
+        // GET: UserAuth
         public async Task<IActionResult> Index()
         {
             if (!IsTokenValid(HttpContext))
@@ -27,10 +27,11 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await _context.Workplaces.ToListAsync());
+            var appDbContext = _context.UserAuthData.Include(u => u.User);
+            return View(await appDbContext.ToListAsync());
         }
 
-        // GET: Workplace/Details/5
+        // GET: UserAuth/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (!IsTokenValid(HttpContext))
@@ -43,17 +44,18 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces
+            var userAuthEntity = await _context.UserAuthData
+                .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (workplaceEntity == null)
+            if (userAuthEntity == null)
             {
                 return NotFound();
             }
 
-            return View(workplaceEntity);
+            return View(userAuthEntity);
         }
 
-        // GET: Workplace/Create
+        // GET: UserAuth/Create
         public IActionResult Create()
         {
             if (!IsTokenValid(HttpContext))
@@ -61,15 +63,16 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy");
             return View();
         }
 
-        // POST: Workplace/Create
+        // POST: UserAuth/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthEntity userAuthEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
@@ -78,14 +81,15 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(workplaceEntity);
+                _context.Add(userAuthEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(workplaceEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthEntity.UserId);
+            return View(userAuthEntity);
         }
 
-        // GET: Workplace/Edit/5
+        // GET: UserAuth/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (!IsTokenValid(HttpContext))
@@ -98,27 +102,28 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces.FindAsync(id);
-            if (workplaceEntity == null)
+            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
+            if (userAuthEntity == null)
             {
                 return NotFound();
             }
-            return View(workplaceEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthEntity.UserId);
+            return View(userAuthEntity);
         }
 
-        // POST: Workplace/Edit/5
+        // POST: UserAuth/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt")] UserAuthEntity userAuthEntity)
         {
             if (!IsTokenValid(HttpContext))
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            if (id != workplaceEntity.Id)
+            if (id != userAuthEntity.Id)
             {
                 return NotFound();
             }
@@ -127,12 +132,12 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(workplaceEntity);
+                    _context.Update(userAuthEntity);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!WorkplaceEntityExists(workplaceEntity.Id))
+                    if (!UserAuthEntityExists(userAuthEntity.Id))
                     {
                         return NotFound();
                     }
@@ -143,10 +148,11 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(workplaceEntity);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "CreatedBy", userAuthEntity.UserId);
+            return View(userAuthEntity);
         }
 
-        // GET: Workplace/Delete/5
+        // GET: UserAuth/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (!IsTokenValid(HttpContext))
@@ -159,17 +165,18 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces
+            var userAuthEntity = await _context.UserAuthData
+                .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (workplaceEntity == null)
+            if (userAuthEntity == null)
             {
                 return NotFound();
             }
 
-            return View(workplaceEntity);
+            return View(userAuthEntity);
         }
 
-        // POST: Workplace/Delete/5
+        // POST: UserAuth/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -179,19 +186,19 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var workplaceEntity = await _context.Workplaces.FindAsync(id);
-            if (workplaceEntity != null)
+            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
+            if (userAuthEntity != null)
             {
-                _context.Workplaces.Remove(workplaceEntity);
+                _context.UserAuthData.Remove(userAuthEntity);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool WorkplaceEntityExists(int id)
+        private bool UserAuthEntityExists(int id)
         {
-            return _context.Workplaces.Any(e => e.Id == id);
+            return _context.UserAuthData.Any(e => e.Id == id);
         }
     }
 }

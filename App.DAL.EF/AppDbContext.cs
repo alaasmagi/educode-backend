@@ -12,7 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<UserTypeEntity> UserTypes { get; set; }
     public DbSet<WorkplaceEntity> Workplaces { get; set; }
-    public DbSet<UserAuthTokenEntity> UserAuthTokens { get; set; }
+    public DbSet<UserAuthEntity> UserAuthData { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // UserEntity relationship
@@ -23,7 +23,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(u => u.UserTypeId);
         
         // UserAuthToken relationship
-        modelBuilder.Entity<UserAuthTokenEntity>()
+        modelBuilder.Entity<UserAuthEntity>()
             .ToTable("UserAuthTokens")
             .HasOne(u => u.User)
             .WithMany()

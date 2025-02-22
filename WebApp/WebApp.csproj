@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,6 +30,19 @@
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\User\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\User\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\User\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\User\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\User\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\AuthToken\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\AuthToken\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\AuthToken\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\AuthToken\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\AuthToken\Index.cshtml" />
     </ItemGroup>
 
 </Project>

@@ -227,7 +227,7 @@ namespace App.DAL.EF.Migrations
                     b.ToTable("CourseTeachers", (string)null);
                 });
 
-            modelBuilder.Entity("App.Domain.UserAuthTokenEntity", b =>
+            modelBuilder.Entity("App.Domain.UserAuthEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -243,10 +243,7 @@ namespace App.DAL.EF.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<DateTime>("ExpireTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Token")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
@@ -285,17 +282,12 @@ namespace App.DAL.EF.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<string>("FirstName")
+                    b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("varchar(128)");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("varchar(128)");
-
-                    b.Property<string>("MatriculationNumber")
+                    b.Property<string>("StudentCode")
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
@@ -448,7 +440,7 @@ namespace App.DAL.EF.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("App.Domain.UserAuthTokenEntity", b =>
+            modelBuilder.Entity("App.Domain.UserAuthEntity", b =>
                 {
                     b.HasOne("App.Domain.UserEntity", "User")
                         .WithMany()
