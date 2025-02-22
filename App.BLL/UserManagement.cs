@@ -22,8 +22,8 @@ public class UserManagement
         {
             return null;
         }
-
-        return VerifyPasswordHash(password, userAuthData.PasswordHash) ? userAuthData.User! : null;
+        
+        return password == userAuthData.PasswordHash ? userAuthData.User! : null;
     }
     
     private bool VerifyPasswordHash(string enteredPassword, string storedHash)

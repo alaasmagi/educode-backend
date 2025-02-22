@@ -20,14 +20,14 @@ public class AuthBrain
     public string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+        var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWTKEY")!);
 
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.UserData, user.UniId),
             new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.Role, user.UserType!.UserType)
+            new Claim(ClaimTypes.Role, user.UserType?.UserType ?? "User")
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor

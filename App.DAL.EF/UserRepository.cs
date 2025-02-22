@@ -23,7 +23,7 @@ public class UserRepository (AppDbContext context)
     public UserAuthEntity? GetUserAuthEntityByUniIdOrStudentCode(string input)
     {
         return context.UserAuthData
-            .Include(ua => ua.User) 
+            .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
             .FirstOrDefault(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
     }
 }
