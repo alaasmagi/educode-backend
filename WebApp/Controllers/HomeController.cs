@@ -25,7 +25,7 @@ public class AdminPanelController : BaseController
     [HttpGet]
     public IActionResult Index(string? message)
     {
-        var model = new LoginModel
+        var model = new AdminLoginModel
         {
             Message = message ?? string.Empty
         };
@@ -34,7 +34,7 @@ public class AdminPanelController : BaseController
     }
 
     [HttpPost]
-    public IActionResult Index([Bind("Username", "Password")] LoginModel model)
+    public IActionResult Index([Bind("Username", "Password")] AdminLoginModel model)
     {
         if (!_access.AdminAccessGrant(model.Username, model.Password))
         {
@@ -57,7 +57,7 @@ public class AdminPanelController : BaseController
             return Unauthorized("You cannot access admin panel without logging in!");
         }
         
-        var model = new LoginModel
+        var model = new AdminLoginModel
         {
             Message = message ?? string.Empty
         };

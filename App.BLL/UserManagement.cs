@@ -5,16 +5,18 @@ namespace App.BLL;
 
 public class UserManagement
 {
-    private static AppDbContext _context = default!;
+    private readonly AppDbContext _context;
+    private readonly UserRepository User;
+
     public UserManagement(AppDbContext context)
     {
         _context = context;
+        User = new UserRepository(_context); 
     }
-    private static readonly UserRepository User = new UserRepository(_context);
     
-    public UserEntity? AuthenticateUser(string username, string password)
+    public UserEntity? AuthenticateUser(string uniId, string password)
     {
-        var userAuthData = User.GetUserAuthEntityByUsername(username);
+        var userAuthData = User.GetUserAuthEntityByUniIdOrStudentCode(uniId);
 
         if (userAuthData == null)
         {

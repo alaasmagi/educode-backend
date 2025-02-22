@@ -1,6 +1,5 @@
 ﻿using App.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace App.DAL.EF;
 
@@ -21,10 +20,10 @@ public class UserRepository (AppDbContext context)
     
     
     // Business logic DB extensions
-    public UserAuthEntity? GetUserAuthEntityByUsername(string username)
+    public UserAuthEntity? GetUserAuthEntityByUniIdOrStudentCode(string input)
     {
         return context.UserAuthData
             .Include(ua => ua.User) 
-            .FirstOrDefault(ua => ua.User!.UniId == username || ua.User.StudentCode == username);
+            .FirstOrDefault(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
     }
 }

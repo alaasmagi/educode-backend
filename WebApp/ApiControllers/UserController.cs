@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using App.BLL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using WebApp.Models;
 
 namespace WebApp.ApiControllers
 {
@@ -15,11 +17,33 @@ namespace WebApp.ApiControllers
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly UserManagement userManagement;
+        private readonly AuthBrain authService;
 
-        public UserController(AppDbContext context)
+        public UserController(AppDbContext context, IConfiguration configuration)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        
+            userManagement = new UserManagement(_context);
+            authService = new AuthBrain(config);
         }
+        
+        
+        [HttpPost("Login")]
+        public IActionResult Login([FromBody] LoginModel model)
+        {
+            var user = userManagement.AuthenticateUser(model.UniId, model.PasswordHash);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid UNI-ID or password" });
+            }
+
+            var token = authService.GenerateJwtToken(user);
+            return Ok(new { Token = token });
+        }
+
+        
 
         // GET: api/User
         [HttpGet]

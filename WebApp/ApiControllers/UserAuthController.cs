@@ -21,6 +21,7 @@ namespace WebApp.ApiControllers
             _context = context;
         }
 
+        
         // GET: api/UserAuth
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserAuthEntity>>> GetUserAuthData()
@@ -99,6 +100,8 @@ namespace WebApp.ApiControllers
 
             return NoContent();
         }
+        
+        
 
         private bool UserAuthEntityExists(int id)
         {

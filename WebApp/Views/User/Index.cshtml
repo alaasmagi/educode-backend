@@ -8,13 +8,14 @@
 <h4>UserEntity</h4>
 
 <p>
+    <a asp-controller="AdminPanel" asp-action="Home">Go back</a>
     <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.UserType)
+                @Html.DisplayNameFor(model => model.UserType!.UserType)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UniId)
@@ -44,7 +45,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.UserType.CreatedBy)
+                @Html.DisplayFor(modelItem => item.UserType!.UserType)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UniId)
