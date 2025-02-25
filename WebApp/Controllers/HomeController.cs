@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using App.BLL;
 using App.DAL.EF;
-using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 
@@ -27,6 +26,8 @@ public class AdminPanelController : BaseController
     {
         var model = new AdminLoginModel
         {
+            Username = string.Empty,
+            Password = string.Empty,
             Message = message ?? string.Empty
         };
 
@@ -59,6 +60,8 @@ public class AdminPanelController : BaseController
         
         var model = new AdminLoginModel
         {
+            Username = string.Empty,
+            Password = string.Empty,
             Message = message ?? string.Empty
         };
         return View(model);
