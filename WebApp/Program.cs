@@ -21,6 +21,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
+var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
+var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -31,9 +33,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey!)),
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidIssuer = jwtIss,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidAudience = jwtAud,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
@@ -63,7 +65,6 @@ app.UseHttpsRedirection();
 app.UseSession();
 app.UseRouting();
 
-app.UseAuthorization();
 
 app.UseSwagger();
 app.UseSwaggerUI(c => {

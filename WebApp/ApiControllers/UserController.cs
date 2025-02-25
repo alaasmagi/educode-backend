@@ -50,10 +50,11 @@ namespace WebApp.ApiControllers
         
         // GET: api/User/UniId/<uni-id>
         [Authorize]
-        [HttpGet("UniId/{id}")]
+        [HttpGet("UniId/{uniId}")]
         public async Task<ActionResult<UserEntity>> GetUserEntityByUniId(string uniId)
         {
-            var userEntity = await _context.Users.FindAsync(uniId);
+            var userEntity = await _context.Users.Include(x => x.UserType)
+                .FirstOrDefaultAsync(x => x.UniId == uniId);
 
             if (userEntity == null)
             {

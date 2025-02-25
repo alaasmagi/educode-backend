@@ -11,16 +11,9 @@ namespace App.BLL;
 public class AuthBrain
 {
     private readonly IConfiguration _config;
-
-    private readonly string _secret;
-    private readonly string _issuer;
-    private readonly string _audience;
-
+    
     public AuthBrain(IConfiguration config)
     {
-        _secret = config["Jwt:Secret"]!;
-        _issuer = config["Jwt:Issuer"]!;
-        _audience = config["Jwt:Audience"]!;
         _config = config;
     }
 
@@ -40,7 +33,9 @@ public class AuthBrain
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(2),
+            Expires = DateTime.UtcNow.AddDays(30),
+            Issuer = Environment.GetEnvironmentVariable("JWTISS")!,
+            Audience = Environment.GetEnvironmentVariable("JWTAUD")!,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
 
@@ -60,9 +55,9 @@ public class AuthBrain
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = _issuer,
+                ValidIssuer = Environment.GetEnvironmentVariable("JWTISS")!,
                 ValidateAudience = true,
-                ValidAudience = _audience,
+                ValidAudience = Environment.GetEnvironmentVariable("JWTAUD")!,
                 ValidateLifetime = true
             };
 
