@@ -9,7 +9,6 @@ using WebApp.Models;
 
 namespace WebApp.ApiControllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -42,6 +41,7 @@ namespace WebApp.ApiControllers
         }
         
         // GET: api/User
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
         {
@@ -49,7 +49,8 @@ namespace WebApp.ApiControllers
         }
         
         // GET: api/User/UniId/<uni-id>
-        [HttpGet("/UniId/{id}")]
+        [Authorize]
+        [HttpGet("UniId/{id}")]
         public async Task<ActionResult<UserEntity>> GetUserEntityByUniId(string uniId)
         {
             var userEntity = await _context.Users.FindAsync(uniId);
@@ -63,7 +64,8 @@ namespace WebApp.ApiControllers
         }
         
         // GET: api/User/Id/5
-        [HttpGet("/Id/{id}")]
+        [Authorize]
+        [HttpGet("Id/{id}")]
         public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
         {
             var userEntity = await _context.Users.FindAsync(id);
@@ -78,6 +80,7 @@ namespace WebApp.ApiControllers
 
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUserEntity(int id, UserEntity userEntity)
         {
@@ -109,6 +112,7 @@ namespace WebApp.ApiControllers
 
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<UserEntity>> PostUserEntity(UserEntity userEntity)
         {
@@ -119,6 +123,7 @@ namespace WebApp.ApiControllers
         }
 
         // DELETE: api/User/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserEntity(int id)
         {
