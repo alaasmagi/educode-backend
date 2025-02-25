@@ -2,6 +2,6 @@
 
 public class LoginModel
 {
-    public string UniId { get; set; }
-    public string PasswordHash { get; set; }
+    public required string UniId { get; set; }
+    public required string PasswordHash { get; set; }
 }
