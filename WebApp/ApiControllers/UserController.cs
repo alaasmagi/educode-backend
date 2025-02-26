@@ -30,7 +30,7 @@ namespace WebApp.ApiControllers
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginModel model)
         {
-            var user = userManagement.AuthenticateUser(model.UniId, model.PasswordHash);
+            var user = userManagement.AuthenticateUser(model.UniId, model.Password);
             if (user == null)
             {
                 return Unauthorized(new { message = "Invalid UNI-ID or password" });
