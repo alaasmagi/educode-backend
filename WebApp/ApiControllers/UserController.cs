@@ -40,6 +40,39 @@ namespace WebApp.ApiControllers
             return Ok(new { Token = token });
         }
         
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody] CreateAccountModel model)
+        {
+            UserTypeEntity? userType = userManagement.GetUserType(model.UserRole);
+            UserEntity newUser = new UserEntity();
+            UserAuthEntity newUserAuth = new UserAuthEntity();
+            
+            if (userType == null || !ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            
+            newUser.UniId = model.UniId;
+            newUser.FullName = model.Fullname;
+            newUser.StudentCode = model.StudentCode;
+            newUser.UserTypeId = userType.Id;
+            newUser.UserType = userType;
+            newUser.CreatedBy = model.Creator;
+            newUser.UpdatedBy = model.Creator;
+            newUserAuth.CreatedBy = model.Creator;
+            newUserAuth.UpdatedBy = model.Creator;
+            
+            newUserAuth.PasswordHash = userManagement.GetPasswordHash(model.Password);
+
+            if (!userManagement.CreateAccount(newUser, newUserAuth))
+            {
+                return BadRequest();
+            }
+            
+            var token = authService.GenerateJwtToken(newUser);
+            return Ok(new { Token = token });
+        }
+        
         // GET: api/User
         [Authorize]
         [HttpGet]

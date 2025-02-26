@@ -15,7 +15,6 @@ public class BaseController : Controller
         {
             return false;
         }
-        bool kj = _access.CompareHashedTokens(sessionToken, hashedSessionToken);
         return _access.CompareHashedTokens(sessionToken, hashedSessionToken);
     }
 

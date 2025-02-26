@@ -42,7 +42,7 @@ public class AuthBrain
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
-    
+
     public ClaimsPrincipal? ValidateJwtToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
