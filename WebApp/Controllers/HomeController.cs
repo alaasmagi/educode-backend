@@ -46,6 +46,12 @@ public class AdminPanelController : BaseController
         return  RedirectToAction("Home");
     }
 
+    public IActionResult LogOut()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToAction("Index");
+    }
+
     public IActionResult Privacy()
     {
         return View();

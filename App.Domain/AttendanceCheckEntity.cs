@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Base.Domain;
 
 namespace App.Domain;
 
 public class AttendanceCheckEntity : BaseEntity
 {
+    [Required]
     public int StudentId { get; set; }
+    [Required]
     public int CourseAttendanceId { get; set; }
     public int? WorkplaceId { get; set; }
     public WorkplaceEntity? Workplace { get; set; }

@@ -6,6 +6,7 @@ namespace App.Domain;
 
 public class UserTypeEntity : BaseEntity
 {
+    [Required]
     [MaxLength(128)]
     public string UserType { get; set; } = default!;
     

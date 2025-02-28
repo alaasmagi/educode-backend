@@ -261,7 +261,8 @@ namespace App.DAL.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("UserAuthTokens", (string)null);
                 });
@@ -288,6 +289,7 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("StudentCode")
+                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
@@ -304,10 +306,19 @@ namespace App.DAL.EF.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
-                    b.Property<int?>("UserTypeId")
+                    b.Property<int>("UserTypeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FullName")
+                        .IsUnique();
+
+                    b.HasIndex("StudentCode")
+                        .IsUnique();
+
+                    b.HasIndex("UniId")
+                        .IsUnique();
 
                     b.HasIndex("UserTypeId");
 
@@ -455,7 +466,9 @@ namespace App.DAL.EF.Migrations
                 {
                     b.HasOne("App.Domain.UserTypeEntity", "UserType")
                         .WithMany()
-                        .HasForeignKey("UserTypeId");
+                        .HasForeignKey("UserTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("UserType");
                 });

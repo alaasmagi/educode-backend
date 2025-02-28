@@ -5,8 +5,10 @@ namespace App.Domain;
 
 public class WorkplaceEntity : BaseEntity
 {
+    [Required]
     [MaxLength(128)]
     public string ClassRoom { get; set; } = default!;
+    [Required]
     [MaxLength(128)]
     public string ComputerCode { get; set; } = default!;
 }

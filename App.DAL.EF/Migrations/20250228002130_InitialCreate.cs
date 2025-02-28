@@ -146,10 +146,10 @@ namespace App.DAL.EF.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserTypeId = table.Column<int>(type: "int", nullable: true),
+                    UserTypeId = table.Column<int>(type: "int", nullable: false),
                     UniId = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    StudentCode = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: true)
+                    StudentCode = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FullName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -167,7 +167,8 @@ namespace App.DAL.EF.Migrations
                         name: "FK_Users_UserTypes_UserTypeId",
                         column: x => x.UserTypeId,
                         principalTable: "UserTypes",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -298,7 +299,26 @@ namespace App.DAL.EF.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserAuthTokens_UserId",
                 table: "UserAuthTokens",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_FullName",
+                table: "Users",
+                column: "FullName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_StudentCode",
+                table: "Users",
+                column: "StudentCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UniId",
+                table: "Users",
+                column: "UniId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_UserTypeId",

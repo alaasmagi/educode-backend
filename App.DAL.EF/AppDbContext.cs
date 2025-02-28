@@ -21,6 +21,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(u => u.UserType)
             .WithMany()
             .HasForeignKey(u => u.UserTypeId);
+        modelBuilder.Entity<UserEntity>()
+            .HasIndex(u => u.UniId)
+            .IsUnique();
+        modelBuilder.Entity<UserEntity>()
+            .HasIndex(u => u.StudentCode)
+            .IsUnique();
+        modelBuilder.Entity<UserEntity>()
+            .HasIndex(u => u.FullName)
+            .IsUnique();
         
         // UserAuthToken relationship
         modelBuilder.Entity<UserAuthEntity>()
@@ -28,6 +37,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(u => u.User)
             .WithMany()
             .HasForeignKey(u => u.UserId);
+        modelBuilder.Entity<UserAuthEntity>()
+            .HasIndex(u => u.UserId)
+            .IsUnique();
         
         // CourseAttendance relationship
         modelBuilder.Entity<CourseAttendanceEntity>()
