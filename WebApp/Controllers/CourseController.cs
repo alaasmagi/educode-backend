@@ -61,6 +61,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
+            ViewBag.StatusList = new SelectList(Enum.GetValues(typeof(ECourseValidStatus)));
             return View();
         }
 
@@ -105,6 +106,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
+            ViewBag.StatusList = new SelectList(Enum.GetValues(typeof(ECourseValidStatus)));
             return View(courseEntity);
         }
 

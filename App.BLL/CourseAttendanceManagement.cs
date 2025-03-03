@@ -11,7 +11,7 @@ public class CourseAttendanceManagement
     public CourseAttendanceManagement(AppDbContext context)
     {
         _context = context;
-        var CourseAttendance = new CourseAttendanceRepository(_context); 
+        CourseAttendance = new CourseAttendanceRepository(_context); 
     }
 
     public async Task<CourseEntity?> GetCourseByAttendanceId(int attendanceId)
