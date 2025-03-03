@@ -6,30 +6,30 @@ namespace App.DAL.EF;
 public class UserRepository (AppDbContext context)
 {
     // Base features
-    public void AddUserEntityToDb(UserEntity newUser)
+    public async Task AddUserEntityToDb(UserEntity newUser)
     {
         newUser.CreatedAt = DateTime.Now;
         newUser.UpdatedAt = DateTime.Now;
         
-        context.Users.Add(newUser);
-        context.SaveChanges();
+        await context.Users.AddAsync(newUser);
+        await context.SaveChangesAsync();
     }
 
-    public void AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
+    public async Task AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
     {
         newUserAuth.CreatedAt = DateTime.Now;
         newUserAuth.UpdatedAt = DateTime.Now;
         
-        context.UserAuthData.Add(newUserAuth);
-        context.SaveChanges();
+        await context.UserAuthData.AddAsync(newUserAuth);
+        await context.SaveChangesAsync();
     }
     
     
     // Business logic DB extensions
-    public UserAuthEntity? GetUserAuthEntityByUniIdOrStudentCode(string input)
+    public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(string input)
     {
-        return context.UserAuthData
+        return await context.UserAuthData
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
-            .FirstOrDefault(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
+            .FirstOrDefaultAsync(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
     }
 }

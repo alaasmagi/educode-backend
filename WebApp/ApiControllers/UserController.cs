@@ -28,9 +28,9 @@ namespace WebApp.ApiControllers
         
         
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = userManagement.AuthenticateUser(model.UniId, model.Password);
+            var user = await userManagement.AuthenticateUser(model.UniId, model.Password);
             if (user == null)
             {
                 return Unauthorized(new { message = "Invalid UNI-ID or password" });
@@ -41,9 +41,9 @@ namespace WebApp.ApiControllers
         }
         
         [HttpPost("Register")]
-        public IActionResult Register([FromBody] CreateAccountModel model)
+        public async Task<IActionResult> Register([FromBody] CreateAccountModel model)
         {
-            UserTypeEntity? userType = userManagement.GetUserType(model.UserRole);
+            UserTypeEntity? userType = await userManagement.GetUserType(model.UserRole);
             UserEntity newUser = new UserEntity();
             UserAuthEntity newUserAuth = new UserAuthEntity();
             
@@ -64,7 +64,7 @@ namespace WebApp.ApiControllers
             
             newUserAuth.PasswordHash = userManagement.GetPasswordHash(model.Password);
 
-            if (!userManagement.CreateAccount(newUser, newUserAuth))
+            if (!await userManagement.CreateAccount(newUser, newUserAuth))
             {
                 return BadRequest();
             }

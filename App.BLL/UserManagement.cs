@@ -1,5 +1,6 @@
 ﻿using App.DAL.EF;
 using App.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.BLL;
 
@@ -14,9 +15,9 @@ public class UserManagement
         User = new UserRepository(_context); 
     }
     
-    public UserEntity? AuthenticateUser(string uniId, string password)
+    public async Task<UserEntity?> AuthenticateUser(string uniId, string password)
     {
-        var userAuthData = User.GetUserAuthEntityByUniIdOrStudentCode(uniId);
+        var userAuthData = await User.GetUserAuthEntityByUniIdOrStudentCode(uniId);
 
         if (userAuthData == null)
         {
@@ -26,16 +27,16 @@ public class UserManagement
         return VerifyPasswordHash(password, userAuthData.PasswordHash) ? userAuthData.User! : null;
     }
 
-    public bool CreateAccount(UserEntity user, UserAuthEntity userAuthData)
+    public async Task<bool> CreateAccount(UserEntity user, UserAuthEntity userAuthData)
     {
-        if (DoesUserExist(user.UniId))
+        if (await DoesUserExist(user.UniId))
         {
             return false;
         }
         
-        User.AddUserEntityToDb(user);
+        await User.AddUserEntityToDb(user);
         userAuthData.UserId = user.Id;
-        User.AddUserAuthEntityToDb(userAuthData);
+        await User.AddUserAuthEntityToDb(userAuthData);
 
         return true;
     }
@@ -45,14 +46,14 @@ public class UserManagement
         return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
     }
 
-    private bool DoesUserExist(string uniId)
+    private async Task<bool> DoesUserExist(string uniId)
     {
-        return _context.Users.Any(u => u.UniId == uniId);
+        return await _context.Users.AnyAsync(u => u.UniId == uniId);
     }
 
-    public UserTypeEntity? GetUserType (string userType)
+    public async Task<UserTypeEntity?> GetUserType (string userType)
     {
-        return _context.UserTypes.FirstOrDefault(u => u.UserType == userType) ?? null;
+        return await _context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType) ?? null;
     }
     
     public string GetPasswordHash(string password)
