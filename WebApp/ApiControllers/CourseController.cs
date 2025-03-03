@@ -23,9 +23,9 @@ public class CourseController : ControllerBase
         courseManagement = new CourseAttendanceManagement(_context);
     }
     
-    
+    [Authorize]
     [HttpGet("Course/AttendanceId/{id}")]
-    public async Task<ActionResult<CourseEntity>> GetCourseByAttendance(int id)
+    public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(int id)
     {
         var courseEntity = await courseManagement.GetCourseByAttendanceId(id);
 
@@ -35,5 +35,40 @@ public class CourseController : ControllerBase
         }
 
         return courseEntity;
+    }
+    
+    [Authorize]
+    [HttpGet("Attendance/Id/{id}")]
+    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendanceById(int id)
+    {
+        var attendanceEntity = await courseManagement.GetCourseAttendanceById(id);
+
+        if (attendanceEntity == null)
+        {
+            return NotFound();
+        }
+
+        return attendanceEntity;
+    }
+    
+    [Authorize]
+    [HttpPost("AttendanceCheck/Add")]
+    public async Task<IActionResult> AddAttendanceCheck([FromBody] AttendanceCheckModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        
+        AttendanceCheckEntity newAttendanceCheck = new AttendanceCheckEntity()
+        {
+           StudentCode = model.StudentCode,
+           CourseAttendanceId = model.CourseAttendanceId,
+           WorkplaceId = model.WorkplaceId ?? null
+        };
+        
+        await courseManagement.AddAttendanceCheck(newAttendanceCheck, model.Creator);
+
+        return Ok();
     }
 }

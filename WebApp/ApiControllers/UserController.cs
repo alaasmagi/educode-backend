@@ -26,7 +26,6 @@ namespace WebApp.ApiControllers
             authService = new AuthBrain(config);
         }
         
-        
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {

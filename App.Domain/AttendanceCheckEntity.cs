@@ -7,7 +7,7 @@ namespace App.Domain;
 public class AttendanceCheckEntity : BaseEntity
 {
     [Required]
-    public int StudentId { get; set; }
+    public string StudentCode { get; set; } = default!;
     [Required]
     public int CourseAttendanceId { get; set; }
     public int? WorkplaceId { get; set; }

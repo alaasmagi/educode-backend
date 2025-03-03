@@ -14,4 +14,15 @@ public class CourseAttendanceRepository(AppDbContext context)
     {
         return await context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);;
     }
+
+    public async Task AddAttendanceCheck(AttendanceCheckEntity attendance, string creator)
+    {
+        attendance.CreatedBy = creator;
+        attendance.UpdatedBy = creator;
+        attendance.CreatedAt = DateTime.Now;
+        attendance.UpdatedAt= DateTime.Now;
+        
+        await context.AttendanceChecks.AddAsync(attendance);
+        await context.SaveChangesAsync();
+    }
 }

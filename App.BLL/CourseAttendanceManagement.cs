@@ -27,6 +27,18 @@ public class CourseAttendanceManagement
 
         return course ?? null;
     }
+
+    public async Task<CourseAttendanceEntity?> GetCourseAttendanceById(int attendanceId)
+    {
+        var courseAttendance = await CourseAttendance.GetAttendance(attendanceId);
+
+        return courseAttendance ?? null;
+    }
+
+    public async Task AddAttendanceCheck(AttendanceCheckEntity attendanceCheck, string creator)
+    {
+        await CourseAttendance.AddAttendanceCheck(attendanceCheck, creator);
+    }
 }
    
     
