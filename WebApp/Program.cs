@@ -17,6 +17,7 @@ var dbKey = Environment.GetEnvironmentVariable("KEY");
 
 var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={dbKey};";
 
+builder.Services.AddTransient<EmailSender>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 

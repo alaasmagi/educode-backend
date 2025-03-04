@@ -5,6 +5,7 @@ using App.BLL;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using WebApp.Models;
 
 namespace WebApp.ApiControllers
@@ -16,14 +17,16 @@ namespace WebApp.ApiControllers
         private readonly AppDbContext _context;
         private readonly UserManagement userManagement;
         private readonly AuthBrain authService;
+        private readonly EmailSender emailService;
 
-        public UserController(AppDbContext context, IConfiguration configuration)
+        public UserController(AppDbContext context, IConfiguration configuration, EmailSender emailSender)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
         
             userManagement = new UserManagement(_context);
             authService = new AuthBrain(config);
+            emailService = emailSender;
         }
         
         [HttpPost("Login")]
@@ -111,6 +114,27 @@ namespace WebApp.ApiControllers
             return userEntity;
         }
 
+        [HttpPost("RequestOTP")]
+        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            
+            var user = await userManagement.GetUserByUniId(model.UniId);
+
+            if (user == null || user.StudentCode != model.StudentCode)
+            {
+                return Unauthorized(new { message = "Invalid UNI-ID or StudentCode" });
+            }
+
+            var key = authService.GenerateOtp();
+            await emailService.SendEmail(user, key);
+            return Ok(new { Key = key });
+
+        }
+
         // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
@@ -171,7 +195,7 @@ namespace WebApp.ApiControllers
 
             return NoContent();
         }
-
+        
         private bool UserEntityExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);

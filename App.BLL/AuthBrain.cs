@@ -69,4 +69,11 @@ public class AuthBrain
             return null;
         }
     }
+
+    public string GenerateOtp()
+    {
+        var random = new Random();
+        var key = random.Next(100000, 1000000); 
+        return key.ToString();
+    }
 }

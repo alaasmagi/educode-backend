@@ -1,29 +1,48 @@
-﻿using System;
-using RestSharp; 
-using RestSharp.Authenticators;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Net;
+using System.Net.Mail;
+using System.Net;
+using System.Net.Mail;
 using App.Domain;
 
 namespace App.BLL;
 
 public class EmailSender
 {
-    public static async Task<RestResponse> SendEmail(UserEntity user, string oneTimeKey)
+    public async Task SendEmail(UserEntity user, string oneTimeKey)
     {
-        var options = new RestClientOptions("https://api.mailgun.net/v3")
-        {
-            Authenticator = new HttpBasicAuthenticator("api", Environment.GetEnvironmentVariable("MAILGUN_API") ?? "API_KEY")
-        };
+        var mail = Environment.GetEnvironmentVariable("MAILSENDER_EMAIL") ?? "EMAIL";
+        var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";
+        var host = Environment.GetEnvironmentVariable("MAILSENDER_HOST") ?? "HOST";
+        var port = int.Parse(Environment.GetEnvironmentVariable("MAILSENDER_PORT") ?? "0");
+
+        var email = $"{user.UniId}@taltech.ee";
+        var subject = $"{user.UniId} account verification";
+        var messageBody = $"Hello, {user.FullName}! \n\nHere is a one-time key to verify ownership of Your EduCode account: {oneTimeKey}";
         
-        var client = new RestClient(options);
-        var request = new RestRequest($"{Environment.GetEnvironmentVariable("MAILGUN_RESOURCE")}", Method.Post);
-        request.AlwaysMultipartFormData = true;
-        request.AddParameter("from", $"EduCode <{Environment.GetEnvironmentVariable("MAILGUN_SENDER")}>");
-        request.AddParameter("to", $"{user.FullName} <{user.UniId}@taltech.ee>");
-        request.AddParameter("subject", $"One time key for {user.UniId} EduCode account");
-        request.AddParameter("text", "Here is your onetime key to verify ownership of Your EduCode account: \n" +
-                                                                                                    $"\t{oneTimeKey}");
-        return await client.ExecuteAsync(request);
+        var smtpClient = new SmtpClient(host)
+        {
+            Port = port,
+            Credentials = new NetworkCredential(mail, key),
+            EnableSsl = true
+        };
+
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress(mail),
+            Subject = subject,
+            Body = messageBody,
+            IsBodyHtml = false
+        };
+
+        mailMessage.To.Add($"{user.FullName} <{email}>");
+
+        try
+        {
+            await smtpClient.SendMailAsync(mailMessage);
+        }
+        catch (SmtpException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
     }
 }

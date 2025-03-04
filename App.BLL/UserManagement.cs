@@ -51,6 +51,11 @@ public class UserManagement
         return await _context.Users.AnyAsync(u => u.UniId == uniId);
     }
 
+    public async Task<UserEntity?> GetUserByUniId(string uniId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+    }
+    
     public async Task<UserTypeEntity?> GetUserType (string userType)
     {
         return await _context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType) ?? null;
