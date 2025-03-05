@@ -86,7 +86,7 @@ namespace WebApp.ApiControllers
         // GET: api/User/UniId/<uni-id>
         [Authorize]
         [HttpGet("UniId/{uniId}")]
-        public async Task<ActionResult<UserEntity>> GetUserEntityByUniId(string uniId)
+        public async Task<IActionResult> GetUserEntityByUniId(string uniId)
         {
             var userEntity = await _context.Users.Include(x => x.UserType)
                 .FirstOrDefaultAsync(x => x.UniId == uniId);
@@ -96,13 +96,13 @@ namespace WebApp.ApiControllers
                 return NotFound();
             }
 
-            return userEntity;
+            return Ok(userEntity);
         }
         
         // GET: api/User/Id/5
         [Authorize]
         [HttpGet("Id/{id}")]
-        public async Task<ActionResult<UserEntity>> GetUserEntity(int id)
+        public async Task<IActionResult> GetUserEntity(int id)
         {
             var userEntity = await _context.Users.FindAsync(id);
 
@@ -111,72 +111,51 @@ namespace WebApp.ApiControllers
                 return NotFound();
             }
 
-            return userEntity;
+            return Ok(userEntity);
         }
 
         [HttpPost("RequestOTP")]
-        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
+        public async Task<IActionResult> RequestOtp(string uniId)
+        {
+         
+            var user = await userManagement.GetUserByUniId(uniId);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid UNI-ID" });
+            }
+
+            var key = authService.GenerateOtp();
+            var token = authService.GenerateJwtToken(user);
+            
+            await emailService.SendEmail(user, key);
+            return Ok(new { Key = key, Token = token });
+
+        }
+
+        [Authorize]
+        [HttpPatch("ChangePassword")]
+        public async Task<IActionResult> ChangeAccountPassword([FromBody] ChangePasswordModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             
             var user = await userManagement.GetUserByUniId(model.UniId);
 
-            if (user == null || user.StudentCode != model.StudentCode)
+            if (user == null)
             {
-                return Unauthorized(new { message = "Invalid UNI-ID or StudentCode" });
+                return Unauthorized(new { message = "Invalid UNI-ID" });
             }
+            
+            var newPasswordHash = userManagement.GetPasswordHash(model.NewPassword);
 
-            var key = authService.GenerateOtp();
-            await emailService.SendEmail(user, key);
-            return Ok(new { Key = key });
-
-        }
-
-        // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserEntity(int id, UserEntity userEntity)
-        {
-            if (id != userEntity.Id)
+            if (await userManagement.ChangeUserPassword(user, newPasswordHash))
             {
-                return BadRequest();
+                return Ok(new { message = "Password changed successfully" });
             }
-
-            _context.Entry(userEntity).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserEntityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
-        [HttpPost]
-        public async Task<ActionResult<UserEntity>> PostUserEntity(UserEntity userEntity)
-        {
-            _context.Users.Add(userEntity);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUserEntity", new { id = userEntity.Id }, userEntity);
+            return BadRequest(new { message = "Invalid credentials" });
         }
 
         // DELETE: api/User/5
@@ -194,11 +173,6 @@ namespace WebApp.ApiControllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-        
-        private bool UserEntityExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

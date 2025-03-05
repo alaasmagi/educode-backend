@@ -40,6 +40,11 @@ public class UserManagement
 
         return true;
     }
+
+    public async Task<bool> ChangeUserPassword(UserEntity user, string newPasswordHash)
+    { 
+        return await User.UpdateUserAuthEntity(user.Id, newPasswordHash);
+    }
     
     private bool VerifyPasswordHash(string enteredPassword, string storedHash)
     {

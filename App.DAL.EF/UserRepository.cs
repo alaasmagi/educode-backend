@@ -24,7 +24,6 @@ public class UserRepository (AppDbContext context)
         await context.SaveChangesAsync();
     }
     
-    
     // Business logic DB extensions
     public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(string input)
     {
@@ -32,4 +31,21 @@ public class UserRepository (AppDbContext context)
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
             .FirstOrDefaultAsync(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
     }
+
+    public async Task<bool> UpdateUserAuthEntity(int userId, string newPasswordHash)
+    {
+        var userAuth = await context.UserAuthData.FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (userAuth == null)
+        {
+            return false;
+        }
+        
+        userAuth.UpdatedAt = DateTime.Now;
+        userAuth.PasswordHash = newPasswordHash;
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
+    
 }
