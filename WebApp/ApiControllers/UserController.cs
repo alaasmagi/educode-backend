@@ -117,7 +117,6 @@ namespace WebApp.ApiControllers
         [HttpPost("RequestOTP")]
         public async Task<IActionResult> RequestOtp(string uniId)
         {
-         
             var user = await userManagement.GetUserByUniId(uniId);
 
             if (user == null)
