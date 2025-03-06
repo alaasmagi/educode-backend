@@ -20,7 +20,7 @@ public class OtpBrain
     {
         var dynamicSecret = GenerateDynamicSecret(userUniId);
         var secretBytes = Base32Encoding.ToBytes(dynamicSecret);
-        var totp = new Totp(secretBytes, step: 120);
+        var totp = new Totp(secretBytes, step: 300);
         var otp = totp.ComputeTotp();
 
         return otp;
@@ -30,7 +30,7 @@ public class OtpBrain
     {
         var dynamicSecret = GenerateDynamicSecret(userUniId);
         var secretBytes = Base32Encoding.ToBytes(dynamicSecret);
-        var totp = new Totp(secretBytes, step: 120);
+        var totp = new Totp(secretBytes, step: 300);
         var isValid = totp.VerifyTotp(otpToVerify, out var timeStepMatched);
 
         return isValid;
