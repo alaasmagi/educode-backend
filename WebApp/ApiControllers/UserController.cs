@@ -18,6 +18,7 @@ namespace WebApp.ApiControllers
         private readonly UserManagement userManagement;
         private readonly AuthBrain authService;
         private readonly EmailSender emailService;
+        private readonly OtpBrain otpService;
 
         public UserController(AppDbContext context, IConfiguration configuration, EmailSender emailSender)
         {
@@ -26,6 +27,7 @@ namespace WebApp.ApiControllers
         
             userManagement = new UserManagement(_context);
             authService = new AuthBrain(config);
+            otpService = new OtpBrain();
             emailService = emailSender;
         }
         
@@ -124,7 +126,7 @@ namespace WebApp.ApiControllers
                 return Unauthorized(new { message = "Invalid UNI-ID" });
             }
 
-            var key = authService.GenerateOtp(user.UniId);
+            var key = otpService.GenerateTOTP(user.UniId);
             
             await emailService.SendEmail(user, key);
             return Ok();
@@ -140,7 +142,7 @@ namespace WebApp.ApiControllers
                 return Unauthorized(new { message = "Invalid UNI-ID" });
             }
             
-            var result = authService.VerifyOtp(user.UniId, model.Otp);
+            var result = otpService.VerifyTOTP(user.UniId, model.Otp);
 
             if (!result)
             {
