@@ -115,21 +115,40 @@ namespace WebApp.ApiControllers
         }
 
         [HttpPost("RequestOTP")]
-        public async Task<IActionResult> RequestOtp(string uniId)
+        public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
-            var user = await userManagement.GetUserByUniId(uniId);
+            var user = await userManagement.GetUserByUniId(model.UniId);
 
             if (user == null)
             {
                 return Unauthorized(new { message = "Invalid UNI-ID" });
             }
 
-            var key = authService.GenerateOtp();
-            var token = authService.GenerateJwtToken(user);
+            var key = authService.GenerateOtp(user.UniId);
             
             await emailService.SendEmail(user, key);
-            return Ok(new { Key = key, Token = token });
+            return Ok();
+        }
 
+        [HttpPost("VerifyOTP")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpModel model)
+        {
+            var user = await userManagement.GetUserByUniId(model.UniId);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid UNI-ID" });
+            }
+            
+            var result = authService.VerifyOtp(user.UniId, model.Otp);
+
+            if (!result)
+            {
+                return BadRequest(new { message = "Invalid OTP" });
+            }
+            
+            var token = authService.GenerateJwtToken(user);
+            return Ok(new { Token = token });
         }
 
         [Authorize]

@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Threading.RateLimiting;
 using App.BLL;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,7 @@ DotNetEnv.Env.Load("../.env");
 var host = Environment.GetEnvironmentVariable("HOST");
 var port = Environment.GetEnvironmentVariable("PORT");
 var user = Environment.GetEnvironmentVariable("DB");
-var dbKey = Environment.GetEnvironmentVariable("KEY");
+var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
 var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={dbKey};";
 
@@ -41,6 +43,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
     });
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromSeconds(10);
+        limiterOptions.QueueLimit = 2;
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+});
+
 builder.Services.AddAuthorization(); 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSwaggerGen();
@@ -83,4 +97,7 @@ app.MapControllerRoute(
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
+app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 app.Run();
