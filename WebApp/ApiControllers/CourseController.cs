@@ -14,6 +14,7 @@ public class CourseController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly CourseAttendanceManagement courseManagement;
+    private readonly UserManagement userManagement;
 
     public CourseController(AppDbContext context, IConfiguration configuration)
     {
@@ -21,6 +22,7 @@ public class CourseController : ControllerBase
         var config = configuration ?? throw new ArgumentNullException(nameof(configuration));
     
         courseManagement = new CourseAttendanceManagement(_context);
+        userManagement = new UserManagement(_context);
     }
     
     [Authorize]
@@ -49,6 +51,27 @@ public class CourseController : ControllerBase
         }
 
         return attendanceEntity;
+    }
+
+    [Authorize]
+    [HttpPost("GetCurrentAttendanceCourse")]
+    public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
+    {
+        var user = await userManagement.GetUserByUniId(uniId);
+
+        if (user == null)
+        {
+            return BadRequest();
+        }
+        
+        var courseEntity = await courseManagement.GetCurrentAttendanceCourse(user);
+
+        if (courseEntity == null)
+        {
+            return Ok(new { message = "No course found" });
+        }
+        
+        return Ok(courseEntity);
     }
     
     [Authorize]

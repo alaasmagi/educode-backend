@@ -1,4 +1,5 @@
-﻿using App.DAL.EF;
+﻿using System.Runtime.InteropServices.JavaScript;
+using App.DAL.EF;
 using App.Domain;
 
 namespace App.BLL;
@@ -38,6 +39,12 @@ public class CourseAttendanceManagement
     public async Task AddAttendanceCheck(AttendanceCheckEntity attendanceCheck, string creator)
     {
         await CourseAttendance.AddAttendanceCheck(attendanceCheck, creator);
+    }
+
+    public async Task<CourseEntity?> GetCurrentAttendanceCourse(UserEntity user)
+    {
+        var currentCourse = await CourseAttendance.GetCurrentAttendance(user.Id);
+        return currentCourse ?? null;
     }
 }
    

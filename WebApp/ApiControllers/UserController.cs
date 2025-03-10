@@ -31,6 +31,45 @@ namespace WebApp.ApiControllers
             emailService = emailSender;
         }
         
+        // GET: api/User
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
+        {
+            return await _context.Users.ToListAsync();
+        }
+        
+        // GET: api/User/UniId/<uni-id>
+        [Authorize]
+        [HttpGet("UniId/{uniId}")]
+        public async Task<IActionResult> GetUserEntityByUniId(string uniId)
+        {
+            var userEntity = await _context.Users.Include(x => x.UserType)
+                .FirstOrDefaultAsync(x => x.UniId == uniId);
+
+            if (userEntity == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(userEntity);
+        }
+        
+        // GET: api/User/Id/5
+        [Authorize]
+        [HttpGet("Id/{id}")]
+        public async Task<IActionResult> GetUserEntity(int id)
+        {
+            var userEntity = await _context.Users.FindAsync(id);
+
+            if (userEntity == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(userEntity);
+        }
+        
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -75,45 +114,6 @@ namespace WebApp.ApiControllers
             
             var token = authService.GenerateJwtToken(newUser);
             return Ok(new { Token = token });
-        }
-        
-        // GET: api/User
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
-        {
-            return await _context.Users.ToListAsync();
-        }
-        
-        // GET: api/User/UniId/<uni-id>
-        [Authorize]
-        [HttpGet("UniId/{uniId}")]
-        public async Task<IActionResult> GetUserEntityByUniId(string uniId)
-        {
-            var userEntity = await _context.Users.Include(x => x.UserType)
-                .FirstOrDefaultAsync(x => x.UniId == uniId);
-
-            if (userEntity == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(userEntity);
-        }
-        
-        // GET: api/User/Id/5
-        [Authorize]
-        [HttpGet("Id/{id}")]
-        public async Task<IActionResult> GetUserEntity(int id)
-        {
-            var userEntity = await _context.Users.FindAsync(id);
-
-            if (userEntity == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(userEntity);
         }
 
         [HttpPost("RequestOTP")]
@@ -180,10 +180,10 @@ namespace WebApp.ApiControllers
 
         // DELETE: api/User/5
         [Authorize]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserEntity(int id)
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
-            var userEntity = await _context.Users.FindAsync(id);
+            var userEntity = await _context.Users.FindAsync(uniId);
             if (userEntity == null)
             {
                 return NotFound();
