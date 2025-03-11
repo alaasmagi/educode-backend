@@ -65,7 +65,7 @@ namespace WebApp.Controllers
             }
             
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode");
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "CreatedBy");
+            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId");
             return View();
         }
 
@@ -90,7 +90,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "CreatedBy", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
@@ -113,7 +113,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "CreatedBy", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
@@ -156,7 +156,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "CreatedBy", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 

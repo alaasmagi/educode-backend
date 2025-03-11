@@ -63,7 +63,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId");
             return View();
         }
 
@@ -87,7 +87,7 @@ namespace WebApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 
@@ -109,7 +109,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId");
             return View(userAuthEntity);
         }
 
@@ -151,7 +151,7 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "StudentCode", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UnId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 

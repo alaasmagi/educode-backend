@@ -62,6 +62,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom");
+            ViewData["CourseAttendanceId"] = new SelectList(_context.CourseAttendances, "Id", "Id");
             return View();
         }
 
@@ -108,6 +109,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
             ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["CourseAttendanceId"] = new SelectList(_context.CourseAttendances, "Id", "Id", attendanceCheckEntity.CourseAttendanceId);
             return View(attendanceCheckEntity);
         }
 
