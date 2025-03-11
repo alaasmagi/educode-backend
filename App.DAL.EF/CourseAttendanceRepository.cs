@@ -29,7 +29,7 @@ public class CourseAttendanceRepository(AppDbContext context)
     public async Task<CourseAttendanceEntity?> GetCurrentAttendance(int userId)
     {
         var ongoingAttendance= await context.CourseAttendances
-            .Where(ca => ca.StartTime <= DateTime.Now.ToUniversalTime() && ca.EndTime >= DateTime.Now.ToUniversalTime() &&
+            .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
                         Include(ca => ca.Course)
                         .FirstOrDefaultAsync() ?? null;
