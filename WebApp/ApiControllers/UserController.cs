@@ -183,7 +183,7 @@ namespace WebApp.ApiControllers
         [HttpDelete("Delete/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
-            var userEntity = await _context.Users.FindAsync(uniId);
+            var userEntity = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
             if (userEntity == null)
             {
                 return NotFound();
