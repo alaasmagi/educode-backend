@@ -180,7 +180,7 @@ namespace WebApp.ApiControllers
 
         // DELETE: api/User/5
         [Authorize]
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
             var userEntity = await _context.Users.FindAsync(uniId);
