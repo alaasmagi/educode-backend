@@ -62,6 +62,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<AttendanceCheckEntity>()
             .ToTable("AttendanceChecks");
         
+         modelBuilder.Entity<AttendanceCheckEntity>()
+                .HasIndex(e => new { e.StudentCode, e.CourseAttendanceId })
+                .IsUnique();
+         
         modelBuilder.Entity<AttendanceCheckEntity>()
             .HasOne(u => u.Workplace)
             .WithMany()
