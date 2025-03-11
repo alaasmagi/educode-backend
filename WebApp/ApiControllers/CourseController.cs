@@ -54,7 +54,7 @@ public class CourseController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("GetCurrentAttendanceCourse")]
+    [HttpPost("GetCurrentAttendance")]
     public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
     {
         var user = await userManagement.GetUserByUniId(uniId);
