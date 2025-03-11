@@ -55,9 +55,14 @@ public class CourseController : ControllerBase
 
     [Authorize]
     [HttpPost("GetCurrentAttendance")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
+    public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance([FromBody] UniIdModel model)
     {
-        var user = await userManagement.GetUserByUniId(uniId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        
+        var user = await userManagement.GetUserByUniId(model.uniId);
 
         if (user == null)
         {
