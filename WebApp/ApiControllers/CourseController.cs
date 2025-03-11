@@ -95,6 +95,7 @@ public class CourseController : ControllerBase
             return BadRequest();
         }
         
+        
         AttendanceCheckEntity newAttendanceCheck = new AttendanceCheckEntity()
         {
            StudentCode = model.StudentCode,

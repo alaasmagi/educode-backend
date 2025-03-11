@@ -8,8 +8,8 @@ public class UserRepository (AppDbContext context)
     // Base features
     public async Task AddUserEntityToDb(UserEntity newUser)
     {
-        newUser.CreatedAt = DateTime.Now;
-        newUser.UpdatedAt = DateTime.Now;
+        newUser.CreatedAt = DateTime.Now.ToUniversalTime();
+        newUser.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.Users.AddAsync(newUser);
         await context.SaveChangesAsync();
@@ -17,8 +17,8 @@ public class UserRepository (AppDbContext context)
 
     public async Task AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
     {
-        newUserAuth.CreatedAt = DateTime.Now;
-        newUserAuth.UpdatedAt = DateTime.Now;
+        newUserAuth.CreatedAt = DateTime.Now.ToUniversalTime();
+        newUserAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.UserAuthData.AddAsync(newUserAuth);
         await context.SaveChangesAsync();

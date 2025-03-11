@@ -79,8 +79,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                courseEntity.UpdatedAt = DateTime.Now;
-                courseEntity.CreatedAt = DateTime.Now;
+                courseEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                courseEntity.CreatedAt = DateTime.Now.ToUniversalTime();
                 _context.Add(courseEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

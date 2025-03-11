@@ -77,8 +77,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                userEntity.UpdatedAt = DateTime.Now;
-                userEntity.CreatedAt = DateTime.Now;
+                userEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                userEntity.CreatedAt = DateTime.Now.ToUniversalTime();
                 _context.Add(userEntity);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -131,7 +131,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    userEntity.UpdatedAt = DateTime.Now;
+                    userEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                     _context.Update(userEntity);
                     await _context.SaveChangesAsync();
                 }

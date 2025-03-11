@@ -19,8 +19,8 @@ public class CourseAttendanceRepository(AppDbContext context)
     {
         attendance.CreatedBy = creator;
         attendance.UpdatedBy = creator;
-        attendance.CreatedAt = DateTime.Now;
-        attendance.UpdatedAt= DateTime.Now;
+        attendance.CreatedAt = DateTime.Now.ToUniversalTime();
+        attendance.UpdatedAt= DateTime.Now.ToUniversalTime();
         
         await context.AttendanceChecks.AddAsync(attendance);
         await context.SaveChangesAsync();
@@ -29,7 +29,7 @@ public class CourseAttendanceRepository(AppDbContext context)
     public async Task<CourseAttendanceEntity?> GetCurrentAttendance(int userId)
     {
         var ongoingAttendance= await context.CourseAttendances
-            .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
+            .Where(ca => ca.StartTime <= DateTime.Now.ToUniversalTime() && ca.EndTime >= DateTime.Now.ToUniversalTime() &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
                         Include(ca => ca.Course)
                         .FirstOrDefaultAsync() ?? null;
