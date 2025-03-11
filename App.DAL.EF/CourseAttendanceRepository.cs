@@ -26,14 +26,14 @@ public class CourseAttendanceRepository(AppDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task<CourseEntity?> GetCurrentAttendance(int userId)
+    public async Task<CourseAttendanceEntity?> GetCurrentAttendance(int userId)
     {
-        var ongoingCourse = await context.CourseAttendances
+        var ongoingAttendance= await context.CourseAttendances
             .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
-                         ca.Course.CourseTeacherEntities.Any(ct => ct.TeacherId == userId))
-            .Select(ca => ca.Course)
-            .FirstOrDefaultAsync();
+                         ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
+                        Include(ca => ca.Course)
+                        .FirstOrDefaultAsync() ?? null;
         
-        return ongoingCourse;
+        return ongoingAttendance;
     }
 }

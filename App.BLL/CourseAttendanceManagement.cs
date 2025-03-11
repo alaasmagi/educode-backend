@@ -41,11 +41,12 @@ public class CourseAttendanceManagement
         await CourseAttendance.AddAttendanceCheck(attendanceCheck, creator);
     }
 
-    public async Task<CourseEntity?> GetCurrentAttendanceCourse(UserEntity user)
+    public async Task<CourseAttendanceEntity?> GetCurrentAttendance(UserEntity user)
     {
-        var currentCourse = await CourseAttendance.GetCurrentAttendance(user.Id);
-        return currentCourse ?? null;
+        var currentAttendance = await CourseAttendance.GetCurrentAttendance(user.Id);
+        return currentAttendance ?? null;
     }
+    
 }
    
     

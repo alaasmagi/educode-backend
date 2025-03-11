@@ -64,14 +64,21 @@ public class CourseController : ControllerBase
             return BadRequest();
         }
         
-        var courseEntity = await courseManagement.GetCurrentAttendanceCourse(user);
+        var courseAttendanceEntity = await courseManagement.GetCurrentAttendance(user);
 
-        if (courseEntity == null)
+        if (courseAttendanceEntity?.Course == null)
         {
             return Ok(new { message = "No course found" });
         }
+
+        var returnEntity = new CurrentLectureReturnModel
+        {
+            CourseCode = courseAttendanceEntity.Course.CourseCode,
+            CourseName = courseAttendanceEntity.Course.CourseName,
+            AttendanceId = courseAttendanceEntity.Id
+        };
         
-        return Ok(courseEntity);
+        return Ok(returnEntity);
     }
     
     [Authorize]
