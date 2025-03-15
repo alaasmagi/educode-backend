@@ -30,6 +30,12 @@ namespace WebApp.ApiControllers
             otpService = new OtpBrain();
             emailService = emailSender;
         }
+
+        [HttpGet("TestConnection")]
+        public ActionResult TestConnection()
+        {
+            return Ok();
+        }
         
         // GET: api/User
         [Authorize]
