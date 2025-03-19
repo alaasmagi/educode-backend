@@ -86,6 +86,13 @@ namespace WebApp.ApiControllers
             }
 
             var token = authService.GenerateJwtToken(user);
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,    
+                Secure = true,     
+                SameSite = SameSiteMode.Strict, 
+                MaxAge = TimeSpan.FromDays(60)  
+            });
             return Ok(new { Token = token });
         }
         
@@ -119,6 +126,13 @@ namespace WebApp.ApiControllers
             }
             
             var token = authService.GenerateJwtToken(newUser);
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,    
+                Secure = true,     
+                SameSite = SameSiteMode.Strict, 
+                MaxAge = TimeSpan.FromDays(60)  
+            });
             return Ok(new { Token = token });
         }
 
@@ -156,6 +170,13 @@ namespace WebApp.ApiControllers
             }
             
             var token = authService.GenerateJwtToken(user);
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,    
+                Secure = true,     
+                SameSite = SameSiteMode.Strict, 
+                MaxAge = TimeSpan.FromDays(60)  
+            });
             return Ok(new { Token = token });
         }
 
@@ -177,11 +198,13 @@ namespace WebApp.ApiControllers
             
             var newPasswordHash = userManagement.GetPasswordHash(model.NewPassword);
 
-            if (await userManagement.ChangeUserPassword(user, newPasswordHash))
+            if (!await userManagement.ChangeUserPassword(user, newPasswordHash) == true)
             {
-                return Ok(new { message = "Password changed successfully" });
+                return BadRequest(new { message = "Invalid credentials" });
             }
-            return BadRequest(new { message = "Invalid credentials" });
+            
+            return Ok(new { message = "Password changed successfully" });
+
         }
 
         // DELETE: api/User/5
