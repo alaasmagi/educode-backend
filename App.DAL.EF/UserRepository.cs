@@ -34,14 +34,14 @@ public class UserRepository (AppDbContext context)
 
     public async Task<bool> UpdateUserAuthEntity(int userId, string newPasswordHash)
     {
-        var userAuth = await context.UserAuthData.FirstOrDefaultAsync(u => u.Id == userId);
+        var userAuth = await context.UserAuthData.FirstOrDefaultAsync(u => u.UserId == userId);
 
         if (userAuth == null)
         {
             return false;
         }
         
-        userAuth.UpdatedAt = DateTime.Now;
+        userAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
         userAuth.PasswordHash = newPasswordHash;
         await context.SaveChangesAsync();
         
