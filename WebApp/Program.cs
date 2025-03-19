@@ -27,6 +27,8 @@ var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -67,15 +69,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:5173")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
-
-
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -98,7 +91,12 @@ app.UseSwaggerUI(c => {
 app.MapStaticAssets();
 
 app.UseStaticFiles();
-app.UseCors("AllowFrontend");
+
+
+app.UseCors(policy =>
+    policy.WithOrigins(frontendUrl ?? string.Empty)
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 
 app.MapControllerRoute(
         name: "default",
