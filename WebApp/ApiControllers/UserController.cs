@@ -198,9 +198,9 @@ namespace WebApp.ApiControllers
             
             var newPasswordHash = userManagement.GetPasswordHash(model.NewPassword);
 
-            if (!await userManagement.ChangeUserPassword(user, newPasswordHash) == true)
+            if (!await userManagement.ChangeUserPassword(user, newPasswordHash))
             {
-                return BadRequest(new { message = "Invalid credentials" });
+                return BadRequest(new { message = "Password change error. Password was not changed." });
             }
             
             return Ok(new { message = "Password changed successfully" });
