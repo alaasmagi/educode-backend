@@ -67,6 +67,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy.WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -89,6 +98,7 @@ app.UseSwaggerUI(c => {
 app.MapStaticAssets();
 
 app.UseStaticFiles();
+app.UseCors("AllowFrontend");
 
 app.MapControllerRoute(
         name: "default",
