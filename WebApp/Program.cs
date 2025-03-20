@@ -14,10 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load("../.env");
 var host = Environment.GetEnvironmentVariable("HOST");
 var port = Environment.GetEnvironmentVariable("PORT");
-var user = Environment.GetEnvironmentVariable("DB");
+var user = Environment.GetEnvironmentVariable("USER");
+var db = Environment.GetEnvironmentVariable("DB");
 var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
-var connectionString = $"Server={host};Port={port};Database={user};User={user};Password={dbKey};";
+var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};";
 
 builder.Services.AddTransient<EmailSender>();
 builder.Services.AddDbContext<AppDbContext>(options =>
