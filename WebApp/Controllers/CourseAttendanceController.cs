@@ -136,7 +136,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    courseAttendanceEntity.UpdatedAt = DateTime.Now;
+                    courseAttendanceEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                     context.Update(courseAttendanceEntity);
                     await context.SaveChangesAsync();
                 }
