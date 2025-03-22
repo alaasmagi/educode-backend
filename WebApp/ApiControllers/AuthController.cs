@@ -103,28 +103,32 @@ public class AuthController(
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpModel model)
     {
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
-
-        if (user == null)
-        {
-            return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
-        }
-
-        var result = otpService.VerifyTotp(user.UniId, model.Otp);
+        var result = otpService.VerifyTotp(model.UniId, model.Otp);
 
         if (!result)
         {
             return Unauthorized(new { message = "Invalid OTP", error = "invalid-otp" });
         }
 
-        var token = authService.GenerateJwtToken(user);
-        Response.Cookies.Append("token", token, new CookieOptions
+        string token = string.Empty;
+        if (user != null)
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            MaxAge = TimeSpan.FromDays(60)
-        });
-        return Ok(new { Token = token });
+            token = authService.GenerateJwtToken(user);
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                MaxAge = TimeSpan.FromDays(60)
+            });
+        }
+        
+        if (token != string.Empty)
+        {
+            return Ok(new { Token = token });
+        }
+
+        return Ok();
     }
 
     [Authorize]
