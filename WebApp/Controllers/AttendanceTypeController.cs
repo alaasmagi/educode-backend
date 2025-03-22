@@ -1,39 +1,31 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class AttendanceTypeController : BaseController
+    public class AttendanceTypeController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public AttendanceTypeController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: AttendanceType
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await _context.AttendanceTypes.ToListAsync());
+            return View(await context.AttendanceTypes.ToListAsync());
         }
 
         // GET: AttendanceType/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -43,7 +35,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceTypeEntity = await _context.AttendanceTypes
+            var attendanceTypeEntity = await context.AttendanceTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceTypeEntity == null)
             {
@@ -54,9 +46,10 @@ namespace WebApp.Controllers
         }
 
         // GET: AttendanceType/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -71,7 +64,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AttendanceType,Id,CreatedBy,UpdatedBy")] AttendanceTypeEntity attendanceTypeEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -80,8 +74,8 @@ namespace WebApp.Controllers
             {
                 attendanceTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 attendanceTypeEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(attendanceTypeEntity);
-                await _context.SaveChangesAsync();
+                context.Add(attendanceTypeEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(attendanceTypeEntity);
@@ -90,7 +84,8 @@ namespace WebApp.Controllers
         // GET: AttendanceType/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -100,7 +95,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceTypeEntity = await _context.AttendanceTypes.FindAsync(id);
+            var attendanceTypeEntity = await context.AttendanceTypes.FindAsync(id);
             if (attendanceTypeEntity == null)
             {
                 return NotFound();
@@ -115,7 +110,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy")] AttendanceTypeEntity attendanceTypeEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -130,8 +126,8 @@ namespace WebApp.Controllers
                 try
                 {
                     attendanceTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    _context.Update(attendanceTypeEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(attendanceTypeEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -152,7 +148,8 @@ namespace WebApp.Controllers
         // GET: AttendanceType/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -162,7 +159,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceTypeEntity = await _context.AttendanceTypes
+            var attendanceTypeEntity = await context.AttendanceTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceTypeEntity == null)
             {
@@ -177,24 +174,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var attendanceTypeEntity = await _context.AttendanceTypes.FindAsync(id);
+            var attendanceTypeEntity = await context.AttendanceTypes.FindAsync(id);
             if (attendanceTypeEntity != null)
             {
-                _context.AttendanceTypes.Remove(attendanceTypeEntity);
+                context.AttendanceTypes.Remove(attendanceTypeEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AttendanceTypeEntityExists(int id)
         {
-            return _context.AttendanceTypes.Any(e => e.Id == id);
+            return context.AttendanceTypes.Any(e => e.Id == id);
         }
     }
 }

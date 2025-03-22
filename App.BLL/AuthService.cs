@@ -3,16 +3,17 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using App.Domain;
+using Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace App.BLL;
 
-public class AuthBrain
+public class AuthService : IAuthService
 {
     private readonly IConfiguration _config;
     
-    public AuthBrain(IConfiguration config)
+    public AuthService(IConfiguration config)
     {
         _config = config;
     }

@@ -1,40 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserAuthController : BaseController
+    public class UserAuthController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public UserAuthController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: UserAuth
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var appDbContext = _context.UserAuthData.Include(u => u.User);
+            var appDbContext = context.UserAuthData.Include(u => u.User);
             return View(await appDbContext.ToListAsync());
         }
 
         // GET: UserAuth/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -44,7 +37,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userAuthEntity = await _context.UserAuthData
+            var userAuthEntity = await context.UserAuthData
                 .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userAuthEntity == null)
@@ -56,14 +49,15 @@ namespace WebApp.Controllers
         }
 
         // GET: UserAuth/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId");
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId");
             return View();
         }
 
@@ -74,7 +68,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,UpdatedBy")] UserAuthEntity userAuthEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -83,18 +78,19 @@ namespace WebApp.Controllers
             {
                 userAuthEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 userAuthEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(userAuthEntity);
-                await _context.SaveChangesAsync();
+                context.Add(userAuthEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 
         // GET: UserAuth/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -104,12 +100,12 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
+            var userAuthEntity = await context.UserAuthData.FindAsync(id);
             if (userAuthEntity == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UniId");
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId");
             return View(userAuthEntity);
         }
 
@@ -120,7 +116,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy")] UserAuthEntity userAuthEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -135,8 +132,8 @@ namespace WebApp.Controllers
                 try
                 {
                     userAuthEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    _context.Update(userAuthEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(userAuthEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -151,14 +148,15 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "UnId", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UnId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 
         // GET: UserAuth/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -168,7 +166,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userAuthEntity = await _context.UserAuthData
+            var userAuthEntity = await context.UserAuthData
                 .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userAuthEntity == null)
@@ -184,24 +182,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userAuthEntity = await _context.UserAuthData.FindAsync(id);
+            var userAuthEntity = await context.UserAuthData.FindAsync(id);
             if (userAuthEntity != null)
             {
-                _context.UserAuthData.Remove(userAuthEntity);
+                context.UserAuthData.Remove(userAuthEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserAuthEntityExists(int id)
         {
-            return _context.UserAuthData.Any(e => e.Id == id);
+            return context.UserAuthData.Any(e => e.Id == id);
         }
     }
 }

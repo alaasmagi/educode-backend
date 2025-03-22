@@ -1,39 +1,31 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class WorkplaceController : BaseController
+    public class WorkplaceController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public WorkplaceController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: Workplace
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await _context.Workplaces.ToListAsync());
+            return View(await context.Workplaces.ToListAsync());
         }
 
         // GET: Workplace/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -43,7 +35,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces
+            var workplaceEntity = await context.Workplaces
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
             {
@@ -54,9 +46,10 @@ namespace WebApp.Controllers
         }
 
         // GET: Workplace/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -71,7 +64,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ClassRoom,ComputerCode,Id,CreatedBy,UpdatedBy")] WorkplaceEntity workplaceEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -80,8 +74,8 @@ namespace WebApp.Controllers
             {
                 workplaceEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 workplaceEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(workplaceEntity);
-                await _context.SaveChangesAsync();
+                context.Add(workplaceEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(workplaceEntity);
@@ -90,7 +84,8 @@ namespace WebApp.Controllers
         // GET: Workplace/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -100,7 +95,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces.FindAsync(id);
+            var workplaceEntity = await context.Workplaces.FindAsync(id);
             if (workplaceEntity == null)
             {
                 return NotFound();
@@ -115,7 +110,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy")] WorkplaceEntity workplaceEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -130,8 +126,8 @@ namespace WebApp.Controllers
                 try
                 {
                     workplaceEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    _context.Update(workplaceEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(workplaceEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -152,7 +148,8 @@ namespace WebApp.Controllers
         // GET: Workplace/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -162,7 +159,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await _context.Workplaces
+            var workplaceEntity = await context.Workplaces
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
             {
@@ -177,24 +174,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var workplaceEntity = await _context.Workplaces.FindAsync(id);
+            var workplaceEntity = await context.Workplaces.FindAsync(id);
             if (workplaceEntity != null)
             {
-                _context.Workplaces.Remove(workplaceEntity);
+                context.Workplaces.Remove(workplaceEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool WorkplaceEntityExists(int id)
         {
-            return _context.Workplaces.Any(e => e.Id == id);
+            return context.Workplaces.Any(e => e.Id == id);
         }
     }
 }

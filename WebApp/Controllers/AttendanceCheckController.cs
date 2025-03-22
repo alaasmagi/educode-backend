@@ -1,49 +1,43 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class AttendanceCheckController : BaseController
+    public class AttendanceCheckController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public AttendanceCheckController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: AttendanceCheck
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
-            var appDbContext = _context.AttendanceChecks.Include(a => a.Workplace);
+            
+            var appDbContext = context.AttendanceChecks.Include(a => a.Workplace);
             return View(await appDbContext.ToListAsync());
         }
 
         // GET: AttendanceCheck/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
+            
             if (id == null)
             {
                 return NotFound();
             }
 
-            var attendanceCheckEntity = await _context.AttendanceChecks
+            var attendanceCheckEntity = await context.AttendanceChecks
                 .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceCheckEntity == null)
@@ -55,14 +49,16 @@ namespace WebApp.Controllers
         }
 
         // GET: AttendanceCheck/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
-            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom");
-            ViewData["CourseAttendanceId"] = new SelectList(_context.CourseAttendances, "Id", "Id");
+            
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom");
+            ViewData["CourseAttendanceId"] = new SelectList(context.CourseAttendances, "Id", "Id");
             return View();
         }
 
@@ -73,7 +69,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -82,18 +79,19 @@ namespace WebApp.Controllers
             {
                 attendanceCheckEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 attendanceCheckEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(attendanceCheckEntity);
-                await _context.SaveChangesAsync();
+                context.Add(attendanceCheckEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
             return View(attendanceCheckEntity);
         }
 
         // GET: AttendanceCheck/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -103,13 +101,13 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceCheckEntity = await _context.AttendanceChecks.FindAsync(id);
+            var attendanceCheckEntity = await context.AttendanceChecks.FindAsync(id);
             if (attendanceCheckEntity == null)
             {
                 return NotFound();
             }
-            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
-            ViewData["CourseAttendanceId"] = new SelectList(_context.CourseAttendances, "Id", "Id", attendanceCheckEntity.CourseAttendanceId);
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["CourseAttendanceId"] = new SelectList(context.CourseAttendances, "Id", "Id", attendanceCheckEntity.CourseAttendanceId);
             return View(attendanceCheckEntity);
         }
 
@@ -120,7 +118,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("StudentId,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -135,8 +134,8 @@ namespace WebApp.Controllers
                 try
                 {
                     attendanceCheckEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    _context.Update(attendanceCheckEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(attendanceCheckEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -151,14 +150,15 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkplaceId"] = new SelectList(_context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
             return View(attendanceCheckEntity);
         }
 
         // GET: AttendanceCheck/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -168,7 +168,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceCheckEntity = await _context.AttendanceChecks
+            var attendanceCheckEntity = await context.AttendanceChecks
                 .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceCheckEntity == null)
@@ -184,24 +184,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var attendanceCheckEntity = await _context.AttendanceChecks.FindAsync(id);
+            var attendanceCheckEntity = await context.AttendanceChecks.FindAsync(id);
             if (attendanceCheckEntity != null)
             {
-                _context.AttendanceChecks.Remove(attendanceCheckEntity);
+                context.AttendanceChecks.Remove(attendanceCheckEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool AttendanceCheckEntityExists(int id)
         {
-            return _context.AttendanceChecks.Any(e => e.Id == id);
+            return context.AttendanceChecks.Any(e => e.Id == id);
         }
     }
 }

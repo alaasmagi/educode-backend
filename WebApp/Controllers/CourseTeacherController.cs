@@ -1,40 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class CourseTeacherController : BaseController
+    public class CourseTeacherController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public CourseTeacherController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: CourseTeacher
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var appDbContext = _context.CourseTeachers.Include(c => c.Course).Include(c => c.Teacher);
+            var appDbContext = context.CourseTeachers.Include(c => c.Course).Include(c => c.Teacher);
             return View(await appDbContext.ToListAsync());
         }
 
         // GET: CourseTeacher/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -44,7 +37,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var courseTeacherEntity = await _context.CourseTeachers
+            var courseTeacherEntity = await context.CourseTeachers
                 .Include(c => c.Course)
                 .Include(c => c.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -57,15 +50,16 @@ namespace WebApp.Controllers
         }
 
         // GET: CourseTeacher/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode");
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId");
+            ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode");
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId");
             return View();
         }
 
@@ -76,7 +70,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseId,TeacherId,Id,CreatedBy,UpdatedBy")] CourseTeacherEntity courseTeacherEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -85,19 +80,20 @@ namespace WebApp.Controllers
             {
                 courseTeacherEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 courseTeacherEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(courseTeacherEntity);
-                await _context.SaveChangesAsync();
+                context.Add(courseTeacherEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
+            ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
         // GET: CourseTeacher/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -107,13 +103,13 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var courseTeacherEntity = await _context.CourseTeachers.FindAsync(id);
+            var courseTeacherEntity = await context.CourseTeachers.FindAsync(id);
             if (courseTeacherEntity == null)
             {
                 return NotFound();
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
+            ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
@@ -124,7 +120,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseTeacherEntity courseTeacherEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -139,8 +136,8 @@ namespace WebApp.Controllers
                 try
                 {
                     courseTeacherEntity.UpdatedAt = DateTime.Now;
-                    _context.Update(courseTeacherEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(courseTeacherEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -155,15 +152,16 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
+            ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
         // GET: CourseTeacher/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -173,7 +171,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var courseTeacherEntity = await _context.CourseTeachers
+            var courseTeacherEntity = await context.CourseTeachers
                 .Include(c => c.Course)
                 .Include(c => c.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -190,24 +188,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var courseTeacherEntity = await _context.CourseTeachers.FindAsync(id);
+            var courseTeacherEntity = await context.CourseTeachers.FindAsync(id);
             if (courseTeacherEntity != null)
             {
-                _context.CourseTeachers.Remove(courseTeacherEntity);
+                context.CourseTeachers.Remove(courseTeacherEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CourseTeacherEntityExists(int id)
         {
-            return _context.CourseTeachers.Any(e => e.Id == id);
+            return context.CourseTeachers.Any(e => e.Id == id);
         }
     }
 }

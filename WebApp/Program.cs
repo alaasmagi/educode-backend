@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Threading.RateLimiting;
 using App.BLL;
+using Contracts;
 using Microsoft.AspNetCore.RateLimiting;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
-
 
 DotNetEnv.Env.Load("../.env");
 var host = Environment.GetEnvironmentVariable("HOST");
@@ -21,15 +19,24 @@ var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
 var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};";
 
-builder.Services.AddTransient<EmailSender>();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
 
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddScoped<IAdminAccessService, AdminAccessService>();
+builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICourseManagementService, CourseManagementService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddCors(options =>
 {
@@ -38,7 +45,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

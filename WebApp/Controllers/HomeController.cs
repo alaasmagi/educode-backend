@@ -1,25 +1,15 @@
 using System.Diagnostics;
-using App.BLL;
 using App.DAL.EF;
+using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController : BaseController
+public class AdminPanelController(AppDbContext context, IAdminAccessService adminAccessService)
+    : BaseController(adminAccessService)
 {
-    private readonly ILogger<AdminPanelController> _logger;
-    private readonly AdminAccessManagement _access;
-    private readonly AuthBrain _auth;
-    public AdminPanelController(
-        ILogger<AdminPanelController> logger,
-        AppDbContext context,
-        IConfiguration configuration)
-    {
-        _logger = logger;
-        _auth = new AuthBrain(configuration);
-        _access = new AdminAccessManagement();
-    }
+    private readonly IAdminAccessService _adminAccessService = adminAccessService;
 
     [HttpGet]
     public IActionResult Index(string? message)
@@ -35,14 +25,14 @@ public class AdminPanelController : BaseController
     }
 
     [HttpPost]
-    public IActionResult Index([Bind("Username", "Password")] AdminLoginModel model)
+    public async Task<IActionResult> Index([Bind("Username", "Password")] AdminLoginModel model)
     {
-        if (!_access.AdminAccessGrant(model.Username, model.Password))
+        if (!_adminAccessService.AdminAccessGrant(model.Username, model.Password))
         {
             return Index("Wrong username or password!");
         }
         
-        SetTokens();
+        await SetTokensAsync();
         return  RedirectToAction("Home");
     }
 
@@ -57,9 +47,10 @@ public class AdminPanelController : BaseController
         return View();
     }
 
-    public IActionResult Home(string? message)
+    public async Task<IActionResult> Home(string? message)
     {
-        if (!IsTokenValid(HttpContext))
+        var tokenValidity = await IsTokenValidAsync(HttpContext);
+        if (!tokenValidity)
         {
             return Unauthorized("You cannot access admin panel without logging in!");
         }

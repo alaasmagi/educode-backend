@@ -1,39 +1,32 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
+using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserTypeController : BaseController
+    public class UserTypeController(AppDbContext context, IAdminAccessService adminAccessService)
+        : BaseController(adminAccessService)
     {
-        private readonly AppDbContext _context;
-
-        public UserTypeController(AppDbContext context)
-        {
-            _context = context;
-        }
 
         // GET: UserType
         public async Task<IActionResult> Index()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await _context.UserTypes.ToListAsync());
+            return View(await context.UserTypes.ToListAsync());
         }
 
         // GET: UserType/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -43,7 +36,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await _context.UserTypes
+            var userTypeEntity = await context.UserTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userTypeEntity == null)
             {
@@ -54,9 +47,10 @@ namespace WebApp.Controllers
         }
 
         // GET: UserType/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -71,7 +65,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,UpdatedBy")] UserTypeEntity userTypeEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -80,8 +75,8 @@ namespace WebApp.Controllers
             {
                 userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
                 userTypeEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                _context.Add(userTypeEntity);
-                await _context.SaveChangesAsync();
+                context.Add(userTypeEntity);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(userTypeEntity);
@@ -90,7 +85,8 @@ namespace WebApp.Controllers
         // GET: UserType/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -100,7 +96,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await _context.UserTypes.FindAsync(id);
+            var userTypeEntity = await context.UserTypes.FindAsync(id);
             if (userTypeEntity == null)
             {
                 return NotFound();
@@ -115,7 +111,8 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy")] UserTypeEntity userTypeEntity)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -130,8 +127,8 @@ namespace WebApp.Controllers
                 try
                 {
                     userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    _context.Update(userTypeEntity);
-                    await _context.SaveChangesAsync();
+                    context.Update(userTypeEntity);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -152,7 +149,8 @@ namespace WebApp.Controllers
         // GET: UserType/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
@@ -162,7 +160,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await _context.UserTypes
+            var userTypeEntity = await context.UserTypes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userTypeEntity == null)
             {
@@ -177,24 +175,25 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!IsTokenValid(HttpContext))
+            var tokenValidity = await IsTokenValidAsync(HttpContext);
+            if (!tokenValidity)
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userTypeEntity = await _context.UserTypes.FindAsync(id);
+            var userTypeEntity = await context.UserTypes.FindAsync(id);
             if (userTypeEntity != null)
             {
-                _context.UserTypes.Remove(userTypeEntity);
+                context.UserTypes.Remove(userTypeEntity);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserTypeEntityExists(int id)
         {
-            return _context.UserTypes.Any(e => e.Id == id);
+            return context.UserTypes.Any(e => e.Id == id);
         }
     }
 }

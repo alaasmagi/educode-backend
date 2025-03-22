@@ -1,12 +1,11 @@
-﻿using App.BLL;
+﻿using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers;
 
-public class BaseController : Controller
+public class BaseController(IAdminAccessService adminAccessService) : Controller
 {
-    private readonly AdminAccessManagement _access = new AdminAccessManagement();
-    public bool IsTokenValid(HttpContext httpContext)
+    public async Task<bool> IsTokenValidAsync(HttpContext httpContext)
     {
         var sessionToken = httpContext.Session.GetString("token");
         var hashedSessionToken = httpContext.Session.GetString("token-hash");
@@ -15,13 +14,13 @@ public class BaseController : Controller
         {
             return false;
         }
-        return _access.CompareHashedTokens(sessionToken, hashedSessionToken);
+        return await  adminAccessService.CompareHashedTokensAsync(sessionToken, hashedSessionToken);
     }
 
-    public void SetTokens()
+    public async Task SetTokensAsync()
     {
-        var sessionToken = _access.GenerateAdminAccessToken();
-        var hashedSessionToken = _access.GetHashedAdminAccessToken(sessionToken);
+        var sessionToken = adminAccessService.GenerateAdminAccessToken();
+        var hashedSessionToken = await adminAccessService.GetHashedAdminAccessTokenAsync(sessionToken);
         
         HttpContext.Session.SetString("token", sessionToken);
         HttpContext.Session.SetString("token-hash", hashedSessionToken);

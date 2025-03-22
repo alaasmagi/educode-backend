@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using App.Domain;
+using Contracts;
 
 namespace App.BLL;
 
-public class EmailSender
+public class EmailService : IEmailService
 {
-    public async Task SendEmail(string uniId, string fullName, string oneTimeKey)
+    public async Task SendEmailAsync(string uniId, string fullName, string oneTimeKey)
     {
         var mail = Environment.GetEnvironmentVariable("MAILSENDER_EMAIL") ?? "EMAIL";
         var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";

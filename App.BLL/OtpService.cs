@@ -2,10 +2,11 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Contracts;
 
 namespace App.BLL;
 
-public class OtpBrain
+public class OtpService : IOtpService
 {
     private static string GenerateDynamicSecret(string uniId)
     {
@@ -16,7 +17,7 @@ public class OtpBrain
         return base32Secret;
     }
 
-    public string GenerateTOTP(string uniId)
+    public string GenerateTotp(string uniId)
     {
         var dynamicSecret = GenerateDynamicSecret(uniId);
         var secretBytes = Base32Encoding.ToBytes(dynamicSecret);
@@ -26,7 +27,7 @@ public class OtpBrain
         return otp;
     }
 
-    public bool VerifyTOTP(string uniId, string otpToVerify)
+    public bool VerifyTotp(string uniId, string otpToVerify)
     {
         var dynamicSecret = GenerateDynamicSecret(uniId);
         var secretBytes = Base32Encoding.ToBytes(dynamicSecret);

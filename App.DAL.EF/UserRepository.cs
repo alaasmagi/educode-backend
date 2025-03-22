@@ -47,5 +47,11 @@ public class UserRepository (AppDbContext context)
         
         return true;
     }
+
+    public async Task DeleteUserEntity(UserEntity user)
+    {
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
+    }
     
 }
