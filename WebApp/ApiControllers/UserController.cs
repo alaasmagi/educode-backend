@@ -139,17 +139,23 @@ namespace WebApp.ApiControllers
         [HttpPost("RequestOTP")]
         public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
         {
-            var user = await userManagement.GetUserByUniId(model.UniId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            }
 
-            if (user == null)
+            var user = await userManagement.GetUserByUniId(model.UniId);
+            if (user == null && string.IsNullOrWhiteSpace(model.FullName))
             {
                 return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
             }
-
-            var key = otpService.GenerateTOTP(user.UniId);
             
-            await emailService.SendEmail(user, key);
-            return Ok();
+            var key = otpService.GenerateTOTP(user?.UniId ?? model.UniId);
+            var recipientUniId = user?.UniId ?? model.UniId;
+            var recipientName = user?.FullName ?? model.FullName;
+            
+            await emailService.SendEmail(recipientUniId, recipientName, key);
+            return Ok(new { message = "OTP sent successfully" });
         }
 
         [HttpPost("VerifyOTP")]
@@ -203,7 +209,7 @@ namespace WebApp.ApiControllers
                 return BadRequest(new { message = "Password change error. Password was not changed.", error = "password-not-changed"});
             }
             
-            return Ok();
+            return Ok(new { message = "Password is changed successfully" });
 
         }
 
@@ -221,7 +227,7 @@ namespace WebApp.ApiControllers
             _context.Users.Remove(userEntity);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(new { message = "User deleted successfully" });
         }
     }
 }
