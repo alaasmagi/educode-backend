@@ -33,7 +33,7 @@ public class CourseController : ControllerBase
 
         if (courseEntity == null)
         {
-            return NotFound();
+            return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
 
         return courseEntity;
@@ -47,7 +47,7 @@ public class CourseController : ControllerBase
 
         if (attendanceEntity == null)
         {
-            return NotFound();
+            return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
         }
 
         return attendanceEntity;
@@ -59,21 +59,21 @@ public class CourseController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
         }
         
         var user = await userManagement.GetUserByUniId(model.uniId);
 
         if (user == null)
         {
-            return BadRequest();
+            return NotFound(new {message = "User not found", error = "user-not-found"});
         }
         
         var courseAttendanceEntity = await courseManagement.GetCurrentAttendance(user);
 
         if (courseAttendanceEntity?.Course == null)
         {
-            return Ok(new { message = "No course found" });
+            return Ok(new {message = "Current attendance not found", error = "current-attendance-not-found"});
         }
 
         var returnEntity = new CurrentLectureReturnModel
@@ -92,9 +92,8 @@ public class CourseController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
         }
-        
         
         AttendanceCheckEntity newAttendanceCheck = new AttendanceCheckEntity()
         {

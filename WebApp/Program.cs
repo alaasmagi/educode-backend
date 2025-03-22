@@ -7,6 +7,7 @@ using System.Threading.RateLimiting;
 using App.BLL;
 using Microsoft.AspNetCore.RateLimiting;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -29,6 +30,15 @@ var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy.WithOrigins(frontendUrl ?? string.Empty)
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -94,10 +104,7 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 
 
-app.UseCors(policy =>
-    policy.WithOrigins(frontendUrl ?? string.Empty)
-        .AllowAnyMethod()
-        .AllowAnyHeader());
+app.UseCors("AllowFrontend");
 
 app.MapControllerRoute(
         name: "default",

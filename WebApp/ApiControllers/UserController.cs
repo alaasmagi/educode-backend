@@ -55,7 +55,7 @@ namespace WebApp.ApiControllers
 
             if (userEntity == null)
             {
-                return NotFound();
+                return NotFound(new {message = "User not found", error = "user-not-found"});
             }
 
             return Ok(userEntity);
@@ -70,7 +70,7 @@ namespace WebApp.ApiControllers
 
             if (userEntity == null)
             {
-                return NotFound();
+                return NotFound(new {message = "User not found", error = "user-not-found"});
             }
 
             return Ok(userEntity);
@@ -80,9 +80,9 @@ namespace WebApp.ApiControllers
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManagement.AuthenticateUser(model.UniId, model.Password);
-            if (user == null)
+            if (user == null || !ModelState.IsValid)
             {
-                return Unauthorized(new { message = "Invalid UNI-ID or password" });
+                return Unauthorized(new { message = "Invalid UNI-ID or password", error = "invalid-uni-id-password" });
             }
 
             var token = authService.GenerateJwtToken(user);
@@ -105,7 +105,7 @@ namespace WebApp.ApiControllers
             
             if (userType == null || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
             }
             
             newUser.UniId = model.UniId;
@@ -122,7 +122,7 @@ namespace WebApp.ApiControllers
 
             if (!await userManagement.CreateAccount(newUser, newUserAuth))
             {
-                return BadRequest();
+                return BadRequest(new { message = "User already exists", error = "user-already-exists" });
             }
             
             var token = authService.GenerateJwtToken(newUser);
@@ -143,7 +143,7 @@ namespace WebApp.ApiControllers
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Invalid UNI-ID" });
+                return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
             }
 
             var key = otpService.GenerateTOTP(user.UniId);
@@ -159,14 +159,14 @@ namespace WebApp.ApiControllers
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Invalid UNI-ID" });
+                return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
             }
             
             var result = otpService.VerifyTOTP(user.UniId, model.Otp);
 
             if (!result)
             {
-                return BadRequest(new { message = "Invalid OTP" });
+                return Unauthorized(new {message = "Invalid OTP", error = "invalid-otp"});
             }
             
             var token = authService.GenerateJwtToken(user);
@@ -186,24 +186,24 @@ namespace WebApp.ApiControllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});;
             }
             
             var user = await userManagement.GetUserByUniId(model.UniId);
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Invalid UNI-ID" });
+                return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
             }
             
             var newPasswordHash = userManagement.GetPasswordHash(model.NewPassword);
 
             if (!await userManagement.ChangeUserPassword(user, newPasswordHash))
             {
-                return BadRequest(new { message = "Password change error. Password was not changed." });
+                return BadRequest(new { message = "Password change error. Password was not changed.", error = "password-not-changed"});
             }
             
-            return Ok(new { message = "Password changed successfully" });
+            return Ok();
 
         }
 
@@ -215,13 +215,13 @@ namespace WebApp.ApiControllers
             var userEntity = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
             if (userEntity == null)
             {
-                return NotFound();
+                return NotFound(new {message = "User not found", error = "user-not-found"});
             }
 
             _context.Users.Remove(userEntity);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
     }
 }
