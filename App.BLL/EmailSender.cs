@@ -6,16 +6,16 @@ namespace App.BLL;
 
 public class EmailSender
 {
-    public async Task SendEmail(UserEntity user, string oneTimeKey)
+    public async Task SendEmail(string uniId, string fullName, string oneTimeKey)
     {
         var mail = Environment.GetEnvironmentVariable("MAILSENDER_EMAIL") ?? "EMAIL";
         var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";
         var host = Environment.GetEnvironmentVariable("MAILSENDER_HOST") ?? "HOST";
         var port = int.Parse(Environment.GetEnvironmentVariable("MAILSENDER_PORT") ?? "0");
 
-        var email = $"{user.UniId}@taltech.ee";
-        var subject = $"{user.UniId} account verification";
-        var messageBody = $"Hello, {user.FullName}! \n\nHere is a one-time key to verify ownership of Your EduCode account: {oneTimeKey}";
+        var email = $"{uniId}@taltech.ee";
+        var subject = $"{uniId} account verification";
+        var messageBody = $"Hello, {uniId}! \n\nHere is a one-time key to verify ownership of Your EduCode account: {oneTimeKey}";
         
         var smtpClient = new SmtpClient(host)
         {
@@ -32,7 +32,7 @@ public class EmailSender
             IsBodyHtml = false
         };
 
-        mailMessage.To.Add($"{user.FullName} <{email}>");
+        mailMessage.To.Add($"{fullName} <{email}>");
 
         try
         {
