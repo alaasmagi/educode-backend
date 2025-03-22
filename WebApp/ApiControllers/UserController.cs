@@ -62,7 +62,7 @@ namespace WebApp.ApiControllers
 
         // DELETE: api/User/5
         [Authorize]
-        [HttpDelete("Delete/{uniId}")]
+        [HttpDelete("Delete/UniId/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
