@@ -14,8 +14,7 @@ public class AdminPanelController(IAdminAccessService adminAccessService, ILogge
     [HttpGet]
     public IActionResult Index(string? message)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var model = new AdminLoginModel
         {
             Username = string.Empty,
@@ -29,8 +28,7 @@ public class AdminPanelController(IAdminAccessService adminAccessService, ILogge
     [HttpPost]
     public async Task<IActionResult> Index([Bind("Username", "Password")] AdminLoginModel model)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!_adminAccessService.AdminAccessGrant(model.Username, model.Password))
         {
             return Index("Wrong username or password!");

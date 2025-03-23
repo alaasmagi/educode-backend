@@ -23,17 +23,18 @@ namespace WebApp.ApiControllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
         {
-            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                                $"{HttpContext.Request.Host.ToString()}");
-           return await userManagementService.GetAllUsersAsync();
+           logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+           var users = await userManagementService.GetAllUsersAsync();
+           
+           logger.LogInformation($"All users fetched successfully");
+           return Ok(users);
         }
         
         [Authorize]
         [HttpGet("UniId/{uniId}")]
         public async Task<IActionResult> GetUserEntityByUniId(string uniId)
         {
-            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                                  $"{HttpContext.Request.Host.ToString()}");
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
 
             if (userEntity == null)
@@ -41,6 +42,7 @@ namespace WebApp.ApiControllers
                 return NotFound(new {message = "User not found", error = "user-not-found"});
             }
 
+            logger.LogInformation($"User with UNI-ID {uniId} fetched successfully");
             return Ok(userEntity);
         }
         
@@ -48,8 +50,7 @@ namespace WebApp.ApiControllers
         [HttpGet("Id/{id}")]
         public async Task<IActionResult> GetUserEntity(int id)
         {
-            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                                  $"{HttpContext.Request.Host.ToString()}");
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByIdAsync(id);
 
             if (userEntity == null)
@@ -57,6 +58,7 @@ namespace WebApp.ApiControllers
                 return NotFound(new {message = "User not found", error = "user-not-found"});
             }
 
+            logger.LogInformation($"User with ID {id} fetched successfully");
             return Ok(userEntity);
         }
 
@@ -64,16 +66,20 @@ namespace WebApp.ApiControllers
         [HttpDelete("Delete/UniId/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
-            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                                  $"{HttpContext.Request.Host.ToString()}");
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
             if (userEntity == null)
             {
                 return NotFound(new {message = "User not found", error = "user-not-found"});
             }
             
-            await userManagementService.DeleteUserAsync(userEntity);
-            return Ok(new { message = "User deleted successfully" });
+            if (await userManagementService.DeleteUserAsync(userEntity))
+            {
+                logger.LogInformation($"User with UNI-ID {uniId} deleted successfully");
+                return Ok(new { message = "User deleted successfully" });
+            }
+            
+            return BadRequest(new {message = "User delete failed", error = "user-delete-failed"});
         }
     }
 }

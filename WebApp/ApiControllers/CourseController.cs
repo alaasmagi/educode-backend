@@ -19,15 +19,15 @@ public class CourseController(
     [HttpGet("Id/{id}")]
     public async Task<ActionResult<CourseEntity>> GetCourseDetails(int id)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseEntity = await courseManagementService.GetCourseByIdAsync(id);
 
         if (courseEntity == null)
         {
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
-
+        
+        logger.LogInformation($"Successfully fetched course by course ID {id}");
         return Ok(courseEntity);
     }
     
@@ -35,15 +35,15 @@ public class CourseController(
     [HttpGet("AttendanceId/{id}")]
     public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(int id)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
 
         if (courseEntity == null)
         {
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
-
+        
+        logger.LogInformation($"Successfully fetched course by attendance with ID {id}");
         return Ok(courseEntity);
     }
     
@@ -51,9 +51,10 @@ public class CourseController(
     [HttpGet("Statuses")]
     public ActionResult<IEnumerable<CourseStatusDto>> GetAllCourseStatuses()
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseStatuses = courseManagementService.GetAllCourseStatuses();
+        
+        logger.LogInformation($"All course statuses fetched successfully");
         return Ok(courseStatuses);
     }
     
@@ -61,14 +62,15 @@ public class CourseController(
     [HttpGet("UniId/{uniId}")]
     public async Task<ActionResult<IEnumerable<CourseEntity>>> GetAllCoursesByUser(string uniId)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
         if(user == null)
         {
             return NotFound(new {message = "User not found", error = "user-not-found"});
         }
         var result = await courseManagementService.GetCoursesByUserAsync(user.Id);
+        
+        logger.LogInformation($"All courses for user with UNI-ID {uniId}");
         return Ok(result);
     }
     
@@ -76,8 +78,7 @@ public class CourseController(
     [HttpGet("StudentCounts/{id}")]
     public async Task<ActionResult<IEnumerable<CourseUserCountDto>>> GetAllStudentCountsByCourse(int id)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var validity = await courseManagementService.DoesCourseExistAsync(id);
         if(!validity)
         {
@@ -85,6 +86,8 @@ public class CourseController(
         }
         
         var result = await courseManagementService.GetAttendancesUserCountsByCourseAsync(id);
+        
+        logger.LogInformation($"All student counts for course with ID {id}");
         return Ok(result);
     }
     
@@ -92,10 +95,10 @@ public class CourseController(
     [HttpPost("Add")]
     public async Task<ActionResult<CourseEntity>> AddCourse([FromBody] CourseModel model)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
         {
+            logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
         }
 
@@ -118,7 +121,8 @@ public class CourseController(
         {
             return BadRequest(new { message = "Course already exists", error = "course-already-exists" });
         }
-
+        
+        logger.LogInformation($"Course added successfully");
         return Ok();
     }
     
@@ -126,10 +130,10 @@ public class CourseController(
     [HttpPatch("Edit")]
     public async Task<ActionResult<CourseEntity>> EditCourse([FromBody] CourseModel model)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid || model.Id == null)
         {
+            logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
         }
         
@@ -147,7 +151,8 @@ public class CourseController(
         {
             return BadRequest(new { message = "Course does not exist", error = "course-does-not-exist" });
         }
-
+        
+        logger.LogInformation($"Course with ID {model.Id} updated successfully");
         return Ok();
     }
     
@@ -155,10 +160,10 @@ public class CourseController(
     [HttpDelete("Delete/{id}")]
     public async Task<ActionResult<CourseEntity>> DeleteCourse(int id)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
         {
+            logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
         }
         
@@ -166,7 +171,8 @@ public class CourseController(
         {
             return BadRequest(new { message = "Course does not exist", error = "course-does-not-exist" });
         }
-
+        
+        logger.LogInformation($"Course with ID {id} deleted successfully");
         return Ok();
     }
 }
