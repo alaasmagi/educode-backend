@@ -21,7 +21,7 @@ public class AuthController(
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                           $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
 
         if (user == null)
@@ -50,7 +50,7 @@ public class AuthController(
     public async Task<IActionResult> Register([FromBody] CreateAccountModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var userType = await userManagementService.GetUserTypeAsync(model.UserRole);
         var newUser = new UserEntity();
         var newUserAuth = new UserAuthEntity();
@@ -92,7 +92,7 @@ public class AuthController(
     public async Task<IActionResult> RequestOtp([FromBody] RequestOtpModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -116,7 +116,7 @@ public class AuthController(
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
         var result = otpService.VerifyTotp(model.UniId, model.Otp);
 
@@ -151,7 +151,7 @@ public class AuthController(
     public async Task<IActionResult> ChangeAccountPassword([FromBody] ChangePasswordModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });

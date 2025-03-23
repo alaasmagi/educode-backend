@@ -20,7 +20,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseAttendanceEntity>> GetAttendanceById(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var attendanceEntity = await attendanceManagementService.GetCourseAttendanceByIdAsync(id);
 
         if (attendanceEntity == null)
@@ -37,7 +37,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
 
         if (user == null)
@@ -69,7 +69,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseAttendanceEntity>> GetAttendancesByCourseCode(string courseCode)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var course = await courseManagementService.GetCourseByCodeAsync(courseCode);
 
         if (course == null)
@@ -94,7 +94,7 @@ public class AttendanceController(
     public async Task<ActionResult<IEnumerable<CourseAttendanceEntity>>> GetAttendancesByCourseName(string courseName)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var course = await courseManagementService.GetCourseByNameAsync(courseName);
 
         if (course == null)
@@ -117,7 +117,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseAttendanceEntity>> GetMostRecentAttendance(string uniId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var user= await userManagementService.GetUserByUniIdAsync(uniId);
 
         if (user == null)
@@ -140,7 +140,7 @@ public class AttendanceController(
     public async Task<ActionResult<IEnumerable<AttendanceCheckEntity>>> GetAttendanceChecksByAttendanceId(int attendanceId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var user = await attendanceManagementService.GetCourseAttendanceByIdAsync(attendanceId);
 
         if (user == null)
@@ -162,7 +162,7 @@ public class AttendanceController(
     public async Task<ActionResult<IEnumerable<AttendanceTypeEntity>>> GetAllAttendanceTypes()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         var attendanceTypes = await attendanceManagementService.GetAttendanceTypesAsync();
         
         return Ok(attendanceTypes);
@@ -173,7 +173,7 @@ public class AttendanceController(
     public async Task<IActionResult> AddAttendanceCheck([FromBody] AttendanceCheckModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
@@ -196,7 +196,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseAttendanceEntity>> AddCourseAttendance([FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -233,7 +233,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseEntity>> EditAttendance([FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                               $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid || model.Id == null)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -277,7 +277,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseEntity>> DeleteAttendance(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -296,7 +296,7 @@ public class AttendanceController(
     public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
-                              $"{HttpContext.Request.Host.ToString()}");
+                              $"{HttpContext.Connection.RemoteIpAddress?.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
