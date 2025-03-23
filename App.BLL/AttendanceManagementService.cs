@@ -15,6 +15,11 @@ public class AttendanceManagementService : IAttendanceManagementService
         _context = context;
         _attendanceRepository = new AttendanceRepository(_context); 
     }
+
+    public async Task<bool> DoesAttendanceExist(int id)
+    { 
+        return await _context.CourseAttendances.AnyAsync(u => u.Id == id);
+    }
     
     public async Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(int userId)
     {
@@ -58,5 +63,69 @@ public class AttendanceManagementService : IAttendanceManagementService
             .FirstOrDefaultAsync();
 
         return attendance ?? null;
+    }
+
+    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id)
+    {
+        return await _context.AttendanceChecks.FirstOrDefaultAsync(ca => ca.Id == id);
+    }
+    
+    public async Task<List<AttendanceTypeEntity>> GetAttendanceTypesAsync()
+    {
+        return await _context.AttendanceTypes.ToListAsync();
+    }
+
+    public async Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId)
+    {
+        var result = await _context.AttendanceTypes
+            .FirstOrDefaultAsync(ca => ca.Id == attendanceTypeId);
+        return result ?? null;
+    }
+    
+    public async Task AddAttendanceAsync(CourseAttendanceEntity newAttendance, List<DateOnly> attendanceDates, 
+                                                                                TimeOnly startTime, TimeOnly endTime)
+    {
+        foreach (var date in attendanceDates)
+        {
+            newAttendance.StartTime = date.ToDateTime(startTime);
+            newAttendance.EndTime = date.ToDateTime(endTime);
+        }
+        
+        await _attendanceRepository.AddAttendance(newAttendance);
+    }
+
+    public async Task<bool> EditAttendanceAsync(int attendanceId, CourseAttendanceEntity updatedAttendance)
+    {
+        if (!await DoesAttendanceExist(attendanceId))
+        {
+            return false;
+        }
+        
+        var status = await _attendanceRepository.UpdateAttendance(attendanceId, updatedAttendance);
+        return status;
+    }
+    
+    public async Task<bool> DeleteAttendance(int id)
+    {
+        var attendance = await GetCourseAttendanceByIdAsync(id);
+        if (attendance == null)
+        {
+            return false;
+        }
+        
+        await _attendanceRepository.DeleteAttendanceEntity(attendance);
+        return true;
+    }
+    
+    public async Task<bool> DeleteAttendanceCheck(int id)
+    {
+        var attendanceCheck = await GetAttendanceCheckByIdAsync(id);
+        if (attendanceCheck == null)
+        {
+            return false;
+        }
+        
+        await _attendanceRepository.DeleteAttendanceCheckEntity(attendanceCheck);
+        return true;
     }
 }

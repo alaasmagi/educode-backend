@@ -26,4 +26,46 @@ public class AttendanceRepository(AppDbContext context)
         
         return ongoingAttendance;
     }
+    
+    public async Task AddAttendance(CourseAttendanceEntity attendance)
+    {
+        attendance.CreatedAt = DateTime.Now.ToUniversalTime();
+        attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
+        
+        await context.CourseAttendances.AddAsync(attendance);
+        await context.SaveChangesAsync();
+    }
+    
+    public async Task<bool> UpdateAttendance(int attendanceId, CourseAttendanceEntity updatedAttendance)
+    {
+        var attendance = await context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);
+
+        if (attendance == null)
+        {
+            return false;
+        }
+        
+        attendance.CourseId = updatedAttendance.CourseId;
+        attendance.Course = updatedAttendance.Course;
+        attendance.AttendanceTypeId = updatedAttendance.AttendanceTypeId;
+        attendance.AttendanceType = updatedAttendance.AttendanceType;
+        attendance.StartTime = updatedAttendance.StartTime;
+        attendance.EndTime = updatedAttendance.EndTime;
+ 
+        attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
+        await context.SaveChangesAsync();
+        return true;
+    }
+    
+    public async Task DeleteAttendanceEntity(CourseAttendanceEntity attendanceEntity)
+    {
+        context.CourseAttendances.Remove(attendanceEntity);
+        await context.SaveChangesAsync();
+    }
+    
+    public async Task DeleteAttendanceCheckEntity(AttendanceCheckEntity attendanceCheckEntity)
+    {
+        context.AttendanceChecks.Remove(attendanceCheckEntity);
+        await context.SaveChangesAsync();
+    }
 }

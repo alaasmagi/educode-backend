@@ -140,6 +140,15 @@ public class AttendanceController(
     }
     
     [Authorize(Roles = "Teacher")]
+    [HttpGet("AttendanceTypes")]
+    public async Task<ActionResult<IEnumerable<AttendanceTypeEntity>>> GetAllAttendanceTypes()
+    {
+        var attendanceTypes = await attendanceManagementService.GetAttendanceTypesAsync();
+        
+        return Ok(attendanceTypes);
+    }
+    
+    [Authorize(Roles = "Teacher")]
     [HttpPost("Add")]
     public async Task<IActionResult> AddAttendance([FromBody] AttendanceCheckModel model)
     {
@@ -177,6 +186,118 @@ public class AttendanceController(
         };
         
         await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator);
+
+        return Ok();
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpPost("Add")]
+    public async Task<ActionResult<CourseAttendanceEntity>> AddCourseAttendance([FromBody] AttendanceModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+        }
+        
+        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId);
+        if (course == null)
+        {
+            return NotFound(new {message = "Course not found", error = "course-not-found"});
+        }
+        
+        var attendanceType = await attendanceManagementService.GetAttendanceTypeByIdAsync(model.AttendanceTypeId);
+        if (attendanceType == null)
+        {
+            return NotFound(new {message = "Attendance type not found", error = "attendance-type-not-found"});
+        }
+        
+        var newAttendance = new CourseAttendanceEntity()
+        {
+            CourseId = model.CourseId,
+            Course = course,
+            AttendanceTypeId = model.AttendanceTypeId,
+            AttendanceType = attendanceType,
+            CreatedBy = model.Creator,
+            UpdatedBy = model.Creator
+        };
+        await attendanceManagementService.AddAttendanceAsync(newAttendance, model.AttendanceDates, model.StartTime, 
+                                                                                                model.EndTime);
+        return Ok();
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpPatch("Edit")]
+    public async Task<ActionResult<CourseEntity>> EditAttendance([FromBody] AttendanceModel model)
+    {
+        if (!ModelState.IsValid || model.Id == null)
+        {
+            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+        }
+        
+        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId);
+        if (course == null)
+        {
+            return NotFound(new {message = "Course not found", error = "course-not-found"});
+        }
+        
+        var attendanceType = await attendanceManagementService.GetAttendanceTypeByIdAsync(model.AttendanceTypeId);
+        if (attendanceType == null)
+        {
+            return NotFound(new {message = "Attendance type not found", error = "attendance-type-not-found"});
+        }
+        
+        var newAttendance = new CourseAttendanceEntity()
+        {
+            CourseId = model.CourseId,
+            Course = course,
+            AttendanceTypeId = model.AttendanceTypeId,
+            AttendanceType = attendanceType,
+            StartTime = model.AttendanceDates[0].ToDateTime(model.StartTime).ToUniversalTime(),
+            EndTime = model.AttendanceDates[0].ToDateTime(model.EndTime).ToUniversalTime(),
+            CreatedBy = model.Creator,
+            UpdatedBy = model.Creator
+        };
+
+        var attendanceId = model.Id ?? 0;
+        if (!await attendanceManagementService.EditAttendanceAsync(attendanceId, newAttendance))
+        {
+            return BadRequest(new { message = "Attendance does not exist", error = "attendance-does-not-exist" });
+        }
+
+        return Ok();
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpDelete("Delete/{id}")]
+    public async Task<ActionResult<CourseEntity>> DeleteAttendance(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+        }
+        
+        if (!await attendanceManagementService.DeleteAttendance(id))
+        {
+            return BadRequest(new { message = "Attendance does not exist", error = "attendance-does-not-exist" });
+        }
+
+        return Ok();
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpDelete("Delete/AttendanceCheck/{id}")]
+    public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+        }
+        
+        if (!await attendanceManagementService.DeleteAttendanceCheck(id))
+        {
+            return BadRequest(new { message = "AttendanceCheck does not exist", 
+                                                                        error = "attendance-check-does-not-exist" });
+        }
 
         return Ok();
     }
