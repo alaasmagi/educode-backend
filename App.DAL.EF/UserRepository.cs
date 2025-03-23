@@ -5,26 +5,24 @@ namespace App.DAL.EF;
 
 public class UserRepository (AppDbContext context)
 {
-    // Base features
-    public async Task AddUserEntityToDb(UserEntity newUser)
+    public async Task<bool> AddUserEntityToDb(UserEntity newUser)
     {
         newUser.CreatedAt = DateTime.Now.ToUniversalTime();
         newUser.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.Users.AddAsync(newUser);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
+    public async Task<bool> AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
     {
         newUserAuth.CreatedAt = DateTime.Now.ToUniversalTime();
         newUserAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.UserAuthData.AddAsync(newUserAuth);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
     
-    // Business logic DB extensions
     public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(int input)
     {
         return await context.UserAuthData
@@ -43,15 +41,14 @@ public class UserRepository (AppDbContext context)
         
         userAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
         userAuth.PasswordHash = newPasswordHash;
-        await context.SaveChangesAsync();
         
-        return true;
+        return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task DeleteUserEntity(UserEntity user)
+    public async Task<bool> DeleteUserEntity(UserEntity user)
     {
         context.Users.Remove(user);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
     
 }

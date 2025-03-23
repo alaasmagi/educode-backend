@@ -1,13 +1,19 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Contracts;
-using Microsoft.Testing.Platform.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace App.BLL;
 using BCrypt.Net;
 
-public class AdminAccessService(ILogger<AdminAccessService> logger) : IAdminAccessService
+public class AdminAccessService : IAdminAccessService
 {
+    private readonly ILogger<AdminAccessService> _logger;
+    public AdminAccessService(ILogger<AdminAccessService> logger)
+    {
+        _logger = logger;
+    }
+    
     public bool AdminAccessGrant(string enteredUsername, string enteredPassword)
     {
         var storedUsernameEnc = Environment.GetEnvironmentVariable("ADMINUSER") ?? "";
@@ -15,19 +21,20 @@ public class AdminAccessService(ILogger<AdminAccessService> logger) : IAdminAcce
 
         if (storedUsernameEnc == "" && storedPasswordEnc == "")
         {
-            logger.LogError("Reading data from env failed (ADMINUSER or ADMINKEY)");
+            _logger.LogError("Reading data from env failed (ADMINUSER or ADMINKEY)");
             return false;
         }
 
         var storedUsername = Encoding.UTF8.GetString(Convert.FromBase64String(storedUsernameEnc));
         var storedPassword = Encoding.UTF8.GetString(Convert.FromBase64String(storedPasswordEnc));
         
-        if (BCrypt.Verify(enteredUsername, storedUsername) && BCrypt.Verify(enteredPassword, storedPassword))
+        if (BCrypt.Verify(enteredUsername, storedUsername) && 
+            BCrypt.Verify(enteredPassword, storedPassword))
         {
             return true;
         }
         
-        logger.LogError("Admin access grant failed");
+        _logger.LogError("Admin access grant failed");
         return false;
     }
 
@@ -45,7 +52,7 @@ public class AdminAccessService(ILogger<AdminAccessService> logger) : IAdminAcce
 
         if (salt == null)
         {
-            await logger.LogErrorAsync("Reading data from env failed (ADMINTOKENSALT)");
+            _logger.LogError("Reading data from env failed (ADMINTOKENSALT)");
             return string.Empty;
         }
         
@@ -67,7 +74,7 @@ public class AdminAccessService(ILogger<AdminAccessService> logger) : IAdminAcce
             return true;    
         }
         
-        await logger.LogErrorAsync("Hashed tokens do not match");
+        _logger.LogError("Hashed tokens do not match");
         return false;
     }
 }

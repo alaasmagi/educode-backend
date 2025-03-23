@@ -112,7 +112,10 @@ public class AuthController(
         var recipientUniId = user?.UniId ?? model.UniId;
         var recipientName = user?.FullName ?? model.FullName;
 
-        await emailService.SendEmailAsync(recipientUniId, recipientName, key);
+        if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
+        {
+            return BadRequest(new { message = "Email was not sent", error = "email-was-not-sent" });
+        }
         
         logger.LogInformation($"OTP sent successfully for user with UNI-ID {model.UniId}");
         return Ok(new { message = "OTP sent successfully" });
@@ -130,6 +133,7 @@ public class AuthController(
         }
         
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
+        
         var result = otpService.VerifyTotp(model.UniId, model.Otp);
 
         if (!result)

@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using App.BLL;
 using Contracts;
 using Microsoft.AspNetCore.RateLimiting;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +20,6 @@ var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
 var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};";
 
-
-
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
@@ -30,6 +28,16 @@ var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day)  
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(); 
+builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
 builder.Services.AddScoped<IAdminAccessService, AdminAccessService>();
 builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();

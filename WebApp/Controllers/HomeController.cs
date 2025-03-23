@@ -35,6 +35,7 @@ public class AdminPanelController(IAdminAccessService adminAccessService, ILogge
         }
         
         await SetTokensAsync();
+        logger.LogInformation($"Admin access granted successfully");
         return  RedirectToAction("Home");
     }
 

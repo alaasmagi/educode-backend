@@ -9,8 +9,8 @@ public interface ICourseManagementService
     Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator);
     Task<bool> EditCourse(int courseId, CourseEntity newCourse);
     Task<bool> DeleteCourse(int courseId);
-    List<CourseStatusDto> GetAllCourseStatuses();
-    Task<List<CourseEntity>> GetCoursesByUserAsync(int userId);
+    List<CourseStatusDto>? GetAllCourseStatuses();
+    Task<List<CourseEntity>?> GetCoursesByUserAsync(int userId);
     Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId);
     Task<bool> DoesCourseExistAsync(int id);
     Task<CourseEntity?> GetCourseByNameAsync(string courseName);

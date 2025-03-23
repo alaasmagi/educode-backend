@@ -6,13 +6,13 @@ public interface IAttendanceManagementService
 {
     Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(int userId);
     Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId);
-    Task AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator);
+    Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator);
     Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(int courseId);
     Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceId);
     Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(int userId);
-    Task<List<AttendanceTypeEntity>> GetAttendanceTypesAsync();
+    Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync();
     Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId);
-    Task AddAttendanceAsync(CourseAttendanceEntity newAttendance, List<DateOnly> attendanceDates,
+    Task<bool> AddAttendanceAsync(CourseAttendanceEntity newAttendance, List<DateOnly> attendanceDates,
         TimeOnly startTime, TimeOnly endTime);
     Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id);
     Task<bool> DeleteAttendance(int id);

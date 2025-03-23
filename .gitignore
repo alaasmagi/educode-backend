@@ -349,6 +349,8 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
+*.txt
+
 # OpenCover UI analysis results
 OpenCover/
 

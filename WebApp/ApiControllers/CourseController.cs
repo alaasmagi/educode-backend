@@ -53,6 +53,11 @@ public class CourseController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseStatuses = courseManagementService.GetAllCourseStatuses();
+
+        if (courseStatuses == null)
+        {
+            return NotFound(new {message = "Course statuses not found", error = "course-statuses-not-found"});
+        }
         
         logger.LogInformation($"All course statuses fetched successfully");
         return Ok(courseStatuses);
@@ -68,7 +73,13 @@ public class CourseController(
         {
             return NotFound(new {message = "User not found", error = "user-not-found"});
         }
+        
         var result = await courseManagementService.GetCoursesByUserAsync(user.Id);
+        
+        if (result == null)
+        {
+            return NotFound(new {message = "No courses found", error = "courses-not-found"});
+        }
         
         logger.LogInformation($"All courses for user with UNI-ID {uniId}");
         return Ok(result);
@@ -86,6 +97,12 @@ public class CourseController(
         }
         
         var result = await courseManagementService.GetAttendancesUserCountsByCourseAsync(id);
+
+        if (result == null)
+        {
+            return NotFound(new {message = "No student counts found", error = "student-counts-not-found"});
+
+        }
         
         logger.LogInformation($"All student counts for course with ID {id}");
         return Ok(result);

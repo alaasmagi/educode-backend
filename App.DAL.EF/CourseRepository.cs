@@ -5,24 +5,30 @@ namespace App.DAL.EF;
 
 public class CourseRepository(AppDbContext context)
 {
-   public async Task<List<CourseEntity>> GetCoursesByUser(int id)
+   public async Task<List<CourseEntity>?> GetCoursesByUser(int id)
     {
-        return await context.Courses
+        var result = await context.Courses
             .Where(ca => ca.CourseTeacherEntities!
                 .Any(ct => ct.TeacherId == id))
             .ToListAsync();
+        
+        return result.Count > 0 ? result : null; 
     }
     
-    public async Task AddCourseEntity(CourseTeacherEntity teacher, CourseEntity newCourse)
+    public async Task<bool> AddCourseEntity(CourseTeacherEntity teacher, CourseEntity newCourse)
     {
-        teacher.CreatedAt = DateTime.Now.ToUniversalTime();
-        teacher.UpdatedAt = DateTime.Now.ToUniversalTime();
         newCourse.CreatedAt = DateTime.Now.ToUniversalTime();
         newCourse.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.Courses.AddAsync(newCourse);
+        
+        teacher.CourseId = newCourse.Id;
+        teacher.Course = newCourse;
+        teacher.CreatedAt = DateTime.Now.ToUniversalTime();
+        teacher.UpdatedAt = DateTime.Now.ToUniversalTime();
+        
         await context.CourseTeachers.AddAsync(teacher);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
     
     public async Task<bool> UpdateCourseEntity(int courseId, CourseEntity updatedCourse)
@@ -39,14 +45,13 @@ public class CourseRepository(AppDbContext context)
         course.CourseValidStatus = updatedCourse.CourseValidStatus;
  
         course.UpdatedAt = DateTime.Now.ToUniversalTime();
-        await context.SaveChangesAsync();
-        return true;
+        return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task DeleteCourseEntity(CourseEntity course)
+    public async Task<bool> DeleteCourseEntity(CourseEntity course)
     {
         context.Courses.Remove(course);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
     
     public async Task<List<CourseUserCountDto>?> GetAllUserCountsByCourseId(int courseId)
@@ -67,7 +72,7 @@ public class CourseRepository(AppDbContext context)
             })
             .ToListAsync();
 
-        return attendanceCounts;
+        return attendanceCounts.Count > 0 ? attendanceCounts : null;
     }
     
 

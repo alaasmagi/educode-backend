@@ -73,7 +73,8 @@ public class AttendanceController(
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
         
-        var attendances = await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+        var attendances = 
+            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
 
         if (attendances == null)
         {
@@ -96,7 +97,8 @@ public class AttendanceController(
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
         
-        var attendances = await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+        var attendances = 
+            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
 
         if (attendances == null)
         {
@@ -142,7 +144,8 @@ public class AttendanceController(
             return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
         }
         
-        var attendanceChecks = await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
+        var attendanceChecks = 
+            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
         if (attendanceChecks == null)
         {
             return Ok(new {message = "Attendance has no attendance checks", error = "attendance-has-no-checks"});
@@ -158,6 +161,11 @@ public class AttendanceController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var attendanceTypes = await attendanceManagementService.GetAttendanceTypesAsync();
+
+        if (attendanceTypes == null)
+        {
+            return NotFound(new {message = "Attendance types not found", error = "attendance-types-not-found"});
+        }
         
         logger.LogInformation($"All attendance types successfully fetched");
         return Ok(attendanceTypes);
@@ -180,8 +188,12 @@ public class AttendanceController(
            CourseAttendanceId = model.CourseAttendanceId,
            WorkplaceId = model.WorkplaceId ?? null
         };
-        
-        await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator);
+
+        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator))
+        {
+            return BadRequest(new {message = "Attendance check already exists", 
+                error = "attendance-check-already-exists" });
+        }
 
         logger.LogInformation($"Attendance check added successfully");
         return Ok();
@@ -218,8 +230,12 @@ public class AttendanceController(
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator
         };
-        await attendanceManagementService.AddAttendanceAsync(newAttendance, model.AttendanceDates, model.StartTime, 
-                                                                                                model.EndTime);
+        if (!await attendanceManagementService.AddAttendanceAsync(newAttendance, model.AttendanceDates, model.StartTime,
+                model.EndTime))
+        {
+            return BadRequest(new {message = "One or more attendances could not be added", 
+                error = "attendances-could-not-be-added"});
+        }
         
         logger.LogInformation($"Attendance added successfully");
         return Ok();

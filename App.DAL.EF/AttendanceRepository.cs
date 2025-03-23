@@ -5,7 +5,7 @@ namespace App.DAL.EF;
 
 public class AttendanceRepository(AppDbContext context)
 {
-    public async Task AddAttendanceCheck(AttendanceCheckEntity attendance, string creator)
+    public async Task<bool> AddAttendanceCheck(AttendanceCheckEntity attendance, string creator)
     {
         attendance.CreatedBy = creator;
         attendance.UpdatedBy = creator;
@@ -13,7 +13,7 @@ public class AttendanceRepository(AppDbContext context)
         attendance.UpdatedAt= DateTime.Now.ToUniversalTime();
         
         await context.AttendanceChecks.AddAsync(attendance);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0;
     }
 
     public async Task<CourseAttendanceEntity?> GetCurrentAttendance(int userId)
@@ -27,18 +27,20 @@ public class AttendanceRepository(AppDbContext context)
         return ongoingAttendance;
     }
     
-    public async Task AddAttendance(CourseAttendanceEntity attendance)
+    public async Task<bool> AddAttendance(CourseAttendanceEntity attendance)
     {
         attendance.CreatedAt = DateTime.Now.ToUniversalTime();
         attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
         
         await context.CourseAttendances.AddAsync(attendance);
-        await context.SaveChangesAsync();
+       
+        return await context.SaveChangesAsync() > 0 ;
     }
     
     public async Task<bool> UpdateAttendance(int attendanceId, CourseAttendanceEntity updatedAttendance)
     {
-        var attendance = await context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);
+        var attendance = await context.CourseAttendances
+            .FirstOrDefaultAsync(u => u.Id == attendanceId);
 
         if (attendance == null)
         {
@@ -53,19 +55,19 @@ public class AttendanceRepository(AppDbContext context)
         attendance.EndTime = updatedAttendance.EndTime;
  
         attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
-        await context.SaveChangesAsync();
-        return true;
+        
+        return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task DeleteAttendanceEntity(CourseAttendanceEntity attendanceEntity)
+    public async Task<bool> DeleteAttendanceEntity(CourseAttendanceEntity attendanceEntity)
     {
         context.CourseAttendances.Remove(attendanceEntity);
-        await context.SaveChangesAsync();
+        return await context.SaveChangesAsync() > 0 ;
     }
     
-    public async Task DeleteAttendanceCheckEntity(AttendanceCheckEntity attendanceCheckEntity)
-    {
-        context.AttendanceChecks.Remove(attendanceCheckEntity);
-        await context.SaveChangesAsync();
+    public async Task<bool> DeleteAttendanceCheckEntity(AttendanceCheckEntity attendanceCheckEntity)
+    { 
+        context.AttendanceChecks.Remove(attendanceCheckEntity); 
+        return await context.SaveChangesAsync() > 0;
     }
 }
