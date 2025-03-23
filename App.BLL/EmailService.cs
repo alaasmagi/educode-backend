@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using App.Domain;
 using Contracts;
 
 namespace App.BLL;

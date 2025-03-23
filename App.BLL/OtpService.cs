@@ -1,5 +1,4 @@
 ﻿using OtpNet;
-using System;
 using System.Security.Cryptography;
 using System.Text;
 using Contracts;

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Contracts;
+﻿namespace Contracts;
 
 public interface IEmailService
 {

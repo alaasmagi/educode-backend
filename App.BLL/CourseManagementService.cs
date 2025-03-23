@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using App.DAL.EF;
+﻿using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.EntityFrameworkCore;

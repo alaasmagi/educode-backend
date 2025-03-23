@@ -6,7 +6,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController(AppDbContext context, IAdminAccessService adminAccessService)
+public class AdminPanelController(IAdminAccessService adminAccessService)
     : BaseController(adminAccessService)
 {
     private readonly IAdminAccessService _adminAccessService = adminAccessService;

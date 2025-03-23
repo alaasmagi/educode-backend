@@ -1,23 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using App.Domain;
 using Contracts;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace App.BLL;
 
 public class AuthService : IAuthService
 {
-    private readonly IConfiguration _config;
-    
-    public AuthService(IConfiguration config)
-    {
-        _config = config;
-    }
-
     public string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
