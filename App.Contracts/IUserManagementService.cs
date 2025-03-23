@@ -4,7 +4,7 @@ namespace Contracts;
 
 public interface IUserManagementService
 {
-    Task<UserEntity?> AuthenticateUserAsync(string uniId, string password);
+    Task<UserEntity?> AuthenticateUserAsync(int userId, string password);
     Task<bool> CreateAccountAsync(UserEntity user, UserAuthEntity userAuthData);
     Task<bool> ChangeUserPasswordAsync(UserEntity user, string newPasswordHash);
     Task<UserEntity?> GetUserByUniIdAsync(string uniId);

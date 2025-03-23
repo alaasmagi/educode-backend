@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
 
-public class AttendanceRepo(AppDbContext context)
+public class AttendanceRepository(AppDbContext context)
 {
-    public async Task<CourseAttendanceEntity?> GetAttendance(int attendanceId)
-    {
-        return await context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);;
-    }
-
     public async Task AddAttendanceCheck(AttendanceCheckEntity attendance, string creator)
     {
         attendance.CreatedBy = creator;

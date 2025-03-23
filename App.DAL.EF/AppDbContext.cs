@@ -47,12 +47,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasMany(u => u.AttendanceChecks)
             .WithOne()
             .HasForeignKey(u => u.CourseAttendanceId);
-
         modelBuilder.Entity<CourseAttendanceEntity>()
             .HasOne(u => u.Course)
             .WithMany()
             .HasForeignKey(u => u.CourseId);
-        
         modelBuilder.Entity<CourseAttendanceEntity>()
             .HasOne(u => u.AttendanceType)
             .WithMany()
@@ -61,11 +59,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // AttendanceCheck relationship
         modelBuilder.Entity<AttendanceCheckEntity>()
             .ToTable("AttendanceChecks");
-        
          modelBuilder.Entity<AttendanceCheckEntity>()
                 .HasIndex(e => new { e.StudentCode, e.CourseAttendanceId })
                 .IsUnique();
-         
         modelBuilder.Entity<AttendanceCheckEntity>()
             .HasOne(u => u.Workplace)
             .WithMany()
@@ -74,12 +70,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // Course relationship
         modelBuilder.Entity<CourseEntity>()
             .ToTable("Courses");
-        
         modelBuilder.Entity<CourseEntity>()
             .HasMany(u => u.CourseTeacherEntities)
             .WithOne(u => u.Course)
             .HasForeignKey(u => u.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CourseEntity>()
+            .HasIndex(u => u.CourseCode)
+            .IsUnique();
         
         // CourseTeacher relationship
         modelBuilder.Entity<CourseTeacherEntity>()
@@ -88,7 +86,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany(u => u.CourseTeacherEntities)
             .HasForeignKey(u => u.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
-        
         modelBuilder.Entity<CourseTeacherEntity>()
             .HasOne(u => u.Teacher)
             .WithMany()
@@ -97,13 +94,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // UserType relationship
         modelBuilder.Entity<UserTypeEntity>()
             .ToTable("UserTypes");
+        modelBuilder.Entity<UserTypeEntity>()
+            .HasIndex(u => u.UserType)
+            .IsUnique();
         
         // AttendanceType relationship
         modelBuilder.Entity<AttendanceTypeEntity>()
             .ToTable("AttendanceTypes");
+        modelBuilder.Entity<AttendanceTypeEntity>()
+            .HasIndex(u => u.AttendanceType)
+            .IsUnique();
         
         // Workplace relationship
         modelBuilder.Entity<WorkplaceEntity>()
             .ToTable("Workplaces");
+        
     }
 }

@@ -37,7 +37,8 @@ public class AuthService : IAuthService
             Expires = DateTime.UtcNow.AddDays(60),
             Issuer = Environment.GetEnvironmentVariable("JWTISS")!,
             Audience = Environment.GetEnvironmentVariable("JWTAUD")!,
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), 
+                SecurityAlgorithms.HmacSha256)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);

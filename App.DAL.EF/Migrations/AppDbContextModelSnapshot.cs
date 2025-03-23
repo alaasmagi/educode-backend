@@ -99,6 +99,9 @@ namespace App.DAL.EF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AttendanceType")
+                        .IsUnique();
+
                     b.ToTable("AttendanceTypes", (string)null);
                 });
 
@@ -185,6 +188,9 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseCode")
+                        .IsUnique();
 
                     b.ToTable("Courses", (string)null);
                 });
@@ -356,6 +362,9 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserType")
+                        .IsUnique();
 
                     b.ToTable("UserTypes", (string)null);
                 });

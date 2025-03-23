@@ -54,13 +54,12 @@ public class CourseController(
     [HttpGet("UniId/{uniId}")]
     public async Task<ActionResult<IEnumerable<CourseEntity>>> GetAllCoursesByUser(string uniId)
     {
-        var validity = await userManagementService.DoesUserExistAsync(uniId);
-        if(!validity)
+        var user = await userManagementService.GetUserByUniIdAsync(uniId);
+        if(user == null)
         {
             return NotFound(new {message = "User not found", error = "user-not-found"});
-            
         }
-        var result = await courseManagementService.GetCoursesByUserAsync(uniId);
+        var result = await courseManagementService.GetCoursesByUserAsync(user.Id);
         return Ok(result);
     }
     

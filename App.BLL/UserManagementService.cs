@@ -16,9 +16,9 @@ public class UserManagementService : IUserManagementService
         _user = new UserRepository(_context); 
     }
     
-    public async Task<UserEntity?> AuthenticateUserAsync(string uniId, string password)
+    public async Task<UserEntity?> AuthenticateUserAsync(int userId, string password)
     {
-        var userAuthData = await _user.GetUserAuthEntityByUniIdOrStudentCode(uniId);
+        var userAuthData = await _user.GetUserAuthEntityByUniIdOrStudentCode(userId);
 
         if (userAuthData == null)
         {

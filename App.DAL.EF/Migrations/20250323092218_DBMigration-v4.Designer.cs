@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250323085802_DBMigration-v3")]
-    partial class DBMigrationv3
+    [Migration("20250323092218_DBMigration-v4")]
+    partial class DBMigrationv4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,6 +102,9 @@ namespace App.DAL.EF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AttendanceType")
+                        .IsUnique();
+
                     b.ToTable("AttendanceTypes", (string)null);
                 });
 
@@ -188,6 +191,9 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseCode")
+                        .IsUnique();
 
                     b.ToTable("Courses", (string)null);
                 });
@@ -359,6 +365,9 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserType")
+                        .IsUnique();
 
                     b.ToTable("UserTypes", (string)null);
                 });

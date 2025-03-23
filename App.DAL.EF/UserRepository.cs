@@ -25,11 +25,11 @@ public class UserRepository (AppDbContext context)
     }
     
     // Business logic DB extensions
-    public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(string input)
+    public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(int input)
     {
         return await context.UserAuthData
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
-            .FirstOrDefaultAsync(ua => ua.User!.UniId == input || ua.User.StudentCode == input) ?? null;
+            .FirstOrDefaultAsync(ua => ua.UserId == input) ?? null;
     }
 
     public async Task<bool> UpdateUserAuthEntity(int userId, string newPasswordHash)

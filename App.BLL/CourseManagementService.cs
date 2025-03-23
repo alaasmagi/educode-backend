@@ -9,32 +9,40 @@ namespace App.BLL;
 public class CourseManagementService : ICourseManagementService
 {
     private readonly AppDbContext _context;
-    private readonly CourseRepo courseRepo;
-    private readonly AttendanceRepo attendanceRepo;
+    private readonly CourseRepository _courseRepository;
 
     public CourseManagementService(AppDbContext context)
     {
         _context = context;
-        courseRepo = new CourseRepo(_context); 
-        attendanceRepo = new AttendanceRepo(_context); 
+        _courseRepository = new CourseRepository(_context); 
     }
 
     public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(int attendanceId)
     {
-        var courseAttendance = await attendanceRepo.GetAttendance(attendanceId);
+        var courseAttendance = await _context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);
 
         if (courseAttendance == null)
         {
             return null;
         }
         
-        var course = await courseRepo.GetCourse(courseAttendance.CourseId);
+        var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseAttendance.CourseId);
         return course ?? null;
     }
 
     public async Task<CourseEntity?> GetCourseByIdAsync(int courseId)
     {
-        return await courseRepo.GetCourse(courseId) ?? null;
+        return await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId) ?? null;
+    }
+    
+    public async Task<CourseEntity?> GetCourseByNameAsync(string courseName)
+    {
+        return await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == courseName) ?? null;
+    }
+    
+    public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode)
+    {
+        return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == courseCode) ?? null;
     }
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
@@ -53,7 +61,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
 
-        await courseRepo.AddCourseEntity(courseTeacher, course);
+        await _courseRepository.AddCourseEntity(courseTeacher, course);
         return true;
     }
     public async Task<bool> EditCourse(int courseId, CourseEntity newCourse)
@@ -63,7 +71,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await courseRepo.UpdateCourseEntity(courseId, newCourse);
+        await _courseRepository.UpdateCourseEntity(courseId, newCourse);
         return true;
     }
     public async Task<bool> DeleteCourse(int id)
@@ -74,7 +82,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await courseRepo.DeleteCourseEntity(course);
+        await _courseRepository.DeleteCourseEntity(course);
         return true;
     }
     
@@ -90,14 +98,14 @@ public class CourseManagementService : ICourseManagementService
             .ToList();
     }
     
-    public async Task<List<CourseEntity>> GetCoursesByUserAsync(string uniId)
+    public async Task<List<CourseEntity>> GetCoursesByUserAsync(int userId)
     {
-        return await courseRepo.GetCoursesByUser(uniId);
+        return await _courseRepository.GetCoursesByUser(userId);
     }
     
     public async Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId)
     {
-        return await courseRepo.GetAllUserCountsByCourseId(courseId) ?? null;
+        return await _courseRepository.GetAllUserCountsByCourseId(courseId) ?? null;
     }
     
     public async Task<bool> DoesCourseExistAsync(int id)

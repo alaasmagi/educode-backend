@@ -3,18 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
 
-public class CourseRepo(AppDbContext context)
+public class CourseRepository(AppDbContext context)
 {
-    public async Task<CourseEntity?> GetCourse(int courseId)
-    {
-        return await context.Courses.FirstOrDefaultAsync(u => u.Id == courseId);
-    }
-
-    public async Task<List<CourseEntity>> GetCoursesByUser(string uniId)
+   public async Task<List<CourseEntity>> GetCoursesByUser(int id)
     {
         return await context.Courses
             .Where(ca => ca.CourseTeacherEntities!
-                .Any(ct => ct.Teacher!.UniId == uniId))
+                .Any(ct => ct.TeacherId == id))
             .ToListAsync();
     }
     

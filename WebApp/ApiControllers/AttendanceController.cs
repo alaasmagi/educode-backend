@@ -10,6 +10,7 @@ namespace WebApp.ApiControllers;
 [Route("api/[controller]")]
 public class AttendanceController(
     IAttendanceManagementService attendanceManagementService,
+    ICourseManagementService courseManagementService,
     IUserManagementService userManagementService)
     : ControllerBase
 {
@@ -28,7 +29,7 @@ public class AttendanceController(
     }
 
     [Authorize]
-    [HttpGet("GetCurrentAttendance/UniId/{uniId}")]
+    [HttpGet("CurrentAttendance/UniId/{uniId}")]
     public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
     {
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
@@ -38,7 +39,7 @@ public class AttendanceController(
             return NotFound(new {message = "User not found", error = "user-not-found"});
         }
         
-        var courseAttendanceEntity = await attendanceManagementService.GetCurrentAttendanceAsync(user);
+        var courseAttendanceEntity = await attendanceManagementService.GetCurrentAttendanceAsync(user.Id);
 
         if (courseAttendanceEntity?.Course == null)
         {
@@ -53,6 +54,89 @@ public class AttendanceController(
         };
         
         return Ok(returnEntity);
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("CourseCode/{code}")]
+    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendancesByCourseCode(string courseCode)
+    {
+        var course = await courseManagementService.GetCourseByCodeAsync(courseCode);
+
+        if (course == null)
+        {
+            return NotFound(new {message = "Course not found", error = "course-not-found"});
+        }
+        
+        var attendances = await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+
+        if (attendances == null)
+        {
+            return Ok(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+        }
+        
+        return Ok(attendances);
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("CourseName/{courseName}")]
+    public async Task<ActionResult<IEnumerable<CourseAttendanceEntity>>> GetAttendancesByCourseName(string courseName)
+    {
+        var course = await courseManagementService.GetCourseByNameAsync(courseName);
+
+        if (course == null)
+        {
+            return NotFound(new {message = "Course not found", error = "course-not-found"});
+        }
+        
+        var attendances = await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+
+        if (attendances == null)
+        {
+            return Ok(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+        }
+        
+        return Ok(attendances);
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("RecentAttendance/UniId/{uniId}")]
+    public async Task<ActionResult<CourseAttendanceEntity>> GetMostRecentAttendance(string uniId)
+    {
+        var user= await userManagementService.GetUserByUniIdAsync(uniId);
+
+        if (user == null)
+        {
+            return NotFound(new {message = "User not found", error = "user-not-found"});
+        }
+        
+        var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
+
+        if (attendance == null)
+        {
+            return Ok(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+        }
+        
+        return Ok(attendance);
+    }
+    
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("AttendanceChecks/AttendanceId/{attendanceId}")]
+    public async Task<ActionResult<IEnumerable<AttendanceCheckEntity>>> GetAttendanceChecksByAttendanceId(int attendanceId)
+    {
+        var user = await attendanceManagementService.GetCourseAttendanceByIdAsync(attendanceId);
+
+        if (user == null)
+        {
+            return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
+        }
+        
+        var attendanceChecks = await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
+        if (attendanceChecks == null)
+        {
+            return Ok(new {message = "Attendance has no attendance checks", error = "attendance-has-no-checks"});
+        }
+        
+        return Ok(attendanceChecks);
     }
     
     [Authorize(Roles = "Teacher")]

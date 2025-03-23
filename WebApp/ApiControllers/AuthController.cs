@@ -20,8 +20,15 @@ public class AuthController(
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        var user = await userManagementService.AuthenticateUserAsync(model.UniId, model.Password);
-        if (user == null || !ModelState.IsValid)
+        var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
+
+        if (user == null)
+        {
+            return NotFound(new {message = "User not found", error = "user-not-found"});
+        }
+        
+        var userAuthData = await userManagementService.AuthenticateUserAsync(user.Id, model.Password);
+        if (userAuthData == null || !ModelState.IsValid)
         {
             return Unauthorized(new { message = "Invalid UNI-ID or password", error = "invalid-uni-id-password" });
         }
@@ -138,7 +145,6 @@ public class AuthController(
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
-            ;
         }
 
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
