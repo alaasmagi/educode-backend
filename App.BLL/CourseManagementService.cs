@@ -46,7 +46,7 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
-        CourseTeacherEntity courseTeacher = new CourseTeacherEntity()
+        var courseTeacher = new CourseTeacherEntity()
         {
             CourseId = course.Id,
             Course = course,

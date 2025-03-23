@@ -6,7 +6,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController(IAdminAccessService adminAccessService)
+public class AdminPanelController(IAdminAccessService adminAccessService, ILogger<AdminPanelController> logger)
     : BaseController(adminAccessService)
 {
     private readonly IAdminAccessService _adminAccessService = adminAccessService;
@@ -14,6 +14,8 @@ public class AdminPanelController(IAdminAccessService adminAccessService)
     [HttpGet]
     public IActionResult Index(string? message)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var model = new AdminLoginModel
         {
             Username = string.Empty,
@@ -27,6 +29,8 @@ public class AdminPanelController(IAdminAccessService adminAccessService)
     [HttpPost]
     public async Task<IActionResult> Index([Bind("Username", "Password")] AdminLoginModel model)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         if (!_adminAccessService.AdminAccessGrant(model.Username, model.Password))
         {
             return Index("Wrong username or password!");

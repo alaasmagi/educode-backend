@@ -16,7 +16,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         _attendanceRepository = new AttendanceRepository(_context); 
     }
 
-    public async Task<bool> DoesAttendanceExist(int id)
+    private async Task<bool> DoesAttendanceExist(int id)
     { 
         return await _context.CourseAttendances.AnyAsync(u => u.Id == id);
     }

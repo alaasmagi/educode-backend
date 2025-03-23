@@ -10,7 +10,8 @@ namespace WebApp.ApiControllers;
 [Route("api/[controller]")]
 public class CourseController(
     ICourseManagementService courseManagementService,
-    IUserManagementService userManagementService)
+    IUserManagementService userManagementService,
+    ILogger<CourseController> logger)
     : ControllerBase
 {
     
@@ -18,6 +19,8 @@ public class CourseController(
     [HttpGet("Id/{id}")]
     public async Task<ActionResult<CourseEntity>> GetCourseDetails(int id)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var courseEntity = await courseManagementService.GetCourseByIdAsync(id);
 
         if (courseEntity == null)
@@ -32,6 +35,8 @@ public class CourseController(
     [HttpGet("AttendanceId/{id}")]
     public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(int id)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
 
         if (courseEntity == null)
@@ -46,6 +51,8 @@ public class CourseController(
     [HttpGet("Statuses")]
     public ActionResult<IEnumerable<CourseStatusDto>> GetAllCourseStatuses()
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var courseStatuses = courseManagementService.GetAllCourseStatuses();
         return Ok(courseStatuses);
     }
@@ -54,6 +61,8 @@ public class CourseController(
     [HttpGet("UniId/{uniId}")]
     public async Task<ActionResult<IEnumerable<CourseEntity>>> GetAllCoursesByUser(string uniId)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
         if(user == null)
         {
@@ -67,6 +76,8 @@ public class CourseController(
     [HttpGet("StudentCounts/{id}")]
     public async Task<ActionResult<IEnumerable<CourseUserCountDto>>> GetAllStudentCountsByCourse(int id)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         var validity = await courseManagementService.DoesCourseExistAsync(id);
         if(!validity)
         {
@@ -81,6 +92,8 @@ public class CourseController(
     [HttpPost("Add")]
     public async Task<ActionResult<CourseEntity>> AddCourse([FromBody] CourseModel model)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -113,6 +126,8 @@ public class CourseController(
     [HttpPatch("Edit")]
     public async Task<ActionResult<CourseEntity>> EditCourse([FromBody] CourseModel model)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         if (!ModelState.IsValid || model.Id == null)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
@@ -140,6 +155,8 @@ public class CourseController(
     [HttpDelete("Delete/{id}")]
     public async Task<ActionResult<CourseEntity>> DeleteCourse(int id)
     {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                              $"{HttpContext.Request.Host.ToString()}");
         if (!ModelState.IsValid)
         {
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });

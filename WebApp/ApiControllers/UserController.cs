@@ -8,7 +8,8 @@ namespace WebApp.ApiControllers
     [ApiController]
     [Route("api/[controller]")]
     public class UserController(
-        IUserManagementService userManagementService)
+        IUserManagementService userManagementService,
+        ILogger<UserController> logger)
         : ControllerBase
     {
 
@@ -18,19 +19,21 @@ namespace WebApp.ApiControllers
             return Ok();
         }
         
-        // GET: api/User
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
         {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                                $"{HttpContext.Request.Host.ToString()}");
            return await userManagementService.GetAllUsersAsync();
         }
         
-        // GET: api/User/UniId/<uni-id>
         [Authorize]
         [HttpGet("UniId/{uniId}")]
         public async Task<IActionResult> GetUserEntityByUniId(string uniId)
         {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                                  $"{HttpContext.Request.Host.ToString()}");
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
 
             if (userEntity == null)
@@ -41,11 +44,12 @@ namespace WebApp.ApiControllers
             return Ok(userEntity);
         }
         
-        // GET: api/User/Id/5
         [Authorize]
         [HttpGet("Id/{id}")]
         public async Task<IActionResult> GetUserEntity(int id)
         {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                                  $"{HttpContext.Request.Host.ToString()}");
             var userEntity = await userManagementService.GetUserByIdAsync(id);
 
             if (userEntity == null)
@@ -56,11 +60,12 @@ namespace WebApp.ApiControllers
             return Ok(userEntity);
         }
 
-        // DELETE: api/User/5
         [Authorize]
         [HttpDelete("Delete/UniId/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path} - " +
+                                  $"{HttpContext.Request.Host.ToString()}");
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
             if (userEntity == null)
             {
