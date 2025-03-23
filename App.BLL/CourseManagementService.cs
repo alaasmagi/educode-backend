@@ -3,6 +3,7 @@ using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.EntityFrameworkCore;
+using WebApp.Models;
 
 namespace App.BLL;
 
@@ -78,15 +79,18 @@ public class CourseManagementService : ICourseManagementService
         return true;
     }
     
-    public List<ECourseValidStatus> GetAllCourseStatuses()
+    public List<CourseStatusDto> GetAllCourseStatuses()
     {
-        return new List<ECourseValidStatus>
-        {
-            ECourseValidStatus.Available,
-            ECourseValidStatus.TempUnavailable,
-            ECourseValidStatus.Unavailable
-        };
+        return Enum.GetValues(typeof(ECourseValidStatus))
+            .Cast<ECourseValidStatus>()
+            .Select(status => new CourseStatusDto
+            {
+                Id = (int)status,
+                Status = status.ToString().ToLower()
+            })
+            .ToList();
     }
+    
     public async Task<List<CourseEntity>> GetCoursesByUserAsync(string uniId)
     {
         return await courseRepo.GetCoursesByUser(uniId);

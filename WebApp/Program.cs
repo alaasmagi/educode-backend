@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using App.BLL;
 using Contracts;

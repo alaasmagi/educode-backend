@@ -1,4 +1,5 @@
 ﻿using App.Domain;
+using WebApp.Models;
 
 namespace Contracts;
 
@@ -9,7 +10,7 @@ public interface ICourseManagementService
     Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator);
     Task<bool> EditCourse(int courseId, CourseEntity newCourse);
     Task<bool> DeleteCourse(int courseId);
-    List<ECourseValidStatus> GetAllCourseStatuses();
+    List<CourseStatusDto> GetAllCourseStatuses();
     Task<List<CourseEntity>> GetCoursesByUserAsync(string uniId);
     Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId);
     Task<bool> DoesCourseExistAsync(int id);

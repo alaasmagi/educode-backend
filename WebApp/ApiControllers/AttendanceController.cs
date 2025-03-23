@@ -55,6 +55,27 @@ public class AttendanceController(
         return Ok(returnEntity);
     }
     
+    [Authorize(Roles = "Teacher")]
+    [HttpPost("Add")]
+    public async Task<IActionResult> AddAttendance([FromBody] AttendanceCheckModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
+        }
+
+        var newAttendanceCheck = new AttendanceCheckEntity
+        {
+            StudentCode = model.StudentCode,
+            CourseAttendanceId = model.CourseAttendanceId,
+            WorkplaceId = model.WorkplaceId ?? null
+        };
+        
+        await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator);
+
+        return Ok();
+    }
+    
     [Authorize]
     [HttpPost("AttendanceCheck/Add")]
     public async Task<IActionResult> AddAttendanceCheck([FromBody] AttendanceCheckModel model)

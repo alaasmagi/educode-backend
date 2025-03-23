@@ -25,7 +25,7 @@ public class CourseController(
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
 
-        return courseEntity;
+        return Ok(courseEntity);
     }
     
     [Authorize]
@@ -39,15 +39,15 @@ public class CourseController(
             return NotFound(new {message = "Course not found", error = "course-not-found"});
         }
 
-        return courseEntity;
+        return Ok(courseEntity);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("Statuses")]
-    public async Task<IEnumerable<ECourseValidStatus>> GetAllCourseStatuses()
+    public ActionResult<IEnumerable<CourseStatusDto>> GetAllCourseStatuses()
     {
         var courseStatuses = courseManagementService.GetAllCourseStatuses();
-        return courseStatuses;
+        return Ok(courseStatuses);
     }
     
     [Authorize(Roles = "Teacher")]
@@ -128,7 +128,7 @@ public class CourseController(
             UpdatedBy = model.Creator
         };
 
-        int courseId = model.Id ?? 0;
+        var courseId = model.Id ?? 0;
         if (!await courseManagementService.EditCourse(courseId, newCourse))
         {
             return BadRequest(new { message = "Course does not exist", error = "course-does-not-exist" });
