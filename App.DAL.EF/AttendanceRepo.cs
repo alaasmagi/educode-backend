@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
 
-public class CourseAttendanceRepository(AppDbContext context)
+public class AttendanceRepo(AppDbContext context)
 {
-    public async Task<CourseEntity?> GetCourse(int courseId)
-    {
-        return await context.Courses.FirstOrDefaultAsync(u => u.Id == courseId);
-    }
-
     public async Task<CourseAttendanceEntity?> GetAttendance(int attendanceId)
     {
         return await context.CourseAttendances.FirstOrDefaultAsync(u => u.Id == attendanceId);;
@@ -31,8 +26,8 @@ public class CourseAttendanceRepository(AppDbContext context)
         var ongoingAttendance= await context.CourseAttendances
             .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
-                        Include(ca => ca.Course)
-                        .FirstOrDefaultAsync() ?? null;
+            Include(ca => ca.Course)
+            .FirstOrDefaultAsync() ?? null;
         
         return ongoingAttendance;
     }
