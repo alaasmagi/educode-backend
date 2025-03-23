@@ -26,6 +26,11 @@ namespace WebApp.ApiControllers
            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
            var users = await userManagementService.GetAllUsersAsync();
            
+           if (users == null)
+           {
+               return NotFound(new {message = "Users not found", error = "users-not-found"});
+           }
+           
            logger.LogInformation($"All users fetched successfully");
            return Ok(users);
         }
