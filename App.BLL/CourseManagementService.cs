@@ -3,7 +3,6 @@ using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.EntityFrameworkCore;
-using WebApp.Models;
 
 namespace App.BLL;
 

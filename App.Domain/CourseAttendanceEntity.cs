@@ -18,8 +18,6 @@ public class CourseAttendanceEntity : BaseEntity
     public DateTime StartTime { get; set; }
     [Required]
     public DateTime EndTime { get; set; }
-    [Required]
-    public bool OnlineRegistration { get; set; }
 
     public ICollection<AttendanceCheckEntity>? AttendanceChecks { get; set; }
 }

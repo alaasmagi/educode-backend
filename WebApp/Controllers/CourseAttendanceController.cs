@@ -69,7 +69,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
+        public async Task<IActionResult> Create([Bind("CourseId,AttendanceTypeId,StartTime,EndTime,Id,CreatedBy,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -119,7 +119,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,AttendanceTypeId,StartTime,EndTime,OnlineRegistration,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseId,AttendanceTypeId,StartTime,EndTime,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseAttendanceEntity courseAttendanceEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)

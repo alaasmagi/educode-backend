@@ -1,5 +1,4 @@
 ﻿using App.Domain;
-using WebApp.Models;
 
 namespace Contracts;
 

@@ -1,4 +1,4 @@
-﻿namespace WebApp.Models;
+﻿namespace App.Domain;
 
 public class CourseStatusDto
 {
