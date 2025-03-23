@@ -186,8 +186,7 @@ public class AuthController(
 
         if (!await userManagementService.ChangeUserPasswordAsync(user, newPasswordHash))
         {
-            return BadRequest(new
-                { message = "Password change error. Password was not changed.", error = "password-not-changed" });
+            return BadRequest(new { message = "Password change error. Password was not changed.", error = "password-not-changed" });
         }
 
         logger.LogInformation($"Password changed successfully for user with UNI-ID {model.UniId}");

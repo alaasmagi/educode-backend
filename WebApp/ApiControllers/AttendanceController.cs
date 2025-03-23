@@ -47,7 +47,7 @@ public class AttendanceController(
 
         if (courseAttendanceEntity?.Course == null)
         {
-            return Ok(new {message = "Current attendance not found", error = "current-attendance-not-found"});
+            return NotFound(new {message = "Current attendance not found", error = "current-attendance-not-found"});
         }
 
         var returnEntity = new CurrentLectureReturnModel
@@ -78,7 +78,7 @@ public class AttendanceController(
 
         if (attendances == null)
         {
-            return Ok(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+            return NotFound(new {message = "Course has no attendances", error = "no-course-attendances-found"});
         }
         
         logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
@@ -102,7 +102,7 @@ public class AttendanceController(
 
         if (attendances == null)
         {
-            return Ok(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+            return NotFound(new {message = "Course has no attendances", error = "no-course-attendances-found"});
         }
         
         logger.LogInformation($"Attendances for course {courseName} successfully fetched");
@@ -125,7 +125,7 @@ public class AttendanceController(
 
         if (attendance == null)
         {
-            return Ok(new {message = "User has no recent attendances", error = "no-course-attendances-found"});
+            return NotFound(new {message = "User has no recent attendances", error = "no-user-recent-attendances-found"});
         }
         
         logger.LogInformation($"Most recent attendance for user with UNI-ID {uniId} successfully fetched");
@@ -148,7 +148,7 @@ public class AttendanceController(
             await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
         if (attendanceChecks == null)
         {
-            return Ok(new {message = "Attendance has no attendance checks", error = "attendance-has-no-checks"});
+            return NotFound(new {message = "Attendance has no attendance checks", error = "attendance-has-no-checks"});
         }
         
         logger.LogInformation($"Attendance checks for attendance with ID {attendanceId} successfully fetched");
