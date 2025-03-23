@@ -8,11 +8,7 @@ namespace WebApp.ApiControllers
     [ApiController]
     [Route("api/[controller]")]
     public class UserController(
-        ICourseManagementService courseManagementService,
-        IUserManagementService userManagementService,
-        IAuthService authService,
-        IOtpService otpService,
-        IEmailService emailService)
+        IUserManagementService userManagementService)
         : ControllerBase
     {
 

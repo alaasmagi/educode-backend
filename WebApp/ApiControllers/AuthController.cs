@@ -9,7 +9,6 @@ namespace WebApp.ApiControllers;
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(
-    ICourseManagementService courseManagementService,
     IUserManagementService userManagementService,
     IAuthService authService,
     IOtpService otpService,
