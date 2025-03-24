@@ -83,6 +83,14 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
+        var courseExists = await _context.Courses.AnyAsync(c => c.CourseCode == course.CourseCode);
+
+        if (courseExists)
+        {
+            _logger.LogError($"Course with code {course.CourseCode} already exists");
+            return false;
+        }
+        
         var courseTeacher = new CourseTeacherEntity
         {
             Teacher = user,

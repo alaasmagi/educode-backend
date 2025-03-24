@@ -45,7 +45,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    private async Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId)
+    public async Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId)
     {
         var result = await _context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
                                                                    && u.CourseAttendanceId == attendanceId);
@@ -83,6 +83,9 @@ public class AttendanceManagementService : IAttendanceManagementService
             _logger.LogError($"Attendance with ID {attendanceId} was not found");
             return null;
         }
+
+        courseAttendance.StartTime = courseAttendance.StartTime.ToLocalTime();
+        courseAttendance.EndTime = courseAttendance.EndTime.ToLocalTime();
         
         return courseAttendance;
     }
@@ -97,12 +100,27 @@ public class AttendanceManagementService : IAttendanceManagementService
             _logger.LogError($"Attendances by course with ID {courseId} were not found");
             return null;
         }
+
+        foreach (var attendance in attendances)
+        {
+            attendance.StartTime = attendance.StartTime.ToLocalTime();
+            attendance.EndTime = attendance.EndTime.ToLocalTime();
+        }
         
         return attendances;
     }
 
     public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
     {
+        
+        var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.CourseAttendanceId);
+
+        if (attendanceCheckExist)
+        {
+            _logger.LogError($"Attendance check adding failed");
+            return false;
+        }
+        
         bool status;
         if (workplaceId != null)
         {
@@ -206,8 +224,8 @@ public class AttendanceManagementService : IAttendanceManagementService
                 Course = attendance.Course,
                 AttendanceTypeId = attendance.AttendanceTypeId,
                 AttendanceType = attendance.AttendanceType,
-                StartTime = date.ToDateTime(startTime),
-                EndTime = date.ToDateTime(endTime),
+                StartTime = date.ToDateTime(startTime).ToUniversalTime(),
+                EndTime = date.ToDateTime(endTime).ToUniversalTime(),
                 CreatedBy = attendance.CreatedBy,
                 UpdatedBy = attendance.UpdatedBy
             };
