@@ -18,7 +18,19 @@ public class AttendanceManagementService : IAttendanceManagementService
         _context = context;
         _attendanceRepository = new AttendanceRepository(_context); 
     }
+    public async Task<bool> DoesWorkplaceExist(int id)
+    {
+        var result = await _context.Workplaces.AnyAsync(w => w.Id == id);
 
+        if (!result)
+        {
+            _logger.LogError($"Workplace with id {id} was not found");
+            return false;
+        }
+
+        return true;
+    }
+    
     private async Task<bool> DoesAttendanceExist(int id)
     {
         var result = await _context.CourseAttendances.AnyAsync(u => u.Id == id);
@@ -30,6 +42,21 @@ public class AttendanceManagementService : IAttendanceManagementService
         }
         
         _logger.LogInformation($"Attendance with ID {id} was found");
+        return true;
+    }
+    
+    private async Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId)
+    {
+        var result = await _context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
+                                                                   && u.CourseAttendanceId == attendanceId);
+
+        if (!result)
+        {
+            _logger.LogError($"AttendanceCheck with student code {studentCode} and attendance ID {attendanceId} was not found");
+            return false;
+        }
+        
+        _logger.LogInformation($"AttendanceCheck with student code {studentCode} and attendance ID {attendanceId} was found");
         return true;
     }
     
@@ -74,9 +101,20 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendances;
     }
 
-    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator)
+    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
     {
-        if (!await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator))
+        bool status;
+        if (workplaceId != null)
+        {
+            var workplace = await _context.Workplaces.FirstOrDefaultAsync(w => w.Id == workplaceId);
+            status = await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator, workplace);
+        }
+        else
+        {
+            status = await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator, null);
+        }
+        
+        if (!status)
         {
             _logger.LogError($"Attendance check adding failed");
             return false;

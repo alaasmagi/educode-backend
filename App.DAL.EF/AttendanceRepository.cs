@@ -5,12 +5,18 @@ namespace App.DAL.EF;
 
 public class AttendanceRepository(AppDbContext context)
 {
-    public async Task<bool> AddAttendanceCheck(AttendanceCheckEntity attendance, string creator)
+    public async Task<bool> AddAttendanceCheck(AttendanceCheckEntity attendance, string creator, WorkplaceEntity? workplace)
     {
         attendance.CreatedBy = creator;
         attendance.UpdatedBy = creator;
         attendance.CreatedAt = DateTime.Now.ToUniversalTime();
         attendance.UpdatedAt= DateTime.Now.ToUniversalTime();
+
+        if (workplace != null)
+        {
+            attendance.WorkplaceId = workplace.Id;
+            attendance.Workplace = workplace;
+        }
         
         await context.AttendanceChecks.AddAsync(attendance);
         return await context.SaveChangesAsync() > 0;
@@ -29,6 +35,15 @@ public class AttendanceRepository(AppDbContext context)
     
     public async Task<bool> AddAttendance(CourseAttendanceEntity attendance)
     {
+        var doesAttendanceExist = context.CourseAttendances.Any(ca => ca.CourseId == attendance.CourseId && 
+                                                                      ca.StartTime == attendance.StartTime && 
+                                                                      ca.EndTime == attendance.EndTime);
+
+        if (doesAttendanceExist)
+        {
+            return false;
+        }
+        
         attendance.CreatedAt = DateTime.Now.ToUniversalTime();
         attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
         

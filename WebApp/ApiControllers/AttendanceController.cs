@@ -181,15 +181,23 @@ public class AttendanceController(
             logger.LogWarning($"Form data is invalid");
             return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
         }
-
+        
         var newAttendanceCheck = new AttendanceCheckEntity
         {
-           StudentCode = model.StudentCode,
-           CourseAttendanceId = model.CourseAttendanceId,
-           WorkplaceId = model.WorkplaceId ?? null
+            StudentCode = model.StudentCode,
+            CourseAttendanceId = model.CourseAttendanceId,
         };
 
-        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator))
+        if (model.WorkplaceId != null)
+        {
+            int workplaceId = model.WorkplaceId.Value;
+            if(!await attendanceManagementService.DoesWorkplaceExist(workplaceId))
+            {
+                return BadRequest(new {message = "Workplace was not found ", error = "workplace-not-found"});
+            }
+        }
+
+        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceId ?? null))
         {
             return BadRequest(new {message = "Attendance check already exists", 
                 error = "attendance-check-already-exists" });
