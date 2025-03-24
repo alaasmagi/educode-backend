@@ -2,6 +2,7 @@ using App.DAL.EF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Threading.RateLimiting;
 using App.BLL;
@@ -49,10 +50,16 @@ builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins(frontendUrl ?? string.Empty)
+    options.AddPolicy("FrontendPolicy", policyBuilder =>
+    {
+        policyBuilder
+            .WithOrigins(frontendUrl ?? string.Empty)
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials();
+
+    });
+    options.DefaultPolicyName = "FrontendPolicy";
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -119,7 +126,7 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 
 
-app.UseCors("AllowFrontend");
+app.UseCors("FrontendPolicy");
 
 app.MapControllerRoute(
         name: "default",
