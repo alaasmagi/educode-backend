@@ -52,29 +52,16 @@ builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddCors(options =>
 {
-    // Production
-    options.AddPolicy("Production", policyBuilder =>
+    options.AddPolicy("Frontend", policyBuilder =>
     {
         policyBuilder
             .WithOrigins(frontendUrl ?? "")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
-
     });
     
-    // Development
-    options.AddPolicy("Development", policyBuilder =>
-    {
-        policyBuilder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-
-    });
-    
-    options.DefaultPolicyName = "Development";
+    options.DefaultPolicyName = "Frontend";
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -141,7 +128,7 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 
 
-app.UseCors("Development");
+app.UseCors("Frontend");
 
 app.MapControllerRoute(
         name: "default",
