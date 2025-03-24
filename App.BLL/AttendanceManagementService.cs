@@ -89,6 +89,17 @@ public class AttendanceManagementService : IAttendanceManagementService
         
         return courseAttendance;
     }
+
+    public int GetStudentsCountByAttendanceIdAsync(CourseAttendanceEntity attendanceEntity)
+    {
+        var result = attendanceEntity.AttendanceChecks!.Count();
+        if (result <= 0)
+        {
+            _logger.LogError($"Attendance with ID {attendanceEntity.Id} has no attendance checks");
+            return 0;
+        }
+        return result;
+    }
     
     public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(int courseId)
     {
