@@ -48,18 +48,33 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
+
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("FrontendPolicy", policyBuilder =>
+    // Production
+    options.AddPolicy("Production", policyBuilder =>
     {
         policyBuilder
-            .WithOrigins(frontendUrl ?? string.Empty)
+            .WithOrigins(frontendUrl ?? "")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
 
     });
-    options.DefaultPolicyName = "FrontendPolicy";
+    
+    // Development
+    options.AddPolicy("Development", policyBuilder =>
+    {
+        policyBuilder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+
+    });
+    
+    options.DefaultPolicyName = "Development";
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -126,7 +141,7 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 
 
-app.UseCors("FrontendPolicy");
+app.UseCors("Development");
 
 app.MapControllerRoute(
         name: "default",
