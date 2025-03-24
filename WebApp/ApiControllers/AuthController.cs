@@ -78,18 +78,9 @@ public class AuthController(
         {
             return BadRequest(new { message = "User already exists", error = "user-already-exists" });
         }
-
-        var token = authService.GenerateJwtToken(newUser);
-        Response.Cookies.Append("token", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            MaxAge = TimeSpan.FromDays(60)
-        });
         
         logger.LogInformation($"User with UNI-ID {model.UniId} was created successfully");
-        return Ok(new { Token = token });
+        return Ok();
     }
 
     [HttpPost("RequestOTP")]
@@ -110,7 +101,7 @@ public class AuthController(
 
         var key = otpService.GenerateTotp(user?.UniId ?? model.UniId);
         var recipientUniId = user?.UniId ?? model.UniId;
-        var recipientName = user?.FullName ?? model.FullName;
+        var recipientName = user?.FullName ?? model.FullName ?? "EduCode user";
 
         if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
         {
