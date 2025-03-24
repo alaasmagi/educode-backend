@@ -103,7 +103,7 @@ public class AuthController(
         }
 
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
-        if (user == null || string.IsNullOrWhiteSpace(model.FullName))
+        if (user == null && string.IsNullOrWhiteSpace(model.FullName))
         {
             return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
         }
