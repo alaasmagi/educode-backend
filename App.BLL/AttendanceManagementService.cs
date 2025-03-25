@@ -92,7 +92,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public int GetStudentsCountByAttendanceIdAsync(CourseAttendanceEntity attendanceEntity)
     {
-        var result = attendanceEntity.AttendanceChecks!.Count();
+        var result = attendanceEntity.AttendanceChecks?.Count() ?? 0;
         if (result <= 0)
         {
             _logger.LogError($"Attendance with ID {attendanceEntity.Id} has no attendance checks");
