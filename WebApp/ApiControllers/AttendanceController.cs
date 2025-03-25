@@ -52,16 +52,9 @@ public class AttendanceController(
         {
             return NotFound(new {message = "Current attendance not found", error = "current-attendance-not-found"});
         }
-
-        var returnEntity = new CurrentLectureReturnModel
-        {
-            CourseCode = courseAttendanceEntity.Course.CourseCode,
-            CourseName = courseAttendanceEntity.Course.CourseName,
-            AttendanceId = courseAttendanceEntity.Id
-        };
         
         logger.LogInformation($"Current attendance for UNI-ID {uniId} successfully fetched");
-        return Ok(returnEntity);
+        return Ok(courseAttendanceEntity);
     }
     
     [Authorize(Roles="Teacher")]

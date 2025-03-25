@@ -27,7 +27,7 @@ public class AttendanceRepository(AppDbContext context)
         var ongoingAttendance= await context.CourseAttendances
             .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
-            Include(ca => ca.Course)
+            Include(ca => ca.Course).Include(ca => ca.AttendanceType)
             .FirstOrDefaultAsync() ?? null;
         
         return ongoingAttendance;
@@ -40,6 +40,11 @@ public class AttendanceRepository(AppDbContext context)
                                                                       ca.EndTime == attendance.EndTime);
 
         if (doesAttendanceExist)
+        {
+            return false;
+        }
+
+        if (attendance.StartTime > attendance.EndTime)
         {
             return false;
         }

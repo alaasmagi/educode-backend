@@ -77,7 +77,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     {
         var courseAttendance = await _context.CourseAttendances
             .Where(u => u.Id == attendanceId)
-            .Include(u => u.Course)
+            .Include(u => u.Course).Include(u => u.AttendanceType)
             .FirstOrDefaultAsync();
 
         if (courseAttendance == null)
@@ -90,12 +90,8 @@ public class AttendanceManagementService : IAttendanceManagementService
         if (!accessible)
         {
             _logger.LogError($"AttendanceCheck with ID {attendanceId} cannot be fetched");
-            return null ;
+            return null;
         }
-        
-        courseAttendance.StartTime = courseAttendance.StartTime.ToLocalTime();
-        courseAttendance.EndTime = courseAttendance.EndTime.ToLocalTime();
-        
         return courseAttendance;
     }
 
@@ -121,13 +117,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
 
-        foreach (var attendance in attendances)
-        {
-            attendance.StartTime = attendance.StartTime.ToLocalTime();
-            attendance.EndTime = attendance.EndTime.ToLocalTime();
-        }
-        
-        return attendances;
+       return attendances;
     }
 
     public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
@@ -179,8 +169,10 @@ public class AttendanceManagementService : IAttendanceManagementService
     {
         var attendance = await _context.CourseAttendances
             .Where(ca => ca.Course!.CourseTeacherEntities!
-                .Any(ct => ct.TeacherId == userId))
-            .OrderByDescending(ca => ca.EndTime)
+                .Any(ct => ct.TeacherId == userId) && ca.StartTime <= DateTime.Now) 
+            .Include(ca => ca.Course)
+            .Include(ca => ca.AttendanceType) 
+            .OrderByDescending(ca => ca.EndTime) 
             .FirstOrDefaultAsync();
 
         if (attendance == null)
