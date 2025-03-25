@@ -63,10 +63,10 @@ public class AttendanceController(
     
     [Authorize(Roles="Teacher")]
     [HttpGet("StudentCount/AttendanceId/{id}")]
-    public async Task<ActionResult<int>> GetAttendanceStudentCount(int attendanceId)
+    public async Task<ActionResult<int>> GetAttendanceStudentCount(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var attendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(attendanceId);
+        var attendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id);
 
         if (attendance == null)
         {
@@ -79,7 +79,7 @@ public class AttendanceController(
             return NotFound(new {message = "Attendance has no students", error = "attendance-has-no-students"});
         }
         
-        logger.LogInformation($"Students count for attendance with ID {attendanceId} successfully fetched");
+        logger.LogInformation($"Students count for attendance with ID {id} successfully fetched");
         return Ok(studentCount);
     }
     
