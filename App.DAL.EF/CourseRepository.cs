@@ -68,7 +68,7 @@ public class CourseRepository(AppDbContext context)
             .Select(a => new CourseUserCountDto
             {
                 AttendanceDate = a.StartTime.Date,
-                UserCount = a.AttendanceChecks!.Count()
+                UserCount = context.AttendanceChecks.Select(b => b.CourseAttendanceId == a.Id).Count()
             })
             .ToListAsync();
 

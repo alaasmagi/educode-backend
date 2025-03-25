@@ -85,4 +85,10 @@ public class AttendanceRepository(AppDbContext context)
         context.AttendanceChecks.Remove(attendanceCheckEntity); 
         return await context.SaveChangesAsync() > 0;
     }
+    public async Task<int> GetStudentCountByAttendanceId(int attendanceId)
+    {
+        var attendanceCounts = await context.AttendanceChecks.Select(a => a.CourseAttendanceId == attendanceId).CountAsync();
+        return attendanceCounts;
+    }
+    
 }

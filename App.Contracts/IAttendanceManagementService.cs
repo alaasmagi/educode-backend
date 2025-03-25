@@ -11,7 +11,7 @@ public interface IAttendanceManagementService
     Task<bool> DoesWorkplaceExist(int id);
     Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(int courseId);
     Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceId);
-    int GetStudentsCountByAttendanceIdAsync(CourseAttendanceEntity attendanceEntity);
+    Task<int> GetStudentsCountByAttendanceIdAsync(int attendanceId);
     Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(int userId);
     Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync();
     Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId);

@@ -73,12 +73,8 @@ public class AttendanceController(
             return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
         }
         
-        var studentCount = attendanceManagementService.GetStudentsCountByAttendanceIdAsync(attendance);
-        if (studentCount == 0)
-        {
-            return NotFound(new {message = "Attendance has no students", error = "attendance-has-no-students"});
-        }
-        
+        var studentCount = attendanceManagementService.GetStudentsCountByAttendanceIdAsync(id);
+       
         logger.LogInformation($"Students count for attendance with ID {id} successfully fetched");
         return Ok(studentCount);
     }
