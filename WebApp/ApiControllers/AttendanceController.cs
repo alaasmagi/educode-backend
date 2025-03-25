@@ -79,7 +79,7 @@ public class AttendanceController(
     
     
     [Authorize(Roles = "Teacher")]
-    [HttpGet("CourseCode/{code}")]
+    [HttpGet("CourseCode/{courseCode}")]
     public async Task<ActionResult<CourseAttendanceEntity>> GetAttendancesByCourseCode(string courseCode)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
