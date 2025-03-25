@@ -11,7 +11,6 @@ public class AttendanceManagementService : IAttendanceManagementService
     private readonly ILogger<AttendanceManagementService> _logger;
     private readonly AppDbContext _context;
     private readonly AttendanceRepository _attendanceRepository;
-    private readonly UserRepository _userRepository;
 
     public AttendanceManagementService(AppDbContext context, ILogger<AttendanceManagementService> logger)
     {
@@ -77,7 +76,9 @@ public class AttendanceManagementService : IAttendanceManagementService
     public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId, string uniId)
     {
         var courseAttendance = await _context.CourseAttendances
-            .FirstOrDefaultAsync(u => u.Id == attendanceId);
+            .Where(u => u.Id == attendanceId)
+            .Include(u => u.Course)
+            .FirstOrDefaultAsync();
 
         if (courseAttendance == null)
         {
