@@ -5,15 +5,15 @@ namespace Contracts;
 public interface ICourseManagementService
 {
     Task<CourseEntity?> GetCourseByAttendanceIdAsync(int attendanceId);
-    Task<CourseEntity?> GetCourseByIdAsync(int courseId);
     Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator);
     Task<bool> EditCourse(int courseId, CourseEntity newCourse);
-    Task<bool> DeleteCourse(int courseId);
+    Task<bool> DeleteCourse(int courseId, string uniId);
     List<CourseStatusDto>? GetAllCourseStatuses();
     Task<List<CourseEntity>?> GetCoursesByUserAsync(int userId);
     Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId);
     Task<bool> DoesCourseExistAsync(int id);
-    Task<CourseEntity?> GetCourseByNameAsync(string courseName);
-    Task<CourseEntity?> GetCourseByCodeAsync(string courseCode);
-
+    Task<CourseEntity?> GetCourseByNameAsync(string courseName, string uniId);
+    Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string uniId);
+    Task<CourseEntity?> GetCourseByIdAsync(int courseId, string uniId);
+    Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId);
 }

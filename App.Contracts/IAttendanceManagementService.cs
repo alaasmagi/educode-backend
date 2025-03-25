@@ -5,7 +5,7 @@ namespace Contracts;
 public interface IAttendanceManagementService
 {
     Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(int userId);
-    Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId);
+    Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId, string uniId);
     Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId);
     Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId);
     Task<bool> DoesWorkplaceExist(int id);
@@ -17,9 +17,11 @@ public interface IAttendanceManagementService
     Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId);
     Task<bool> AddAttendanceAsync(CourseAttendanceEntity newAttendance, List<DateOnly> attendanceDates,
         TimeOnly startTime, TimeOnly endTime);
-    Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id);
-    Task<bool> DeleteAttendance(int id);
-    Task<bool> EditAttendanceAsync(int attendanceId, CourseAttendanceEntity updatedAttendance);
-    Task<bool> DeleteAttendanceCheck(int id);
 
+    Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id, string uniId);
+    Task<bool> DeleteAttendance(int id, string uniId);
+    Task<bool> EditAttendanceAsync(int attendanceId, CourseAttendanceEntity updatedAttendance);
+    Task<bool> DeleteAttendanceCheck(int id, string uniId);
+    Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId);
+    Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId);
 }

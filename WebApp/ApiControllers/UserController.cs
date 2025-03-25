@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using App.Domain;
@@ -62,6 +63,12 @@ namespace WebApp.ApiControllers
             {
                 return NotFound(new {message = "User not found", error = "user-not-found"});
             }
+            
+            var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
+            if (userEntity.UniId == tokenUniId)
+            {
+                return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
+            }
 
             logger.LogInformation($"User with ID {id} fetched successfully");
             return Ok(userEntity);
@@ -76,6 +83,12 @@ namespace WebApp.ApiControllers
             if (userEntity == null)
             {
                 return NotFound(new {message = "User not found", error = "user-not-found"});
+            }
+            
+            var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
+            if (userEntity.UniId == tokenUniId)
+            {
+                return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
             }
             
             if (await userManagementService.DeleteUserAsync(userEntity))

@@ -11,6 +11,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     private readonly ILogger<AttendanceManagementService> _logger;
     private readonly AppDbContext _context;
     private readonly AttendanceRepository _attendanceRepository;
+    private readonly UserRepository _userRepository;
 
     public AttendanceManagementService(AppDbContext context, ILogger<AttendanceManagementService> logger)
     {
@@ -73,7 +74,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return currentAttendance;
     }
     
-    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId)
+    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId, string uniId)
     {
         var courseAttendance = await _context.CourseAttendances
             .FirstOrDefaultAsync(u => u.Id == attendanceId);
@@ -83,7 +84,14 @@ public class AttendanceManagementService : IAttendanceManagementService
             _logger.LogError($"Attendance with ID {attendanceId} was not found");
             return null;
         }
-
+        
+        var accessible = await IsAttendanceAccessibleByUser(courseAttendance, uniId);
+        if (!accessible)
+        {
+            _logger.LogError($"AttendanceCheck with ID {attendanceId} cannot be fetched");
+            return null ;
+        }
+        
         courseAttendance.StartTime = courseAttendance.StartTime.ToLocalTime();
         courseAttendance.EndTime = courseAttendance.EndTime.ToLocalTime();
         
@@ -183,17 +191,23 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendance;
     }
 
-    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id)
+    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id, string uniId)
     {
         var result = await _context.AttendanceChecks.FirstOrDefaultAsync(ca => ca.Id == id);
-
         if (result == null)
         {
             _logger.LogError($"AttendanceCheck with ID {id} was not found");
             return null;
         }
         
-        return result ;
+        var accessible = await IsAttendanceCheckAccessibleByUser(result, uniId);
+        if (!accessible)
+        {
+            _logger.LogError($"AttendanceCheck with ID {id} cannot be fetched");
+            return null;
+        }
+        
+       return result;
     }
     
     public async Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync()
@@ -274,10 +288,10 @@ public class AttendanceManagementService : IAttendanceManagementService
 
         return true;
     }
-    
-    public async Task<bool> DeleteAttendance(int id)
+
+    public async Task<bool> DeleteAttendance(int id, string uniId)
     {
-        var attendance = await GetCourseAttendanceByIdAsync(id);
+        var attendance = await GetCourseAttendanceByIdAsync(id, uniId);
         if (attendance == null)
         {
             _logger.LogError($"Deleting attendance with ID {id} failed");
@@ -295,9 +309,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    public async Task<bool> DeleteAttendanceCheck(int id)
+    public async Task<bool> DeleteAttendanceCheck(int id, string uniId)
     {
-        var attendanceCheck = await GetAttendanceCheckByIdAsync(id);
+        var attendanceCheck = await GetAttendanceCheckByIdAsync(id, uniId);
         if (attendanceCheck == null)
         {
             _logger.LogError($"Deleting attendance check with ID {id} failed");
@@ -311,6 +325,38 @@ public class AttendanceManagementService : IAttendanceManagementService
             _logger.LogError($"Deleting attendance check with ID {id} failed");
             return false;
         }
+        return true;
+    }
+
+    public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+        var result = await _context.CourseTeachers
+            .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == attendance.CourseId);
+
+        if (result <= 0)
+        {
+            _logger.LogError($"Attendance with ID {attendance.Id} is not accessible by user with UNI-ID {uniId}");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+        var attendance = await _context.CourseAttendances.FirstOrDefaultAsync(at => at.Id == 
+                                                                attendanceCheck.CourseAttendanceId);
+        var result = await _context.CourseTeachers
+            .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == attendance!.CourseId);
+        
+        if (result <= 0)
+        {
+            _logger.LogError($"Attendance check with ID {attendanceCheck.Id} is not accessible by user with UNI-ID {uniId}");
+            return false;
+        }
+        
         return true;
     }
 }

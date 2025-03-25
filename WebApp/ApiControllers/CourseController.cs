@@ -1,4 +1,5 @@
-﻿using App.Domain;
+﻿using System.Security.Claims;
+using App.Domain;
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,8 @@ public class CourseController(
     public async Task<ActionResult<CourseEntity>> GetCourseDetails(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var courseEntity = await courseManagementService.GetCourseByIdAsync(id);
+        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
+        var courseEntity = await courseManagementService.GetCourseByIdAsync(id, tokenUniId!);
 
         if (courseEntity == null)
         {
@@ -183,8 +185,8 @@ public class CourseController(
             logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
         }
-        
-        if (!await courseManagementService.DeleteCourse(id))
+        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
+        if (!await courseManagementService.DeleteCourse(id, tokenUniId!))
         {
             return BadRequest(new { message = "Course does not exist", error = "course-does-not-exist" });
         }
