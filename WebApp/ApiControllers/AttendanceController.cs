@@ -339,7 +339,7 @@ public class AttendanceController(
     }
     
     [Authorize(Roles = "Teacher")]
-    [HttpDelete("Delete/AttendanceCheck/{id}")]
+    [HttpDelete("AttendanceCheck/Delete/{id}")]
     public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");

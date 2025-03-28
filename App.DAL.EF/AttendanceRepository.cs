@@ -92,7 +92,7 @@ public class AttendanceRepository(AppDbContext context)
     }
     public async Task<int> GetStudentCountByAttendanceId(int attendanceId)
     {
-        var attendanceCounts = await context.AttendanceChecks.Select(a => a.CourseAttendanceId == attendanceId).CountAsync();
+        var attendanceCounts = await context.AttendanceChecks.Where(a => a.CourseAttendanceId == attendanceId).CountAsync();
         return attendanceCounts;
     }
     
