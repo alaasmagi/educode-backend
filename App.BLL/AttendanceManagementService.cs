@@ -31,7 +31,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    private async Task<bool> DoesAttendanceExist(int id)
+    public async Task<bool> DoesAttendanceExist(int id)
     {
         var result = await _context.CourseAttendances.AnyAsync(u => u.Id == id);
 

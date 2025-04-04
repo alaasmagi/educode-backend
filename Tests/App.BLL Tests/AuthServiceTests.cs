@@ -1,9 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using App.BLL;
 using App.Domain;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NSubstitute;
 
 namespace App.BLL_Tests;
