@@ -49,7 +49,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
-
+builder.Services.AddSingleton<IHostedService, AttendanceCleanupService>();
 
 builder.Services.AddCors(options =>
 {
