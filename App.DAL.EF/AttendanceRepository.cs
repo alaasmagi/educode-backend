@@ -49,6 +49,21 @@ public class AttendanceRepository(AppDbContext context)
             return false;
         }
         
+        // Finding the first available ID by checking for gaps in the ID sequence
+        // without loading all records into memory
+        int? availableId = await context.CourseAttendances
+            .FromSqlRaw(@"SELECT MIN(t1.Id + 1) AS AvailableId
+                FROM CourseAttendances t1
+                LEFT JOIN CourseAttendances t2 ON t1.Id + 1 = t2.Id
+                WHERE t2.Id IS NULL")
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+
+        if (availableId == null || availableId > 999999)
+            return false;
+
+        attendance.Id = availableId.Value;
+        
         attendance.CreatedAt = DateTime.Now.ToUniversalTime();
         attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
         

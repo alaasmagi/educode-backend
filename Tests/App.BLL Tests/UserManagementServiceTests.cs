@@ -261,7 +261,7 @@ public class UserManagementServiceTests
         var user = new UserEntity 
         { 
             Id = 222, 
-            UniId = "byid", 
+            UniId = "test", 
             FullName = "Test User",
             CreatedBy = "test", 
             UpdatedBy = "test", 
@@ -273,7 +273,7 @@ public class UserManagementServiceTests
         var result = await _service.GetUserByIdAsync(222);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.UniId, Is.EqualTo("byid"));
+        Assert.That(result!.UniId, Is.EqualTo("test"));
     }
 
     [Test]
