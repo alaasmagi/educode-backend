@@ -446,7 +446,7 @@ namespace App.DAL.EF.Migrations
                     b.HasOne("App.Domain.CourseEntity", "Course")
                         .WithMany("CourseTeacherEntities")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("App.Domain.UserEntity", "Teacher")

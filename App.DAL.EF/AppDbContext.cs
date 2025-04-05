@@ -84,8 +84,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .ToTable("CourseTeachers")
             .HasOne(u => u.Course)
             .WithMany(u => u.CourseTeacherEntities)
-            .HasForeignKey(u => u.CourseId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(u => u.CourseId);
         modelBuilder.Entity<CourseTeacherEntity>()
             .HasOne(u => u.Teacher)
             .WithMany()

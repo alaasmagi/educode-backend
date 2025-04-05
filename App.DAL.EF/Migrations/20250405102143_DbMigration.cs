@@ -11,6 +11,10 @@ namespace App.DAL.EF.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
+                name: "FK_CourseTeachers_Courses_CourseId",
+                table: "CourseTeachers");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_UserAuthTokens_Users_UserId",
                 table: "UserAuthTokens");
 
@@ -45,6 +49,14 @@ namespace App.DAL.EF.Migrations
                 column: "Id");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_CourseTeachers_Courses_CourseId",
+                table: "CourseTeachers",
+                column: "CourseId",
+                principalTable: "Courses",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_UserAuth_Users_UserId",
                 table: "UserAuth",
                 column: "UserId",
@@ -56,6 +68,10 @@ namespace App.DAL.EF.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_CourseTeachers_Courses_CourseId",
+                table: "CourseTeachers");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_UserAuth_Users_UserId",
                 table: "UserAuth");
@@ -97,6 +113,14 @@ namespace App.DAL.EF.Migrations
                 name: "PK_UserAuthTokens",
                 table: "UserAuthTokens",
                 column: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CourseTeachers_Courses_CourseId",
+                table: "CourseTeachers",
+                column: "CourseId",
+                principalTable: "Courses",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_UserAuthTokens_Users_UserId",

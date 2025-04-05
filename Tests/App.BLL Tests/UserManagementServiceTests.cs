@@ -1,7 +1,6 @@
 ﻿using App.BLL;
 using App.DAL.EF;
 using App.Domain;
-using Microsoft.ApplicationInsights;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +11,6 @@ public class UserManagementServiceTests
 {
     private AppDbContext _context;
     private UserManagementService _service;
-    private UserRepository _user;
     private ILogger<UserManagementService> _logger;
 
     [SetUp]
@@ -25,7 +23,6 @@ public class UserManagementServiceTests
         _context = new AppDbContext(options);
         _logger = new LoggerFactory().CreateLogger<UserManagementService>();
         _service = new UserManagementService(_context, _logger);
-        _user = new UserRepository(_context);
     }
 
     [TearDown]
@@ -38,8 +35,15 @@ public class UserManagementServiceTests
     [Test]
     public async Task CreateAccountAsync_ShouldCreateUserAndAuth()
     {
-        var user = new UserEntity {  Id = 12, UniId = "authTest" , CreatedBy = "authTest", UpdatedBy = "authTest", 
-            FullName = "authTest", UserTypeId = 0};
+        var user = new UserEntity 
+        {  
+            Id = 12, 
+            UniId = "authTest" , 
+            CreatedBy = "authTest", 
+            UpdatedBy = "authTest", 
+            FullName = "authTest", 
+            UserTypeId = 0
+        };
         var password = "testpassword123";
         var passwordHash = _service.GetPasswordHash(password);
         var userAuth = new UserAuthEntity { PasswordHash = passwordHash, CreatedBy = "authTest", UpdatedBy = "authTest" };
@@ -100,8 +104,14 @@ public class UserManagementServiceTests
     [Test]
     public async Task DoesUserExistAsync_ShouldReturnTrue_IfUserExists()
     {
-        var user = new UserEntity { UniId = "exist123", FullName = "authTest", CreatedBy = "authTest",
-            UpdatedBy = "authTest" , UserTypeId = 1};
+        var user = new UserEntity 
+        { 
+            UniId = "exist123", 
+            FullName = "authTest", 
+            CreatedBy = "authTest",
+            UpdatedBy = "authTest", 
+            UserTypeId = 1
+        };
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
 
@@ -121,8 +131,15 @@ public class UserManagementServiceTests
     [Test]
     public async Task ChangeUserPasswordAsync_ShouldChangePassword_WhenUserExists()
     {
-        var user = new UserEntity { Id = 100, UniId = "changepw", FullName = "authTest", CreatedBy = "authTest", 
-            UpdatedBy = "authTest", UserTypeId = 1 };
+        var user = new UserEntity 
+        { 
+            Id = 100, 
+            UniId = "changepw", 
+            FullName = "authTest", 
+            CreatedBy = "authTest", 
+            UpdatedBy = "authTest",
+            UserTypeId = 1 
+        };
         await _context.Users.AddAsync(user);
     
         var hash = _service.GetPasswordHash("oldPassword");
@@ -141,7 +158,11 @@ public class UserManagementServiceTests
     [Test]
     public async Task ChangeUserPasswordAsync_ShouldReturnFalse_WhenUserDoesNotExist()
     {
-        var fakeUser = new UserEntity { Id = 999, UniId = "nope" };
+        var fakeUser = new UserEntity
+        {
+            Id = 999, 
+            UniId = "nope"
+        };
         var result = await _service.ChangeUserPasswordAsync(fakeUser, _service.GetPasswordHash("irrelevant"));
 
         Assert.That(result, Is.False);
@@ -150,7 +171,12 @@ public class UserManagementServiceTests
     [Test]
     public async Task GetUserTypeAsync_ShouldReturnUserType_IfExists()
     {
-        var type = new UserTypeEntity { UserType = "Tester", CreatedBy = "test", UpdatedBy = "test" };
+        var type = new UserTypeEntity
+        {
+            UserType = "Tester",
+            CreatedBy = "test", 
+            UpdatedBy = "test"
+        };
         await _context.UserTypes.AddAsync(type);
         await _context.SaveChangesAsync();
 
@@ -170,8 +196,12 @@ public class UserManagementServiceTests
     [Test]
     public async Task GetAllUsersAsync_ShouldReturnUsers_IfAnyExist()
     {
-        await _context.Users.AddAsync(new UserEntity { UniId = "alltest",  FullName = "Test User",
-            CreatedBy = "test", UpdatedBy = "test", UserTypeId = 1 });
+        await _context.Users.AddAsync(new UserEntity { 
+            UniId = "alltest",  
+            FullName = "Test User",
+            CreatedBy = "test", 
+            UpdatedBy = "test", 
+            UserTypeId = 1 });
         await _context.SaveChangesAsync();
 
         var result = await _service.GetAllUsersAsync();
@@ -200,8 +230,14 @@ public class UserManagementServiceTests
         await _context.UserTypes.AddAsync(userType);
         await _context.SaveChangesAsync();
         
-        var user = new UserEntity { UniId = "uni123", FullName = "Test User", CreatedBy = "test", 
-            UpdatedBy = "test", UserTypeId = 1 };
+        var user = new UserEntity 
+        { 
+            UniId = "uni123",
+            FullName = "Test User", 
+            CreatedBy = "test", 
+            UpdatedBy = "test", 
+            UserTypeId = 1 
+        };
         
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
@@ -222,8 +258,15 @@ public class UserManagementServiceTests
     [Test]
     public async Task GetUserByIdAsync_ShouldReturnUser_IfExists()
     {
-        var user = new UserEntity { Id = 222, UniId = "byid", FullName = "Test User", CreatedBy = "test", 
-            UpdatedBy = "test", UserTypeId = 1 };
+        var user = new UserEntity 
+        { 
+            Id = 222, 
+            UniId = "byid", 
+            FullName = "Test User",
+            CreatedBy = "test", 
+            UpdatedBy = "test", 
+            UserTypeId = 1
+        };
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
 
@@ -243,8 +286,15 @@ public class UserManagementServiceTests
     [Test]
     public async Task DeleteUserAsync_ShouldDeleteUser_IfExists()
     {
-        var user = new UserEntity { Id = 333, UniId = "deleteMe",  FullName = "Test User", CreatedBy = "test", 
-            UpdatedBy = "test", UserTypeId = 1 };
+        var user = new UserEntity 
+        { 
+            Id = 333, 
+            UniId = "deleteMe",  
+            FullName = "Test User",
+            CreatedBy = "test", 
+            UpdatedBy = "test", 
+            UserTypeId = 1
+        };
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
 

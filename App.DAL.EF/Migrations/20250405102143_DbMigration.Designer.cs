@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250405083419_DbMigration")]
+    [Migration("20250405102143_DbMigration")]
     partial class DbMigration
     {
         /// <inheritdoc />
@@ -449,7 +449,7 @@ namespace App.DAL.EF.Migrations
                     b.HasOne("App.Domain.CourseEntity", "Course")
                         .WithMany("CourseTeacherEntities")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("App.Domain.UserEntity", "Teacher")
