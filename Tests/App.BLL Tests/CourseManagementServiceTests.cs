@@ -340,4 +340,5 @@ public class CourseManagementServiceTests
 
         Assert.That(result, Is.Not.Null);
     }
+    
 }

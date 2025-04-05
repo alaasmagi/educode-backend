@@ -200,6 +200,10 @@ public class CourseManagementService : ICourseManagementService
 
         return result;
     }
+    private async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+    }
     
     public async Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId)
     {
@@ -230,7 +234,7 @@ public class CourseManagementService : ICourseManagementService
 
     public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+        var user = await GetUserByUniIdAsync(uniId);
         var result = await _context.CourseTeachers
             .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == courseEntity.Id);
         

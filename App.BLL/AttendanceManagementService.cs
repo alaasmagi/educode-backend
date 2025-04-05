@@ -30,6 +30,11 @@ public class AttendanceManagementService : IAttendanceManagementService
 
         return true;
     }
+
+    private async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+    }
     
     public async Task<bool> DoesAttendanceExist(int id)
     {
@@ -323,7 +328,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+        var user = await GetUserByUniIdAsync(uniId);
         var result = await _context.CourseTeachers
             .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == attendance.CourseId);
 
@@ -338,7 +343,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
+        var user = await GetUserByUniIdAsync(uniId);
         var attendance = await _context.CourseAttendances.FirstOrDefaultAsync(at => at.Id == 
                                                                 attendanceCheck.CourseAttendanceId);
         var result = await _context.CourseTeachers

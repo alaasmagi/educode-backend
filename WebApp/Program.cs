@@ -33,7 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day)  
+    .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit:14)  
     .CreateLogger();
 
 builder.Logging.ClearProviders();
