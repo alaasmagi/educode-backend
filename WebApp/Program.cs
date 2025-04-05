@@ -60,6 +60,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
+        
     });
     
     options.DefaultPolicyName = "Frontend";
@@ -144,7 +145,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseCors("Frontend");
 app.UseHttpsRedirection();
 app.UseSession();
 app.UseRouting();
@@ -160,7 +161,6 @@ app.MapStaticAssets();
 app.UseStaticFiles();
 
 
-app.UseCors("Frontend");
 
 app.MapControllerRoute(
         name: "default",

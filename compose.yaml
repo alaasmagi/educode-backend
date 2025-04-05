@@ -1,0 +1,9 @@
+﻿services:
+  webapp:
+    image: webapp
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"

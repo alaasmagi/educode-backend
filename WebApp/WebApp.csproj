@@ -4,6 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -53,6 +54,12 @@
       <_ContentIncludedByDefault Remove="Views\AuthToken\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\AuthToken\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\AuthToken\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
