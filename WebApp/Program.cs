@@ -27,6 +27,12 @@ var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
+if (string.IsNullOrEmpty(frontendUrl))
+{
+    throw new InvalidOperationException("Frontend URL is not set in environment variables.");
+}
+Log.Information($"Frontend URL: {frontendUrl}");
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
