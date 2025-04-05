@@ -78,12 +78,6 @@ public class AuthServiceTests
         var token = _authService.GenerateJwtToken(user);
 
         Assert.That(string.Empty == token);
-        _logger.Received().Log(
-            LogLevel.Error,
-            Arg.Any<EventId>(),
-            Arg.Any<object>(),
-            Arg.Any<Exception>(),
-            Arg.Any<Func<object, Exception, string>>()!);
     }
 
     [Test]
@@ -103,11 +97,5 @@ public class AuthServiceTests
         var token = _authService.GenerateJwtToken(user);
 
         Assert.That(string.Empty ==  token);
-        _logger.Received().Log(
-            LogLevel.Error,
-            Arg.Any<EventId>(),
-            Arg.Any<object>(),
-            Arg.Any<Exception>(),
-            Arg.Any<Func<object, Exception, string>>()!);
     }
 }

@@ -13,7 +13,6 @@ public class UserEntity : BaseEntity
     [Required]
     [MaxLength(128)]
     public string UniId { get; set; } = default!;
-    [Required]
     [MaxLength(128)]
     public string? StudentCode { get; set; }
     [Required]

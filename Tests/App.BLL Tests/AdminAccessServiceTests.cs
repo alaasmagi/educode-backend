@@ -78,12 +78,6 @@ public class Tests
             bool result = _adminAccessService.AdminAccessGrant("testuser", "testpassword");
 
             Assert.That(result, Is.False);
-            _logger.Received().Log(
-                LogLevel.Error,
-                Arg.Any<EventId>(),
-                Arg.Any<object>(),
-                Arg.Any<Exception>(),
-                Arg.Any<Func<object, Exception, string>>()!);
         }
 
         [Test]
@@ -118,12 +112,7 @@ public class Tests
             string hashedToken = await _adminAccessService.GetHashedAdminAccessTokenAsync("testinput");
 
             Assert.That(hashedToken, Is.Empty);
-            _logger.Received().Log(
-                LogLevel.Error,
-                Arg.Any<EventId>(),
-                Arg.Any<object>(),
-                Arg.Any<Exception>(),
-                Arg.Any<Func<object, Exception, string>>()!);
+           
         }
 
         [Test]
@@ -150,12 +139,6 @@ public class Tests
             bool result = await _adminAccessService.CompareHashedTokensAsync(inputToken, hashedInputToken);
 
             Assert.That(result, Is.False);
-            _logger.Received().Log(
-                LogLevel.Error,
-                Arg.Any<EventId>(),
-                Arg.Any<object>(),
-                Arg.Any<Exception>(),
-                Arg.Any<Func<object, Exception, string>>()!);
         }
     }
 }

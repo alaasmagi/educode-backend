@@ -23,11 +23,11 @@ public class UserRepository (AppDbContext context)
         return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task<UserAuthEntity?> GetUserAuthEntityByUniIdOrStudentCode(int input)
+    public async Task<UserAuthEntity?> GetUserAuthDataByUserId(int userId)
     {
         return await context.UserAuthData
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
-            .FirstOrDefaultAsync(ua => ua.UserId == input) ?? null;
+            .FirstOrDefaultAsync(ua => ua.UserId == userId);
     }
 
     public async Task<bool> UpdateUserAuthEntity(int userId, string newPasswordHash)

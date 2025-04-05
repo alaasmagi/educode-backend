@@ -21,7 +21,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<UserEntity?> AuthenticateUserAsync(int userId, string password)
     {
-        var userAuthData = await _user.GetUserAuthEntityByUniIdOrStudentCode(userId);
+        var userAuthData = await _user.GetUserAuthDataByUserId(userId);
 
         if (userAuthData == null)
         {
@@ -77,7 +77,7 @@ public class UserManagementService : IUserManagementService
         return true;
     }
     
-    private bool VerifyPasswordHash(string enteredPassword, string storedHash)
+    private static bool VerifyPasswordHash(string enteredPassword, string storedHash)
     {
         return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
     }

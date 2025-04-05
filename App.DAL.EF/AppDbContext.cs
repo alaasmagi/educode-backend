@@ -33,10 +33,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         
         // UserAuthToken relationship
         modelBuilder.Entity<UserAuthEntity>()
-            .ToTable("UserAuthTokens")
+            .ToTable("UserAuth")
             .HasOne(u => u.User)
-            .WithMany()
-            .HasForeignKey(u => u.UserId);
+            .WithOne()
+            .HasForeignKey<UserAuthEntity>(u => u.UserId);
         modelBuilder.Entity<UserAuthEntity>()
             .HasIndex(u => u.UserId)
             .IsUnique();
