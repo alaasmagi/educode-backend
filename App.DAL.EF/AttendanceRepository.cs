@@ -95,5 +95,4 @@ public class AttendanceRepository(AppDbContext context)
         var attendanceCounts = await context.AttendanceChecks.Where(a => a.CourseAttendanceId == attendanceId).CountAsync();
         return attendanceCounts;
     }
-    
 }
