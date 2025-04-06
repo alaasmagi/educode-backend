@@ -65,7 +65,7 @@ namespace WebApp.ApiControllers
             }
             
             var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-            if (userEntity.UniId == tokenUniId)
+            if (userEntity.UniId != tokenUniId)
             {
                 return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
             }
@@ -86,7 +86,7 @@ namespace WebApp.ApiControllers
             }
             
             var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-            if (userEntity.UniId == tokenUniId)
+            if (userEntity.UniId != tokenUniId)
             {
                 return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
             }
