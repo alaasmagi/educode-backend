@@ -53,10 +53,11 @@ public class AttendanceRepository(AppDbContext context)
         if (attendance.Id == 0)
         {
             int? availableId = await context.CourseAttendances
-                .FromSqlRaw(@"SELECT MIN(t1.Id + 1) AS AvailableId
-                FROM CourseAttendances t1
-                LEFT JOIN CourseAttendances t2 ON t1.Id + 1 = t2.Id
-                WHERE t2.Id IS NULL")
+                .FromSqlRaw(@"
+                    SELECT MIN(t1.Id + 1) AS Id
+                    FROM CourseAttendances t1
+                    LEFT JOIN CourseAttendances t2 ON t1.Id + 1 = t2.Id
+                    WHERE t2.Id IS NULL")
                 .Select(x => (int?)x.Id)
                 .FirstOrDefaultAsync();
 
