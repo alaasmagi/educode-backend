@@ -28,7 +28,6 @@ public class AttendanceCleanupService : IHostedService, IDisposable
     {
         try
         {
-            // Create a scope to resolve scoped services like AppDbContext
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -41,22 +40,18 @@ public class AttendanceCleanupService : IHostedService, IDisposable
         }
     }
 
-    public async Task<bool> DeleteOldAttendances(AppDbContext context)
+    private async Task<bool> DeleteOldAttendances(AppDbContext context)
     {
-        var oldAttendances = await context.CourseAttendances
-            .Where(u => u.EndTime < DateTime.Now.AddMonths(-6))
-            .ToListAsync();
+        var tempRepository = new AttendanceRepository(context);
+        var status = await tempRepository.RemoveOldAttendances();
 
-        if (!oldAttendances.Any())
+        if (!status)
         {
             _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
             return false;
         }
 
-        context.CourseAttendances.RemoveRange(oldAttendances);
-        await context.SaveChangesAsync();
-
-        _logger.LogInformation($"Successfully deleted {oldAttendances.Count} attendances that were more than 6 months old");
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
         return true;
     }
 

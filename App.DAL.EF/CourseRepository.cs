@@ -74,6 +74,31 @@ public class CourseRepository(AppDbContext context)
 
         return attendanceCounts.Count > 0 ? attendanceCounts : null;
     }
+
+    public async Task<bool> CourseAvailabilityCheckById(int courseId)
+    {
+        return await context.Courses.AnyAsync(c => c.Id == courseId);
+    }
     
+    public async Task<CourseEntity?> GetCourseById(int courseId)
+    {
+        return await context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+    }
+    
+    public async Task<CourseEntity?> GetCourseByName(string courseName)
+    {
+        return await context.Courses.FirstOrDefaultAsync(c => c.CourseName == courseName);
+    }
+    
+    public async Task<CourseEntity?> GetCourseByCode(string courseCode)
+    {
+        return await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == courseCode);
+    }
+
+    public async Task<int> CourseAccessibilityCheck(int courseId, int userId)
+    {
+        return await context.CourseTeachers
+            .CountAsync(ct => ct.TeacherId == userId && ct.CourseId == courseId);
+    }
 
 }

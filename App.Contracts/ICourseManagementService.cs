@@ -11,9 +11,10 @@ public interface ICourseManagementService
     List<CourseStatusDto>? GetAllCourseStatuses();
     Task<List<CourseEntity>?> GetCoursesByUserAsync(int userId);
     Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId);
-    Task<bool> DoesCourseExistAsync(int id);
     Task<CourseEntity?> GetCourseByNameAsync(string courseName, string uniId);
     Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string uniId);
     Task<CourseEntity?> GetCourseByIdAsync(int courseId, string uniId);
     Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId);
+    Task<bool> DoesCourseExistAsync(int id);
+
 }

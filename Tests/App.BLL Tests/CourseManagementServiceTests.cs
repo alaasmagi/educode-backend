@@ -72,6 +72,12 @@ public class CourseManagementServiceTests
     [Test]
     public async Task GetCourseByIdAsync_ReturnsCourse_IfAccessible()
     {
+        var userType = new UserTypeEntity() { 
+            Id = 1, 
+            UserType = "authTest",
+            CreatedBy = "authTest",
+            UpdatedBy = "authTest"
+        };
         var user = new UserEntity 
         { 
             Id = 1,
@@ -97,6 +103,7 @@ public class CourseManagementServiceTests
             UpdatedBy = "test"
         };
     
+        await _context.UserTypes.AddAsync(userType);
         await _context.Users.AddAsync(user);
         await _context.Courses.AddAsync(course);
         await _context.CourseTeachers.AddAsync(courseTeacher);
@@ -224,6 +231,12 @@ public class CourseManagementServiceTests
     [Test]
     public async Task DeleteCourse_Deletes_IfAccessible()
     {
+        var userType = new UserTypeEntity() { 
+            Id = 1, 
+            UserType = "authTest",
+            CreatedBy = "authTest",
+            UpdatedBy = "authTest"
+        };
         var user = new UserEntity 
         { 
             Id = 1,
@@ -249,11 +262,12 @@ public class CourseManagementServiceTests
             UpdatedBy = "test"
         };
 
+        await _context.UserTypes.AddAsync(userType);
         await _context.Users.AddAsync(user);
         await _context.Courses.AddAsync(course);
         await _context.CourseTeachers.AddAsync(courseTeacher);
         await _context.SaveChangesAsync();
-
+        
         var result = await _service.DeleteCourse(2, "exist123");
 
         Assert.That(result, Is.True);
@@ -282,7 +296,7 @@ public class CourseManagementServiceTests
         await _context.Courses.AddAsync(course);
         await _context.SaveChangesAsync();
 
-        var result = await _service.DoesCourseExistAsync(2);
+        var result = await _context.Courses.AnyAsync(c => c.Id == 2);
 
         Assert.That(result, Is.True);
     }

@@ -9,19 +9,19 @@ namespace App.BLL;
 public class UserManagementService : IUserManagementService
 {
     private readonly AppDbContext _context;
-    private readonly UserRepository _user;
+    private readonly UserRepository _userRepository;
     private readonly ILogger<UserManagementService> _logger;
 
     public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger)
     {
         _context = context;
-        _user = new UserRepository(_context); 
+        _userRepository = new UserRepository(_context); 
         _logger = logger;
     }
     
     public async Task<UserEntity?> AuthenticateUserAsync(int userId, string password)
     {
-        var userAuthData = await _user.GetUserAuthDataByUserId(userId);
+        var userAuthData = await _userRepository.GetUserAuthDataByUserId(userId);
 
         if (userAuthData == null)
         {
@@ -48,14 +48,14 @@ public class UserManagementService : IUserManagementService
             return false;
         }
 
-        if (!await _user.AddUserEntityToDb(user))
+        if (!await _userRepository.AddUserEntityToDb(user))
         {
             _logger.LogError($"Failed to create account for user with ID {user.UniId}");
             return false;
         }
         
         userAuthData.UserId = user.Id;
-        if (!await _user.AddUserAuthEntityToDb(userAuthData))
+        if (!await _userRepository.AddUserAuthEntityToDb(userAuthData))
         {
             _logger.LogError($"Failed to create account for user with ID {user.UniId}");
             return false;
@@ -66,7 +66,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<bool> ChangeUserPasswordAsync(UserEntity user, string newPasswordHash)
     { 
-        var status = await _user.UpdateUserAuthEntity(user.Id, newPasswordHash);
+        var status = await _userRepository.UpdateUserAuthEntity(user.Id, newPasswordHash);
         
         if (!status)
         {
@@ -84,7 +84,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<bool> DoesUserExistAsync(string uniId)
     {
-        var status = await _context.Users.AnyAsync(u => u.UniId == uniId);
+        var status = await _userRepository.UserAvailabilityCheckByUniId(uniId);
         
         if (!status)
         {
@@ -98,7 +98,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<UserTypeEntity?> GetUserTypeAsync(string userType)
     {
-        var result = await _context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType);
+        var result = await _userRepository.GetUserTypeEntity(userType);
 
         if (result == null)
         {
@@ -111,7 +111,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<List<UserEntity>?> GetAllUsersAsync()
     {
-        var result = await _context.Users.ToListAsync();
+        var result = await _userRepository.GetAllUsersAsList();
 
         if (result.Count <= 0)
         {
@@ -124,8 +124,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
     {
-        var result = await _context.Users.Include(x => x.UserType)
-            .FirstOrDefaultAsync(x => x.UniId == uniId);
+        var result = await _userRepository.GetUserByUniIdAsync(uniId);
         
         if (result == null)
         {
@@ -138,7 +137,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<UserEntity?> GetUserByIdAsync(int id)
     {
-        var result = await _context.Users.FindAsync(id);
+        var result = await _userRepository.GetUserByIdAsync(id);
 
         if (result == null)
         {
@@ -156,7 +155,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> DeleteUserAsync(UserEntity user)
     {
-        var status = await _user.DeleteUserEntity(user);
+        var status = await _userRepository.DeleteUserEntity(user);
 
         if (!status)
         {

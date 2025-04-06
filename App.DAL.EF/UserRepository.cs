@@ -50,5 +50,31 @@ public class UserRepository (AppDbContext context)
         context.Users.Remove(user);
         return await context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> UserAvailabilityCheckByUniId(string uniId)
+    {
+       return await context.Users.AnyAsync(u => u.UniId == uniId);
+    }
+
+    public async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
+    {
+        return await context.Users.Include(x => x.UserType)
+            .FirstOrDefaultAsync(x => x.UniId == uniId);
+    }
+    
+    public async Task<UserEntity?> GetUserByIdAsync(int userId)
+    {
+        return await context.Users.FindAsync(userId);
+    }
+    
+    public async Task<UserTypeEntity?> GetUserTypeEntity(string userType)
+    {
+        return await context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType);
+    }
+
+    public async Task<List<UserEntity>> GetAllUsersAsList()
+    {
+        return await context.Users.ToListAsync();
+    }
     
 }

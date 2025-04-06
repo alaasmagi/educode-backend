@@ -1,6 +1,7 @@
 ﻿using App.DAL.EF;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,8 @@ public class CourseManagementService : ICourseManagementService
 {
     private readonly AppDbContext _context;
     private readonly CourseRepository _courseRepository;
+    private readonly AttendanceRepository _attendanceRepository;
+    private readonly UserRepository _userRepository;
     private readonly ILogger<CourseManagementService> _logger;
 
     public CourseManagementService(AppDbContext context, ILogger<CourseManagementService> logger)
@@ -18,12 +21,13 @@ public class CourseManagementService : ICourseManagementService
         _logger = logger;
         _context = context;
         _courseRepository = new CourseRepository(_context);
+        _attendanceRepository = new AttendanceRepository(_context);
+        _userRepository = new UserRepository(_context);
     }
 
     public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(int attendanceId)
     {
-        var courseAttendance = await _context.CourseAttendances
-            .FirstOrDefaultAsync(u => u.Id == attendanceId);
+        var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
         if (courseAttendance == null)
         {
@@ -31,7 +35,7 @@ public class CourseManagementService : ICourseManagementService
             return null;
         }
         
-        var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseAttendance.CourseId);
+        var course = await _courseRepository.GetCourseById(courseAttendance.CourseId);
 
         if (course == null)
         {
@@ -44,7 +48,7 @@ public class CourseManagementService : ICourseManagementService
 
     public async Task<CourseEntity?> GetCourseByIdAsync(int courseId, string uniId)
     {
-        var result = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+        var result = await _courseRepository.GetCourseById(courseId);
 
         if (result == null)
         {
@@ -64,7 +68,7 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<CourseEntity?> GetCourseByNameAsync(string courseName, string uniId)
     {
-        var result = await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == courseName);
+        var result = await _courseRepository.GetCourseByName(courseName);
         
         if (result == null)
         {
@@ -84,7 +88,7 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string uniId)
     {
-        var result = await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == courseCode);
+        var result = await _courseRepository.GetCourseByCode(courseCode);
         
         if (result == null)
         {
@@ -104,7 +108,7 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
-        var courseExists = await _context.Courses.AnyAsync(c => c.CourseCode == course.CourseCode);
+        var courseExists = await DoesCourseExistAsync(course.Id);
 
         if (courseExists)
         {
@@ -132,7 +136,8 @@ public class CourseManagementService : ICourseManagementService
     }
     public async Task<bool> EditCourse(int courseId, CourseEntity newCourse)
     {
-        if (!await DoesCourseExistAsync(courseId))
+        var courseExistence = await DoesCourseExistAsync(courseId);
+        if (!courseExistence)
         {
             _logger.LogError($"Failed to update course with id {courseId}");
             return false;
@@ -200,10 +205,6 @@ public class CourseManagementService : ICourseManagementService
 
         return result;
     }
-    private async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
-    }
     
     public async Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId)
     {
@@ -218,9 +219,29 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
+    public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId)
+    {
+        var user = await _userRepository.GetUserByUniIdAsync(uniId);
+        
+        if (user == null)
+        {
+            _logger.LogError($"User with uniId {uniId} was not found");
+            return false;
+        }
+
+        var result = await _courseRepository.CourseAccessibilityCheck(courseEntity.Id, user.Id);
+        if (result <= 0)
+        {
+            _logger.LogError($"Course with with ID {courseEntity.Id} is not accessible by user with UNI-ID {uniId}");
+            return false;
+        }
+        
+        return true;
+    }
+    
     public async Task<bool> DoesCourseExistAsync(int id)
     {
-        var status = await _context.Courses.AnyAsync(u => u.Id == id);
+        var status = await _courseRepository.CourseAvailabilityCheckById(id);
 
         if (!status)
         {
@@ -230,21 +251,6 @@ public class CourseManagementService : ICourseManagementService
         
         _logger.LogInformation($"Course with ID {id} was found");
         return true;        
-    }
-
-    public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId)
-    {
-        var user = await GetUserByUniIdAsync(uniId);
-        var result = await _context.CourseTeachers
-            .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == courseEntity.Id);
-        
-        if (result <= 0)
-        {
-            _logger.LogError($"Course with with ID {courseEntity.Id} is not accessible by user with UNI-ID {uniId}");
-            return false;
-        }
-        
-        return true;
     }
 }
    

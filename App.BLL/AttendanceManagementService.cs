@@ -11,16 +11,20 @@ public class AttendanceManagementService : IAttendanceManagementService
     private readonly ILogger<AttendanceManagementService> _logger;
     private readonly AppDbContext _context;
     private readonly AttendanceRepository _attendanceRepository;
+    private readonly CourseRepository _courseRepository;
+    private readonly UserRepository _userRepository;
 
     public AttendanceManagementService(AppDbContext context, ILogger<AttendanceManagementService> logger)
     {
         _logger = logger;
         _context = context;
         _attendanceRepository = new AttendanceRepository(_context); 
+        _courseRepository = new CourseRepository(_context); 
+        _userRepository = new UserRepository(_context); 
     }
     public async Task<bool> DoesWorkplaceExist(int id)
     {
-        var result = await _context.Workplaces.AnyAsync(w => w.Id == id);
+        var result = await _attendanceRepository.WorkplaceAvailabilityCheckById(id);
 
         if (!result)
         {
@@ -30,15 +34,10 @@ public class AttendanceManagementService : IAttendanceManagementService
 
         return true;
     }
-
-    private async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.UniId == uniId);
-    }
     
     public async Task<bool> DoesAttendanceExist(int id)
     {
-        var result = await _context.CourseAttendances.AnyAsync(u => u.Id == id);
+        var result = await _attendanceRepository.AttendanceAvailabilityCheckById(id);
 
         if (!result)
         {
@@ -52,8 +51,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId)
     {
-        var result = await _context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
-                                                                   && u.CourseAttendanceId == attendanceId);
+        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheckById(studentCode, attendanceId);
 
         if (!result)
         {
@@ -80,10 +78,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId, string uniId)
     {
-        var courseAttendance = await _context.CourseAttendances
-            .Where(u => u.Id == attendanceId)
-            .Include(u => u.Course).Include(u => u.AttendanceType)
-            .FirstOrDefaultAsync();
+        var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
         if (courseAttendance == null)
         {
@@ -113,8 +108,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(int courseId)
     {
-        var attendances = await _context.CourseAttendances
-            .Where(c => c.CourseId == courseId).ToListAsync();
+        var attendances = await _attendanceRepository.GetCourseAttendancesByCourseId(courseId);
 
         if (attendances.Count <= 0)
         {
@@ -122,12 +116,11 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
 
-       return attendances;
+        return attendances;
     }
 
     public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
     {
-        
         var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.CourseAttendanceId);
 
         if (attendanceCheckExist)
@@ -139,7 +132,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         bool status;
         if (workplaceId != null)
         {
-            var workplace = await _context.Workplaces.FirstOrDefaultAsync(w => w.Id == workplaceId);
+            var workplace = await _attendanceRepository.GetWorkplaceById(workplaceId.Value);
             status = await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator, workplace);
         }
         else
@@ -158,8 +151,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceId)
     {
-        var attendanceChecks = await _context.AttendanceChecks
-            .Where(c => c.CourseAttendanceId == attendanceId).ToListAsync();
+        var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceId(attendanceId);
         
         if (attendanceChecks.Count <= 0)
         {
@@ -172,13 +164,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(int userId)
     {
-        var attendance = await _context.CourseAttendances
-            .Where(ca => ca.Course!.CourseTeacherEntities!
-                .Any(ct => ct.TeacherId == userId) && ca.StartTime <= DateTime.Now) 
-            .Include(ca => ca.Course)
-            .Include(ca => ca.AttendanceType) 
-            .OrderByDescending(ca => ca.EndTime) 
-            .FirstOrDefaultAsync();
+        var attendance = await _attendanceRepository.GetMostRecentAttendanceByUser(userId);
 
         if (attendance == null)
         {
@@ -191,7 +177,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id, string uniId)
     {
-        var result = await _context.AttendanceChecks.FirstOrDefaultAsync(ca => ca.Id == id);
+        var result = await _attendanceRepository.GetAttendanceCheckById(id);
         if (result == null)
         {
             _logger.LogError($"AttendanceCheck with ID {id} was not found");
@@ -205,12 +191,12 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
         
-       return result;
+        return result;
     }
     
     public async Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync()
     {
-        var result = await _context.AttendanceTypes.ToListAsync();
+        var result = await _attendanceRepository.GetAttendanceTypes();
 
         if (result.Count <= 0)
         {
@@ -223,8 +209,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId)
     {
-        var result = await _context.AttendanceTypes
-            .FirstOrDefaultAsync(ca => ca.Id == attendanceTypeId);
+        var result = await _attendanceRepository.GetAttendanceTypeById(attendanceTypeId);
 
         if (result == null)
         {
@@ -328,9 +313,14 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId)
     {
-        var user = await GetUserByUniIdAsync(uniId);
-        var result = await _context.CourseTeachers
-            .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == attendance.CourseId);
+        var user =  await _userRepository.GetUserByUniIdAsync(uniId);
+        if (user == null)
+        {
+            _logger.LogError($"User UNI-ID {uniId} was not found");
+            return false;
+        }
+        
+        var result = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
 
         if (result <= 0)
         {
@@ -343,11 +333,21 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId)
     {
-        var user = await GetUserByUniIdAsync(uniId);
-        var attendance = await _context.CourseAttendances.FirstOrDefaultAsync(at => at.Id == 
-                                                                attendanceCheck.CourseAttendanceId);
-        var result = await _context.CourseTeachers
-            .CountAsync(ct => ct.TeacherId == user!.Id && ct.CourseId == attendance!.CourseId);
+        var user = await _userRepository.GetUserByUniIdAsync(uniId);
+        if (user == null)
+        {
+            _logger.LogError($"User UNI-ID {uniId} was not found");
+            return false;
+        }
+        
+        var attendance = await _attendanceRepository.GetAttendanceById(attendanceCheck.CourseAttendanceId);
+        if (attendance == null)
+        {
+            _logger.LogError($"Attendance with ID {attendanceCheck.CourseAttendanceId} was not found");
+            return false;
+        }
+        
+        var result = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
         
         if (result <= 0)
         {
