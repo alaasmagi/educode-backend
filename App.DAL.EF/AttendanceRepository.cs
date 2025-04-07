@@ -116,7 +116,9 @@ public class AttendanceRepository(AppDbContext context)
 
     public async Task<CourseAttendanceEntity?> GetAttendanceById(int attendanceId)
     {
-       return await context.CourseAttendances
+        return await context.CourseAttendances
+            .Include(u => u.AttendanceType)
+            .Include(u => u.Course)
             .FirstOrDefaultAsync(u => u.Id == attendanceId);
     }
 
