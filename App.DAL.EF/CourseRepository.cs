@@ -75,9 +75,14 @@ public class CourseRepository(AppDbContext context)
         return attendanceCounts.Count > 0 ? attendanceCounts : null;
     }
 
-    public async Task<bool> CourseAvailabilityCheckById(int courseId)
+    public async Task<bool> CourseAvailabilityCheckByCourseCode(string courseCode)
     {
-        return await context.Courses.AnyAsync(c => c.Id == courseId);
+        return await context.Courses.AnyAsync(c => c.CourseCode == courseCode);
+    }
+    
+    public async Task<bool> CourseAvailabilityCheckById(int id)
+    {
+        return await context.Courses.AnyAsync(c => c.Id == id);
     }
     
     public async Task<CourseEntity?> GetCourseById(int courseId)

@@ -108,7 +108,7 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
-        var courseExists = await DoesCourseExistAsync(course.Id);
+        var courseExists = await DoesCourseExistAsync(course.CourseCode);
 
         if (courseExists)
         {
@@ -136,7 +136,7 @@ public class CourseManagementService : ICourseManagementService
     }
     public async Task<bool> EditCourse(int courseId, CourseEntity newCourse)
     {
-        var courseExistence = await DoesCourseExistAsync(courseId);
+        var courseExistence = await DoesCourseExistByIdAsync(courseId);
         if (!courseExistence)
         {
             _logger.LogError($"Failed to update course with id {courseId}");
@@ -239,17 +239,31 @@ public class CourseManagementService : ICourseManagementService
         return true;
     }
     
-    public async Task<bool> DoesCourseExistAsync(int id)
+    public async Task<bool> DoesCourseExistAsync(string courseCode)
+    {
+        var status = await _courseRepository.CourseAvailabilityCheckByCourseCode(courseCode);
+
+        if (!status)
+        {
+            _logger.LogError($"Course with code {courseCode} was not found");
+            return false;
+        }
+        
+        _logger.LogInformation($"Course with code {courseCode} was found");
+        return true;        
+    }
+    
+    public async Task<bool> DoesCourseExistByIdAsync(int id)
     {
         var status = await _courseRepository.CourseAvailabilityCheckById(id);
 
         if (!status)
         {
-            _logger.LogError($"Course with ID {id} was not found");
+            _logger.LogError($"Course with code {id} was not found");
             return false;
         }
         
-        _logger.LogInformation($"Course with ID {id} was found");
+        _logger.LogInformation($"Course with code {id} was found");
         return true;        
     }
 }

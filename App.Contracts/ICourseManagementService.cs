@@ -15,6 +15,7 @@ public interface ICourseManagementService
     Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string uniId);
     Task<CourseEntity?> GetCourseByIdAsync(int courseId, string uniId);
     Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId);
-    Task<bool> DoesCourseExistAsync(int id);
+    Task<bool> DoesCourseExistAsync(string courseCode);
+    Task<bool> DoesCourseExistByIdAsync(int id);
 
 }

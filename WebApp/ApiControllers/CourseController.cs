@@ -92,7 +92,7 @@ public class CourseController(
     public async Task<ActionResult<IEnumerable<CourseUserCountDto>>> GetAllStudentCountsByCourse(int id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var validity = await courseManagementService.DoesCourseExistAsync(id);
+        var validity = await courseManagementService.DoesCourseExistByIdAsync(id);
         if(!validity)
         {
             return NotFound(new {message = "Course not found", error = "course-not-found"});
