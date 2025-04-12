@@ -56,23 +56,29 @@ public class CourseRepository(AppDbContext context)
     
     public async Task<List<CourseUserCountDto>?> GetAllUserCountsByCourseId(int courseId)
     {
-        var course = await context.Courses.FirstOrDefaultAsync(u => u.Id == courseId);
-
-        if (course == null)
-        {
+        var courseExists = await context.Courses.AnyAsync(c => c.Id == courseId);
+        if (!courseExists)
             return null;
-        }
-        
-        var attendanceCounts = await context.CourseAttendances
-            .Where(a => a.CourseId == courseId)
-            .Select(a => new CourseUserCountDto
-            {
-                AttendanceDate = a.StartTime.Date,
-                UserCount = context.AttendanceChecks.Select(b => b.CourseAttendanceId == a.Id).Count()
-            })
+
+        var attendances = await context.CourseAttendances
+            .Where(ca => ca.CourseId == courseId)
             .ToListAsync();
 
-        return attendanceCounts.Count > 0 ? attendanceCounts : null;
+        var result = new List<CourseUserCountDto>();
+
+        foreach (var attendance in attendances)
+        {
+            var count = await context.AttendanceChecks
+                .CountAsync(ac => ac.CourseAttendanceId == attendance.Id);
+
+            result.Add(new CourseUserCountDto
+            {
+                AttendanceDate = attendance.StartTime,
+                UserCount = count
+            });
+        }
+
+        return result;
     }
 
     public async Task<bool> CourseAvailabilityCheckByCourseCode(string courseCode)

@@ -138,6 +138,7 @@ public class CourseController(
 
         if (!await courseManagementService.AddCourse(user, newCourse, model.Creator))
         {
+            
             return BadRequest(new { message = "Course already exists", error = "course-already-exists" });
         }
         
