@@ -33,6 +33,7 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
         mysqlOptions =>
         {
+            mysqlOptions.CommandTimeout(60);
             mysqlOptions.EnableRetryOnFailure(3);
         }));
 
