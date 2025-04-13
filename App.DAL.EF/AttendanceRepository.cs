@@ -116,10 +116,18 @@ public class AttendanceRepository(AppDbContext context)
 
     public async Task<CourseAttendanceEntity?> GetAttendanceById(int attendanceId)
     {
-        return await context.CourseAttendances
+        var attendance = await context.CourseAttendances
             .Include(u => u.AttendanceType)
             .Include(u => u.Course)
             .FirstOrDefaultAsync(u => u.Id == attendanceId);
+
+        if (attendance != null)
+        {
+            attendance.StartTime = DateTime.SpecifyKind(attendance.StartTime, DateTimeKind.Utc);
+            attendance.EndTime = DateTime.SpecifyKind(attendance.EndTime, DateTimeKind.Utc);
+        }
+
+        return attendance;
     }
 
     public async Task<bool> WorkplaceAvailabilityCheckById(int workplaceId)
@@ -142,19 +150,20 @@ public class AttendanceRepository(AppDbContext context)
         return  await context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
                                                               && u.CourseAttendanceId == attendanceId);
     }
-
-    public async Task<CourseAttendanceEntity?> GetCourseAttendanceById(int attendanceId)
-    {
-       return await context.CourseAttendances
-            .Where(u => u.Id == attendanceId)
-            .Include(u => u.Course).Include(u => u.AttendanceType)
-            .FirstOrDefaultAsync();
-    }
     
     public async Task<List<CourseAttendanceEntity>> GetCourseAttendancesByCourseId(int courseId)
     {
-        return await context.CourseAttendances
-            .Where(c => c.CourseId == courseId).ToListAsync();
+        var attendances = await context.CourseAttendances
+            .Where(c => c.CourseId == courseId)
+            .ToListAsync();
+
+        foreach (var attendance in attendances)
+        {
+            attendance.StartTime = DateTime.SpecifyKind(attendance.StartTime, DateTimeKind.Utc);
+            attendance.EndTime = DateTime.SpecifyKind(attendance.EndTime, DateTimeKind.Utc);
+        }
+
+        return attendances;
     }
 
     public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceId(int attendanceId)
