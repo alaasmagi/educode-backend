@@ -29,8 +29,12 @@ var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
 
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddDbContextPool<AppDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+        mysqlOptions =>
+        {
+            mysqlOptions.EnableRetryOnFailure(3);
+        }));
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
