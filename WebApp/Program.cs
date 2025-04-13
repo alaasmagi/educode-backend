@@ -20,7 +20,7 @@ var user = Environment.GetEnvironmentVariable("USER");
 var db = Environment.GetEnvironmentVariable("DB");
 var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
-var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};Pooling=true;Minimum Pool Size=0;Maximum Pool Size=10";
+var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};Pooling=true;Minimum Pool Size=0;Maximum Pool Size=100";
 
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
