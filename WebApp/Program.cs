@@ -20,7 +20,7 @@ var user = Environment.GetEnvironmentVariable("USER");
 var db = Environment.GetEnvironmentVariable("DB");
 var dbKey = Environment.GetEnvironmentVariable("DBKEY");
 
-var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};";
+var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};Pooling=true;Minimum Pool Size=0;Maximum Pool Size=10";
 
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
@@ -172,5 +172,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 //app.UseRateLimiter();
-app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
+    //.RequireRateLimiting("fixed")
+app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index"));
 app.Run();
