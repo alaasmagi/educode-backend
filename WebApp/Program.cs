@@ -84,7 +84,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddRateLimiter(options =>
+/*builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", limiterOptions =>
     {
@@ -93,7 +93,7 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 2;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
-});
+});*/
 
 builder.Services.AddAuthorization(); 
 builder.Services.AddControllersWithViews();
@@ -171,6 +171,6 @@ app.MapControllerRoute(
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseRateLimiter();
+//app.UseRateLimiter();
 app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 app.Run();
