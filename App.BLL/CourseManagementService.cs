@@ -11,8 +11,8 @@ namespace App.BLL;
 public class CourseManagementService : ICourseManagementService
 {
     private readonly AppDbContext _context;
-    private readonly CourseRepository _courseRepository;
-    private readonly AttendanceRepository _attendanceRepository;
+    public readonly CourseRepository _courseRepository;
+    public readonly AttendanceRepository _attendanceRepository;
     private readonly UserRepository _userRepository;
     private readonly ILogger<CourseManagementService> _logger;
 

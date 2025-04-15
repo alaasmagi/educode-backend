@@ -97,6 +97,7 @@ public class AttendanceManagementServiceTests
         {
             Id = 1,
             StudentCode = "S123",
+            FullName = "TEST NAME",
             CourseAttendanceId = 1,
             CreatedBy = "TEST", 
             UpdatedBy = "TEST"
@@ -123,6 +124,7 @@ public class AttendanceManagementServiceTests
         {
             Id = 1,
             StudentCode = "S123",
+            FullName = "TEST NAME",
             CourseAttendanceId = 1,
             CreatedBy = "TEST", 
             UpdatedBy = "TEST"

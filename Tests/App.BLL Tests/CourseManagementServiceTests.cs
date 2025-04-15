@@ -35,6 +35,15 @@ public class CourseManagementServiceTests
     [Test]
     public async Task GetCourseByAttendanceIdAsync_ReturnsCourse_IfExists()
     {
+        var attendanceType = new AttendanceTypeEntity()
+        {
+            Id = 1,
+            AttendanceType = "TEST",
+            CreatedBy = "test",
+            UpdatedBy = "test",
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
         var course = new CourseEntity
         {
             Id = 1, 
@@ -46,17 +55,21 @@ public class CourseManagementServiceTests
         var attendance = new CourseAttendanceEntity
         {
             Id = 10, 
+            AttendanceTypeId = 1,
+            AttendanceType = attendanceType,
             CourseId = 1, 
+            Course = course,
             CreatedBy = "test", 
             UpdatedBy = "test"
         };
         
+        await _context.AttendanceTypes.AddAsync(attendanceType);
         await _context.Courses.AddAsync(course);
         await _context.CourseAttendances.AddAsync(attendance);
         await _context.SaveChangesAsync();
-
+        
         var result = await _service.GetCourseByAttendanceIdAsync(10);
-
+        
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(course.Id));
     }
