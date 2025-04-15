@@ -41,6 +41,10 @@ namespace App.DAL.EF.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("StudentCode")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -62,7 +66,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("WorkplaceId");
 
-                    b.HasIndex("StudentCode", "CourseAttendanceId")
+                    b.HasIndex("StudentCode", "FullName", "CourseAttendanceId")
                         .IsUnique();
 
                     b.ToTable("AttendanceChecks", (string)null);

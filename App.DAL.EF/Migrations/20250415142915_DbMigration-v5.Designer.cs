@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250323092218_DBMigration-v4")]
-    partial class DBMigrationv4
+    [Migration("20250415142915_DbMigration-v5")]
+    partial class DbMigrationv5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,6 +44,10 @@ namespace App.DAL.EF.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("StudentCode")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -65,7 +69,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("WorkplaceId");
 
-                    b.HasIndex("StudentCode", "CourseAttendanceId")
+                    b.HasIndex("StudentCode", "FullName", "CourseAttendanceId")
                         .IsUnique();
 
                     b.ToTable("AttendanceChecks", (string)null);
@@ -274,7 +278,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserAuthTokens", (string)null);
+                    b.ToTable("UserAuth", (string)null);
                 });
 
             modelBuilder.Entity("App.Domain.UserEntity", b =>
@@ -299,7 +303,6 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("StudentCode")
-                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("varchar(128)");
 
@@ -450,7 +453,7 @@ namespace App.DAL.EF.Migrations
                     b.HasOne("App.Domain.CourseEntity", "Course")
                         .WithMany("CourseTeacherEntities")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("App.Domain.UserEntity", "Teacher")
@@ -467,8 +470,8 @@ namespace App.DAL.EF.Migrations
             modelBuilder.Entity("App.Domain.UserAuthEntity", b =>
                 {
                     b.HasOne("App.Domain.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("App.Domain.UserAuthEntity", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

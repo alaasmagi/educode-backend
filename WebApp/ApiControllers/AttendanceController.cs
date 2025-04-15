@@ -207,6 +207,7 @@ public class AttendanceController(
         var newAttendanceCheck = new AttendanceCheckEntity
         {
             StudentCode = model.StudentCode,
+            FullName = model.FullName,
             CourseAttendanceId = model.CourseAttendanceId,
         };
 
