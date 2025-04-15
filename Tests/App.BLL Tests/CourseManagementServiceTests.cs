@@ -81,7 +81,6 @@ public class CourseManagementServiceTests
         Assert.That(result, Is.Null);
     }
     
-    
     [Test]
     public async Task GetCourseByIdAsync_ReturnsCourse_IfAccessible()
     {
