@@ -127,9 +127,9 @@ public class AttendanceRepository(AppDbContext context)
         return await context.CourseAttendances.AnyAsync(u => u.Id == attendanceId);
     }
     
-    public async Task<bool> AttendanceCheckAvailabilityCheckById(string studentCode, int attendanceId)
+    public async Task<bool> AttendanceCheckAvailabilityCheck(string studentCode, string fullName, int attendanceId)
     {
-        return  await context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
+        return  await context.AttendanceChecks.AnyAsync(u => (u.StudentCode == studentCode || u.FullName == fullName) 
                                                               && u.CourseAttendanceId == attendanceId);
     }
     

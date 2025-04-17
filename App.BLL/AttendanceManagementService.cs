@@ -49,13 +49,13 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    public async Task<bool> DoesAttendanceCheckExist(string studentCode, int attendanceId)
+    public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceId)
     {
-        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheckById(studentCode, attendanceId);
+        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, fullName, attendanceId);
 
         if (!result)
         {
-            _logger.LogError($"AttendanceCheck with student code {studentCode} and attendance ID {attendanceId} was not found");
+            _logger.LogError($"AttendanceCheck with student code {studentCode}, fullname {fullName} and attendance ID {attendanceId} was not found");
             return false;
         }
         
@@ -121,7 +121,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
     {
-        var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.CourseAttendanceId);
+        var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.FullName, attendanceCheck.CourseAttendanceId);
 
         if (attendanceCheckExist)
         {
