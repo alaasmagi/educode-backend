@@ -10,7 +10,7 @@ public class CourseRepository(AppDbContext context)
         var result = await context.Courses
             .Where(ca => ca.CourseTeacherEntities!
                 .Any(ct => ct.TeacherId == id))
-            .ToListAsync();
+            .AsNoTracking().ToListAsync();
         
         return result.Count > 0 ? result : null; 
     }
@@ -56,12 +56,13 @@ public class CourseRepository(AppDbContext context)
     
     public async Task<List<CourseUserCountDto>?> GetAllUserCountsByCourseId(int courseId)
     {
-        var courseExists = await context.Courses.AnyAsync(c => c.Id == courseId);
+        var courseExists = await context.Courses.AsNoTracking().AnyAsync(c => c.Id == courseId);
         if (!courseExists)
             return null;
 
         var attendances = await context.CourseAttendances
             .Where(ca => ca.CourseId == courseId)
+            .AsNoTracking()
             .ToListAsync();
 
         var result = new List<CourseUserCountDto>();
@@ -69,7 +70,7 @@ public class CourseRepository(AppDbContext context)
         foreach (var attendance in attendances)
         {
             var count = await context.AttendanceChecks
-                .CountAsync(ac => ac.CourseAttendanceId == attendance.Id);
+                .AsNoTracking().CountAsync(ac => ac.CourseAttendanceId == attendance.Id);
 
             result.Add(new CourseUserCountDto
             {
@@ -83,33 +84,33 @@ public class CourseRepository(AppDbContext context)
 
     public async Task<bool> CourseAvailabilityCheckByCourseCode(string courseCode)
     {
-        return await context.Courses.AnyAsync(c => c.CourseCode == courseCode);
+        return await context.Courses.AsNoTracking().AnyAsync(c => c.CourseCode == courseCode);
     }
     
     public async Task<bool> CourseAvailabilityCheckById(int id)
     {
-        return await context.Courses.AnyAsync(c => c.Id == id);
+        return await context.Courses.AsNoTracking().AnyAsync(c => c.Id == id);
     }
     
     public async Task<CourseEntity?> GetCourseById(int courseId)
     {
-        return await context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+        return await context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.Id == courseId);
     }
     
     public async Task<CourseEntity?> GetCourseByName(string courseName)
     {
-        return await context.Courses.FirstOrDefaultAsync(c => c.CourseName == courseName);
+        return await context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.CourseName == courseName);
     }
     
     public async Task<CourseEntity?> GetCourseByCode(string courseCode)
     {
-        return await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == courseCode);
+        return await context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.CourseCode == courseCode);
     }
 
     public async Task<int> CourseAccessibilityCheck(int courseId, int userId)
     {
         return await context.CourseTeachers
+            .AsNoTracking()
             .CountAsync(ct => ct.TeacherId == userId && ct.CourseId == courseId);
     }
-
 }
