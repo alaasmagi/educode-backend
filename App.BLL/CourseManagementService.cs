@@ -118,7 +118,6 @@ public class CourseManagementService : ICourseManagementService
         
         var courseTeacher = new CourseTeacherEntity
         {
-            Teacher = user,
             TeacherId = user.Id,
             CreatedBy = creator,
             UpdatedBy = creator

@@ -66,7 +66,6 @@ public class AuthController(
         newUser.FullName = model.Fullname;
         newUser.StudentCode = model.StudentCode;
         newUser.UserTypeId = userType.Id;
-        newUser.UserType = userType;
         newUser.CreatedBy = model.Creator;
         newUser.UpdatedBy = model.Creator;
         newUserAuth.CreatedBy = model.Creator;

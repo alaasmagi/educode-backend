@@ -257,7 +257,6 @@ public class AttendanceController(
             CourseId = model.CourseId,
             Course = course,
             AttendanceTypeId = model.AttendanceTypeId,
-            AttendanceType = attendanceType,
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator
         };
@@ -301,7 +300,6 @@ public class AttendanceController(
             CourseId = model.CourseId,
             Course = course,
             AttendanceTypeId = model.AttendanceTypeId,
-            AttendanceType = attendanceType,
             StartTime = model.AttendanceDates[0].ToDateTime(model.StartTime).ToUniversalTime(),
             EndTime = model.AttendanceDates[0].ToDateTime(model.EndTime).ToUniversalTime(),
             CreatedBy = model.Creator,

@@ -28,7 +28,6 @@ public class AttendanceRepository(AppDbContext context)
             .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
             Include(ca => ca.Course).Include(ca => ca.AttendanceType)
-            .AsNoTracking()
             .FirstOrDefaultAsync();
         
         return ongoingAttendance;
@@ -94,7 +93,6 @@ public class AttendanceRepository(AppDbContext context)
     public async Task<int> GetStudentCountByAttendanceId(int attendanceId)
     {
         var attendanceCounts = await context.AttendanceChecks.Where(a => a.CourseAttendanceId == attendanceId)
-            .AsNoTracking()
             .CountAsync();
         return attendanceCounts;
     }
@@ -104,7 +102,6 @@ public class AttendanceRepository(AppDbContext context)
         var attendance = await context.CourseAttendances
             .Include(u => u.AttendanceType)
             .Include(u => u.Course)
-            .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == attendanceId);
 
         if (attendance != null)
@@ -118,22 +115,22 @@ public class AttendanceRepository(AppDbContext context)
 
     public async Task<bool> WorkplaceAvailabilityCheckById(int workplaceId)
     {
-        return await context.Workplaces.AsNoTracking().AnyAsync(w => w.Id == workplaceId);
+        return await context.Workplaces.AnyAsync(w => w.Id == workplaceId);
     }
     
     public async Task<WorkplaceEntity?> GetWorkplaceById(int workplaceId)
     {
-        return await context.Workplaces.AsNoTracking().FirstOrDefaultAsync(w => w.Id == workplaceId);
+        return await context.Workplaces.FirstOrDefaultAsync(w => w.Id == workplaceId);
     }
     
     public async Task<bool> AttendanceAvailabilityCheckById(int attendanceId)
     {
-        return await context.CourseAttendances.AsNoTracking().AnyAsync(u => u.Id == attendanceId);
+        return await context.CourseAttendances.AnyAsync(u => u.Id == attendanceId);
     }
     
     public async Task<bool> AttendanceCheckAvailabilityCheck(string studentCode, string fullName, int attendanceId)
     {
-        return  await context.AttendanceChecks.AsNoTracking().AnyAsync(u => (u.StudentCode == studentCode || u.FullName == fullName) 
+        return  await context.AttendanceChecks.AnyAsync(u => (u.StudentCode == studentCode || u.FullName == fullName) 
                                                               && u.CourseAttendanceId == attendanceId);
     }
     
@@ -142,7 +139,6 @@ public class AttendanceRepository(AppDbContext context)
         var attendances = await context.CourseAttendances
             .Where(c => c.CourseId == courseId)
             .Include(c => c.Course)
-            .AsNoTracking()
             .ToListAsync();
 
         foreach (var attendance in attendances)
@@ -157,12 +153,12 @@ public class AttendanceRepository(AppDbContext context)
     public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceId(int attendanceId)
     {
         return await context.AttendanceChecks
-            .Where(c => c.CourseAttendanceId == attendanceId).AsNoTracking().ToListAsync();
+            .Where(c => c.CourseAttendanceId == attendanceId).ToListAsync();
     }
     
     public async Task<AttendanceCheckEntity?> GetAttendanceCheckById(int attendanceCheckId)
     {
-        return await context.AttendanceChecks.AsNoTracking().FirstOrDefaultAsync(ca => ca.Id == attendanceCheckId);
+        return await context.AttendanceChecks.FirstOrDefaultAsync(ca => ca.Id == attendanceCheckId);
     }
     
     
@@ -174,19 +170,18 @@ public class AttendanceRepository(AppDbContext context)
             .Include(ca => ca.Course)
             .Include(ca => ca.AttendanceType) 
             .OrderByDescending(ca => ca.EndTime)
-            .AsNoTracking()
             .FirstOrDefaultAsync();
     }
     
     public async Task<List<AttendanceTypeEntity>> GetAttendanceTypes()
     {
-        return await context.AttendanceTypes.AsNoTracking().ToListAsync();
+        return await context.AttendanceTypes.ToListAsync();
     }
     
     public async Task<AttendanceTypeEntity?> GetAttendanceTypeById(int attendanceTypeId)
     {
         return await context.AttendanceTypes
-            .AsNoTracking().FirstOrDefaultAsync(ca => ca.Id == attendanceTypeId);
+            .FirstOrDefaultAsync(ca => ca.Id == attendanceTypeId);
     }
     
     public async Task<bool> RemoveOldAttendances()

@@ -27,7 +27,6 @@ public class UserRepository (AppDbContext context)
     {
         return await context.UserAuthData
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
-            .AsNoTracking()
             .FirstOrDefaultAsync(ua => ua.UserId == userId);
     }
 
@@ -54,13 +53,12 @@ public class UserRepository (AppDbContext context)
 
     public async Task<bool> UserAvailabilityCheckByUniId(string uniId)
     {
-       return await context.Users.AsNoTracking().AnyAsync(u => u.UniId == uniId);
+       return await context.Users.AnyAsync(u => u.UniId == uniId);
     }
 
     public async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
     {
         return await context.Users.Include(x => x.UserType)
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UniId == uniId);
     }
     
@@ -71,11 +69,11 @@ public class UserRepository (AppDbContext context)
     
     public async Task<UserTypeEntity?> GetUserTypeEntity(string userType)
     {
-        return await context.UserTypes.AsNoTracking().FirstOrDefaultAsync(u => u.UserType == userType);
+        return await context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType);
     }
 
     public async Task<List<UserEntity>> GetAllUsersAsList()
     {
-        return await context.Users.AsNoTracking().ToListAsync();
+        return await context.Users.ToListAsync();
     }
 }
