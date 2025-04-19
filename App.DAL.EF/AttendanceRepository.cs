@@ -141,6 +141,7 @@ public class AttendanceRepository(AppDbContext context)
     {
         var attendances = await context.CourseAttendances
             .Where(c => c.CourseId == courseId)
+            .Include(c => c.Course)
             .AsNoTracking()
             .ToListAsync();
 
