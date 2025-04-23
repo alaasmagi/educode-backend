@@ -110,4 +110,16 @@ public class CourseRepository(AppDbContext context)
         return await context.CourseTeachers
             .CountAsync(ct => ct.TeacherId == userId && ct.CourseId == courseId);
     }
+
+    public async Task<bool> CourseOnlyTeacherCheck(int userId, int courseId)
+    {
+        var courseTeachers = await context.CourseTeachers.Where(c => c.CourseId == courseId).ToListAsync();
+
+        if (courseTeachers.Count == 1 && courseTeachers[0].TeacherId == userId)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

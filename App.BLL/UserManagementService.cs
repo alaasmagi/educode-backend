@@ -10,12 +10,14 @@ public class UserManagementService : IUserManagementService
 {
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
+    private readonly CourseRepository _courseRepository;
     private readonly ILogger<UserManagementService> _logger;
 
     public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger)
     {
         _context = context;
         _userRepository = new UserRepository(_context); 
+        _courseRepository = new CourseRepository(_context); 
         _logger = logger;
     }
     
@@ -160,14 +162,33 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> DeleteUserAsync(UserEntity user)
     {
-        var status = await _userRepository.DeleteUserEntity(user);
+        var courses = await _courseRepository.GetCoursesByUser(user.Id);
+        if (courses == null || !courses.Any())
+            return await FinalizeUserDeletion(user);
 
+        foreach (var course in courses)
+        {
+            bool isOnlyTeacher = await _courseRepository.CourseOnlyTeacherCheck(user.Id, course.Id);
+            if (!isOnlyTeacher)
+                continue;
+
+            bool courseDeleted = await _courseRepository.DeleteCourseEntity(course);
+            if (!courseDeleted)
+                _logger.LogWarning($"Failed to delete course {course.Id} while deleting user {user.Id}");
+        }
+
+        return await FinalizeUserDeletion(user);
+    }
+
+    private async Task<bool> FinalizeUserDeletion(UserEntity user)
+    {
+        bool status = await _userRepository.DeleteUserEntity(user);
         if (!status)
         {
             _logger.LogError($"Failed to delete user with ID {user.Id}");
             return false;
         }
-        
+
         return true;
     }
 }
