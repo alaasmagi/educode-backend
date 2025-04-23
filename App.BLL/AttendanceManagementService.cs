@@ -130,6 +130,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         }
         
         bool status;
+        attendanceCheck.StudentCode = attendanceCheck.StudentCode.ToUpper();
         if (workplaceId != null)
         {
             var workplace = await _attendanceRepository.GetWorkplaceById(workplaceId.Value);

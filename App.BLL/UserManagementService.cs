@@ -48,6 +48,11 @@ public class UserManagementService : IUserManagementService
             return false;
         }
 
+        if (user.StudentCode != null)
+        {
+            user.StudentCode = user.StudentCode.ToUpper();    
+        }
+        
         if (!await _userRepository.AddUserEntityToDb(user))
         {
             _logger.LogError($"Failed to create account for user with ID {user.UniId}");
