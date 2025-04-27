@@ -67,7 +67,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Create([Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -116,7 +116,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)

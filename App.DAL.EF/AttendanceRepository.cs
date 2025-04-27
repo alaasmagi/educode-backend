@@ -1,4 +1,5 @@
-﻿using App.Domain;
+﻿using System.Data;
+using App.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
@@ -86,8 +87,8 @@ public class AttendanceRepository(AppDbContext context)
     }
     
     public async Task<bool> DeleteAttendanceCheckEntity(AttendanceCheckEntity attendanceCheckEntity)
-    { 
-        context.AttendanceChecks.Remove(attendanceCheckEntity); 
+    {
+        context.AttendanceChecks.Remove(attendanceCheckEntity);
         return await context.SaveChangesAsync() > 0;
     }
     public async Task<int> GetStudentCountByAttendanceId(int attendanceId)
@@ -184,10 +185,10 @@ public class AttendanceRepository(AppDbContext context)
             .FirstOrDefaultAsync(ca => ca.Id == attendanceTypeId);
     }
     
-    public async Task<bool> RemoveOldAttendances()
+    public async Task<bool> RemoveOldAttendances(DateTime datePeriod)
     {
         var oldAttendances = await context.CourseAttendances
-            .Where(u => u.EndTime < DateTime.Now.AddMonths(-6))
+            .Where(u => u.EndTime < datePeriod)
             .ToListAsync();
 
         if (!oldAttendances.Any())
@@ -196,6 +197,23 @@ public class AttendanceRepository(AppDbContext context)
         }
 
         context.CourseAttendances.RemoveRange(oldAttendances);
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
+    
+    public async Task<bool> RemoveOldAttendanceChecks(DateTime datePeriod)
+    {
+        var oldAttendanceChecks = await context.AttendanceChecks
+            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
+            .ToListAsync();
+
+        if (!oldAttendanceChecks.Any())
+        {
+            return false;
+        }
+
+        context.AttendanceChecks.RemoveRange(oldAttendanceChecks);
         await context.SaveChangesAsync();
         
         return true;

@@ -76,4 +76,38 @@ public class UserRepository (AppDbContext context)
     {
         return await context.Users.ToListAsync();
     }
+    
+    public async Task<bool> RemoveOldUsers(DateTime datePeriod)
+    {
+        var oldUsers = await context.Users
+            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
+            .ToListAsync();
+
+        if (!oldUsers.Any())
+        {
+            return false;
+        }
+
+        context.Users.RemoveRange(oldUsers);
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
+    
+    public async Task<bool> RemoveOldUserAuths(DateTime datePeriod)
+    {
+        var oldUserAuths = await context.UserAuthData
+            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
+            .ToListAsync();
+
+        if (!oldUserAuths.Any())
+        {
+            return false;
+        }
+
+        context.UserAuthData.RemoveRange(oldUserAuths);
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
 }

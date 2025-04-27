@@ -133,7 +133,7 @@ public class CourseController(
             CourseCode = model.CourseCode,
             CourseValidStatus = model.Status,
             CreatedBy = model.Creator,
-            UpdatedBy = model.Creator
+            UpdatedBy = model.Creator,
         };
 
         if (!await courseManagementService.AddCourse(user, newCourse, model.Creator))
@@ -163,7 +163,7 @@ public class CourseController(
             CourseCode = model.CourseCode,
             CourseValidStatus = model.Status,
             CreatedBy = model.Creator,
-            UpdatedBy = model.Creator
+            UpdatedBy = model.Creator,
         };
 
         var courseId = model.Id ?? 0;

@@ -20,8 +20,9 @@ public class EmailService : IEmailService
         var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";
         var host = Environment.GetEnvironmentVariable("MAILSENDER_HOST") ?? "HOST";
         var port = int.Parse(Environment.GetEnvironmentVariable("MAILSENDER_PORT") ?? "0");
+        var emailDomain = Environment.GetEnvironmentVariable("EMAILDOMAIN") ?? "EMAILDOMAIN";
 
-        var email = $"{uniId}@taltech.ee";
+        var email = $"{uniId + emailDomain}";
         var subject = $"{uniId} account verification";
         var messageBody = $"Hello, {uniId}! \n\nHere is a one-time key to verify ownership of " +
                           $"Your EduCode account: {oneTimeKey}";

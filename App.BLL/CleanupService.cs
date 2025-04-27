@@ -5,17 +5,25 @@ using Microsoft.Extensions.Logging;
 
 namespace App.BLL;
 
-public class AttendanceCleanupService : IHostedService, IDisposable
+public class CleanupService : IHostedService, IDisposable
 {
-    private readonly ILogger<AttendanceCleanupService> _logger;
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<CleanupService> _logger;
+    private readonly AttendanceRepository _attendanceRepository;
+    private readonly UserRepository _userRepository;
+    private readonly CourseRepository _courseRepository;
+    private readonly DateTime _datePeriod;
     private Timer? _timer;
 
-    public AttendanceCleanupService(ILogger<AttendanceCleanupService> logger, IServiceScopeFactory scopeFactory)
+    public CleanupService(ILogger<CleanupService> logger, IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
-        _scopeFactory = scopeFactory;
         _timer = null;
+        var scope = scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        _attendanceRepository = new AttendanceRepository(dbContext);
+        _userRepository = new UserRepository(dbContext);
+        _courseRepository = new CourseRepository(dbContext);
+        _datePeriod = DateTime.Now.AddMonths(-6);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -30,11 +38,12 @@ public class AttendanceCleanupService : IHostedService, IDisposable
     {
         try
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                await DeleteOldAttendances(context);
-            }
+            await HardDeleteOldAttendanceEntitiesAsync();
+            await HardDeleteOldAttendanceCheckEntitiesAsync();
+            await HardDeleteOldUserAuthEntitiesAsync();
+            await HardDeleteOldUserEntitiesAsync();
+            await HardDeleteOldCourseTeacherEntitiesAsync();
+            await HardDeleteOldCourseEntitiesAsync();
         }
         catch (Exception ex)
         {
@@ -42,16 +51,76 @@ public class AttendanceCleanupService : IHostedService, IDisposable
         }
     }
 
-    private async Task DeleteOldAttendances(AppDbContext context)
+    private async Task HardDeleteOldCourseEntitiesAsync()
     {
-        var tempRepository = new AttendanceRepository(context);
-        var status = await tempRepository.RemoveOldAttendances();
+        var status = await _courseRepository.RemoveOldCourses(_datePeriod);
 
         if (!status)
         {
             _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
         }
 
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
+    }
+    
+    private async Task HardDeleteOldUserEntitiesAsync()
+    {
+        var status = await _userRepository.RemoveOldUsers(_datePeriod);
+
+        if (!status)
+        {
+            _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
+        }
+
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
+    }
+    
+    private async Task HardDeleteOldUserAuthEntitiesAsync()
+    {
+        var status = await _userRepository.RemoveOldUserAuths(_datePeriod);
+
+        if (!status)
+        {
+            _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
+        }
+
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
+    }
+    
+    private async Task HardDeleteOldAttendanceCheckEntitiesAsync()
+    {
+        var status = await _attendanceRepository.RemoveOldAttendanceChecks(_datePeriod);
+
+        if (!status)
+        {
+            _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
+        }
+
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
+    }
+    
+    private async Task HardDeleteOldCourseTeacherEntitiesAsync()
+    {
+        var status = await _courseRepository.RemoveOldCourseTeachers(_datePeriod);
+
+        if (!status)
+        {
+            _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
+        }
+
+        _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
+    }
+    
+    
+    private async Task HardDeleteOldAttendanceEntitiesAsync()
+    {
+        var status = await _attendanceRepository.RemoveOldAttendances(_datePeriod);
+
+        if (!status)
+        {
+            _logger.LogInformation($"Found no attendances to delete that are more than 6 months old");
+        }
+        
         _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
     }
 

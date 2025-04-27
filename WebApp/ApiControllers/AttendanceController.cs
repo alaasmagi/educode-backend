@@ -209,6 +209,8 @@ public class AttendanceController(
             StudentCode = model.StudentCode,
             FullName = model.FullName,
             CourseAttendanceId = model.CourseAttendanceId,
+            CreatedBy = model.Creator,
+            UpdatedBy = model.Creator,
         };
 
         if (model.WorkplaceId != null)

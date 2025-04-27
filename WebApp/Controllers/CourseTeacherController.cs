@@ -59,7 +59,7 @@ namespace WebApp.Controllers
             }
             
             ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode");
-            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "FullName");
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId");
             return View();
         }
 
@@ -68,7 +68,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,TeacherId,Id,CreatedBy,UpdatedBy")] CourseTeacherEntity courseTeacherEntity)
+        public async Task<IActionResult> Create([Bind("CourseId,TeacherId,Id,CreatedBy,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -85,7 +85,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "FullName", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
@@ -109,7 +109,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
             ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "FullName", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 
@@ -118,7 +118,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy")] CourseTeacherEntity courseTeacherEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -153,7 +153,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CourseId"] = new SelectList(context.Courses, "Id", "CourseCode", courseTeacherEntity.CourseId);
-            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "FullName", courseTeacherEntity.TeacherId);
+            ViewData["TeacherId"] = new SelectList(context.Users, "Id", "UniId", courseTeacherEntity.TeacherId);
             return View(courseTeacherEntity);
         }
 

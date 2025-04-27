@@ -57,7 +57,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewData["UserId"] = new SelectList(context.Users, "Id", "FullName");
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId");
             return View();
         }
 
@@ -66,7 +66,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,UpdatedBy")] UserAuthEntity userAuthEntity)
+        public async Task<IActionResult> Create([Bind("UserId,PasswordHash,Id,CreatedBy,UpdatedBy,Deleted")] UserAuthEntity userAuthEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -82,7 +82,7 @@ namespace WebApp.Controllers
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(context.Users, "Id", "FullName", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 
@@ -105,7 +105,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(context.Users, "Id", "FullName");
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId");
             return View(userAuthEntity);
         }
 
@@ -114,7 +114,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy")] UserAuthEntity userAuthEntity)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,PasswordHash,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserAuthEntity userAuthEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -148,7 +148,7 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(context.Users, "Id", "FullName", userAuthEntity.UserId);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", userAuthEntity.UserId);
             return View(userAuthEntity);
         }
 

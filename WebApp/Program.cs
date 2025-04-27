@@ -35,7 +35,8 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
         {
             mysqlOptions.CommandTimeout(60);
             mysqlOptions.EnableRetryOnFailure(3);
-        }));
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }), poolSize: 500);
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -55,7 +56,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
-builder.Services.AddSingleton<IHostedService, AttendanceCleanupService>();
+builder.Services.AddSingleton<IHostedService, CleanupService>();
 
 builder.Services.AddCors(options =>
 {

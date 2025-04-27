@@ -122,4 +122,38 @@ public class CourseRepository(AppDbContext context)
 
         return false;
     }
+    
+    public async Task<bool> RemoveOldCourses(DateTime datePeriod)
+    {
+        var oldCourses = await context.Courses
+            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
+            .ToListAsync();
+
+        if (!oldCourses.Any())
+        {
+            return false;
+        }
+
+        context.Courses.RemoveRange(oldCourses);
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
+    
+    public async Task<bool> RemoveOldCourseTeachers(DateTime datePeriod)
+    {
+        var oldCourseTeachers = await context.CourseTeachers
+            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
+            .ToListAsync();
+
+        if (!oldCourseTeachers.Any())
+        {
+            return false;
+        }
+
+        context.CourseTeachers.RemoveRange(oldCourseTeachers);
+        await context.SaveChangesAsync();
+        
+        return true;
+    }
 }

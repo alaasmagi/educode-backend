@@ -28,8 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(u => u.StudentCode)
             .IsUnique();
         modelBuilder.Entity<UserEntity>()
-            .HasIndex(u => u.FullName)
-            .IsUnique();
+            .HasIndex(u => u.FullName);
         
         // UserAuthToken relationship
         modelBuilder.Entity<UserAuthEntity>()
