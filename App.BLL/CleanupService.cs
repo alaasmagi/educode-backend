@@ -1,11 +1,12 @@
 ﻿using App.DAL.EF;
+using Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace App.BLL;
 
-public class CleanupService : IHostedService, IDisposable
+public class CleanupService : ICleanupService
 {
     private readonly ILogger<CleanupService> _logger;
     private readonly AttendanceRepository _attendanceRepository;
@@ -51,7 +52,7 @@ public class CleanupService : IHostedService, IDisposable
         }
     }
 
-    private async Task HardDeleteOldCourseEntitiesAsync()
+    public async Task HardDeleteOldCourseEntitiesAsync()
     {
         var status = await _courseRepository.RemoveOldCourses(_datePeriod);
 
@@ -63,7 +64,7 @@ public class CleanupService : IHostedService, IDisposable
         _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
     }
     
-    private async Task HardDeleteOldUserEntitiesAsync()
+    public async Task HardDeleteOldUserEntitiesAsync()
     {
         var status = await _userRepository.RemoveOldUsers(_datePeriod);
 
@@ -75,7 +76,7 @@ public class CleanupService : IHostedService, IDisposable
         _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
     }
     
-    private async Task HardDeleteOldUserAuthEntitiesAsync()
+    public async Task HardDeleteOldUserAuthEntitiesAsync()
     {
         var status = await _userRepository.RemoveOldUserAuths(_datePeriod);
 
@@ -87,7 +88,7 @@ public class CleanupService : IHostedService, IDisposable
         _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
     }
     
-    private async Task HardDeleteOldAttendanceCheckEntitiesAsync()
+    public async Task HardDeleteOldAttendanceCheckEntitiesAsync()
     {
         var status = await _attendanceRepository.RemoveOldAttendanceChecks(_datePeriod);
 
@@ -99,7 +100,7 @@ public class CleanupService : IHostedService, IDisposable
         _logger.LogInformation($"Successfully deleted attendances that were more than 6 months old");
     }
     
-    private async Task HardDeleteOldCourseTeacherEntitiesAsync()
+    public async Task HardDeleteOldCourseTeacherEntitiesAsync()
     {
         var status = await _courseRepository.RemoveOldCourseTeachers(_datePeriod);
 
@@ -112,7 +113,7 @@ public class CleanupService : IHostedService, IDisposable
     }
     
     
-    private async Task HardDeleteOldAttendanceEntitiesAsync()
+    public async Task HardDeleteOldAttendanceEntitiesAsync()
     {
         var status = await _attendanceRepository.RemoveOldAttendances(_datePeriod);
 
