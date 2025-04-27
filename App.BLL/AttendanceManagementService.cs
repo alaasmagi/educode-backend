@@ -51,7 +51,7 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceId)
     {
-        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, fullName, attendanceId);
+        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, attendanceId);
 
         if (!result)
         {
