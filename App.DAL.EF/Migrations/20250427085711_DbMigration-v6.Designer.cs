@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250427065706_DbMigration-v6")]
+    [Migration("20250427085711_DbMigration-v6")]
     partial class DbMigrationv6
     {
         /// <inheritdoc />
@@ -49,7 +49,7 @@ namespace App.DAL.EF.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("StudentCode")
                         .IsRequired()
@@ -72,7 +72,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("WorkplaceId");
 
-                    b.HasIndex("StudentCode", "FullName", "CourseAttendanceId")
+                    b.HasIndex("StudentCode", "CourseAttendanceId")
                         .IsUnique();
 
                     b.ToTable("AttendanceChecks", (string)null);

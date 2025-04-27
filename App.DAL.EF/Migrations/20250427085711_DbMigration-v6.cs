@@ -185,7 +185,7 @@ namespace App.DAL.EF.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     StudentCode = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FullName = table.Column<string>(type: "varchar(255)", nullable: false)
+                    FullName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CourseAttendanceId = table.Column<int>(type: "int", nullable: false),
                     WorkplaceId = table.Column<int>(type: "int", nullable: true),
@@ -283,9 +283,9 @@ namespace App.DAL.EF.Migrations
                 column: "CourseAttendanceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AttendanceChecks_StudentCode_FullName_CourseAttendanceId",
+                name: "IX_AttendanceChecks_StudentCode_CourseAttendanceId",
                 table: "AttendanceChecks",
-                columns: new[] { "StudentCode", "FullName", "CourseAttendanceId" },
+                columns: new[] { "StudentCode", "CourseAttendanceId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

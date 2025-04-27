@@ -42,7 +42,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.User!.FullName)
+                @Html.DisplayFor(modelItem => item.User!.UniId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PasswordHash)
