@@ -16,4 +16,6 @@ public class BaseEntity
     public string UpdatedBy { get; set; } = default!;
     [Required]
     public DateTime UpdatedAt { get; set; }
+    [Required] 
+    public bool Deleted { get; set; } = false;
 }
