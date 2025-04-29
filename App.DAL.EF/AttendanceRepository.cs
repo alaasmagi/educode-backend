@@ -60,24 +60,16 @@ public class AttendanceRepository(AppDbContext context)
     
     public async Task<bool> UpdateAttendance(int attendanceId, CourseAttendanceEntity updatedAttendance)
     {
-        var attendance = await context.CourseAttendances
-            .FirstOrDefaultAsync(u => u.Id == attendanceId);
-
-        if (attendance == null)
-        {
-            return false;
-        }
-        
-        attendance.CourseId = updatedAttendance.CourseId;
-        attendance.Course = updatedAttendance.Course;
-        attendance.AttendanceTypeId = updatedAttendance.AttendanceTypeId;
-        attendance.AttendanceType = updatedAttendance.AttendanceType;
-        attendance.StartTime = updatedAttendance.StartTime;
-        attendance.EndTime = updatedAttendance.EndTime;
- 
-        attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
-        
-        return await context.SaveChangesAsync() > 0;
+        updatedAttendance.UpdatedAt = DateTime.Now.ToUniversalTime();
+        return await context.CourseAttendances
+            .Where(a => a.Id == attendanceId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(a => a.CourseId, updatedAttendance.CourseId)
+                .SetProperty(a => a.AttendanceTypeId, updatedAttendance.AttendanceTypeId)
+                .SetProperty(a => a.StartTime, updatedAttendance.StartTime)
+                .SetProperty(a => a.EndTime, updatedAttendance.EndTime)
+                .SetProperty(a => a.UpdatedAt, updatedAttendance.UpdatedAt)
+            ) > 0;
     }
     
     public async Task<bool> DeleteAttendanceEntity(CourseAttendanceEntity attendanceEntity)

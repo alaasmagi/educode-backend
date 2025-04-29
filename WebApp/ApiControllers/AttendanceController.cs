@@ -257,7 +257,6 @@ public class AttendanceController(
         var newAttendance = new CourseAttendanceEntity()
         {
             CourseId = model.CourseId,
-            Course = course,
             AttendanceTypeId = model.AttendanceTypeId,
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator
@@ -300,7 +299,6 @@ public class AttendanceController(
         var newAttendance = new CourseAttendanceEntity()
         {
             CourseId = model.CourseId,
-            Course = course,
             AttendanceTypeId = model.AttendanceTypeId,
             StartTime = model.AttendanceDates[0].ToDateTime(model.StartTime).ToUniversalTime(),
             EndTime = model.AttendanceDates[0].ToDateTime(model.EndTime).ToUniversalTime(),

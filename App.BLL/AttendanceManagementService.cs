@@ -230,7 +230,6 @@ public class AttendanceManagementService : IAttendanceManagementService
             var newAttendance = new CourseAttendanceEntity()
             {
                 CourseId = attendance.CourseId,
-                Course = attendance.Course,
                 AttendanceTypeId = attendance.AttendanceTypeId,
                 AttendanceType = attendance.AttendanceType,
                 StartTime = date.ToDateTime(startTime).ToUniversalTime(),
