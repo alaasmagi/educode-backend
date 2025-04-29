@@ -25,14 +25,14 @@ public class AuthController(
 
         if (user == null)
         {
-            return NotFound(new {message = "User not found", error = "user-not-found"});
+            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
         var userAuthData = await userManagementService.AuthenticateUserAsync(user.Id, model.Password);
         if (userAuthData == null || !ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return Unauthorized(new { message = "Invalid UNI-ID or password", error = "invalid-uni-id-password" });
+            return Unauthorized(new { message = "Invalid UNI-ID or password", messageCode = "invalid-uni-id-password" });
         }
 
         var token = authService.GenerateJwtToken(user);
@@ -59,7 +59,7 @@ public class AuthController(
         if (userType == null || !ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
         newUser.UniId = model.UniId;
@@ -75,7 +75,7 @@ public class AuthController(
 
         if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
         {
-            return BadRequest(new { message = "User already exists", error = "user-already-exists" });
+            return BadRequest(new { message = "User already exists", messageCode = "user-already-exists" });
         }
         
         logger.LogInformation($"User with UNI-ID {model.UniId} was created successfully");
@@ -89,13 +89,13 @@ public class AuthController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
         if (user == null && string.IsNullOrWhiteSpace(model.FullName))
         {
-            return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
+            return Unauthorized(new { message = "Invalid UNI-ID", messageCode = "invalid-uni-id" });
         }
 
         var key = otpService.GenerateTotp(user?.UniId ?? model.UniId);
@@ -104,7 +104,7 @@ public class AuthController(
 
         if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
         {
-            return BadRequest(new { message = "Email was not sent", error = "email-was-not-sent" });
+            return BadRequest(new { message = "Email was not sent", messageCode = "email-was-not-sent" });
         }
         
         logger.LogInformation($"OTP sent successfully for user with UNI-ID {model.UniId}");
@@ -119,7 +119,7 @@ public class AuthController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
@@ -128,7 +128,7 @@ public class AuthController(
 
         if (!result)
         {
-            return Unauthorized(new { message = "Invalid OTP", error = "invalid-otp" });
+            return Unauthorized(new { message = "Invalid OTP", messageCode = "invalid-otp" });
         }
 
         var token = string.Empty;
@@ -162,21 +162,21 @@ public class AuthController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
 
         if (user == null)
         {
-            return Unauthorized(new { message = "Invalid UNI-ID", error = "invalid-uni-id" });
+            return Unauthorized(new { message = "Invalid UNI-ID", messageCode = "invalid-uni-id" });
         }
 
         var newPasswordHash = userManagementService.GetPasswordHash(model.NewPassword);
 
         if (!await userManagementService.ChangeUserPasswordAsync(user, newPasswordHash))
         {
-            return BadRequest(new { message = "Password change error. Password was not changed.", error = "password-not-changed" });
+            return BadRequest(new { message = "Password change error. Password was not changed.", messageCode = "password-not-changed" });
         }
 
         logger.LogInformation($"Password changed successfully for user with UNI-ID {model.UniId}");

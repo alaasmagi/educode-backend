@@ -27,7 +27,7 @@ public class AttendanceController(
 
         if (attendanceEntity == null)
         {
-            return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
+            return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
         }
         
         logger.LogInformation($"Attendance with ID {id} successfully fetched");
@@ -43,14 +43,14 @@ public class AttendanceController(
 
         if (user == null)
         {
-            return NotFound(new {message = "User not found", error = "user-not-found"});
+            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
         var courseAttendanceEntity = await attendanceManagementService.GetCurrentAttendanceAsync(user.Id);
 
         if (courseAttendanceEntity?.Course == null)
         {
-            return NotFound(new {message = "Current attendance not found", error = "current-attendance-not-found"});
+            return Ok(new {message = "Current attendance not found", messageCode = "current-attendance-not-found"});
         }
         
         logger.LogInformation($"Current attendance for UNI-ID {uniId} successfully fetched");
@@ -68,7 +68,7 @@ public class AttendanceController(
 
         if (attendance == null)
         {
-            return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
+            return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
         }
         
         var studentCount = await attendanceManagementService.GetStudentsCountByAttendanceIdAsync(id);
@@ -89,7 +89,7 @@ public class AttendanceController(
 
         if (course == null)
         {
-            return NotFound(new {message = "Course not found", error = "course-not-found"});
+            return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
         var attendances = 
@@ -97,7 +97,7 @@ public class AttendanceController(
 
         if (attendances == null)
         {
-            return NotFound(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+            return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
         }
         
         logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
@@ -115,7 +115,7 @@ public class AttendanceController(
 
         if (course == null)
         {
-            return NotFound(new {message = "Course not found", error = "course-not-found"});
+            return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
         var attendances = 
@@ -123,7 +123,7 @@ public class AttendanceController(
 
         if (attendances == null)
         {
-            return NotFound(new {message = "Course has no attendances", error = "no-course-attendances-found"});
+            return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
         }
         
         logger.LogInformation($"Attendances for course {courseName} successfully fetched");
@@ -139,14 +139,14 @@ public class AttendanceController(
 
         if (user == null)
         {
-            return NotFound(new {message = "User not found", error = "user-not-found"});
+            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
         var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
 
         if (attendance == null)
         {
-            return NotFound(new {message = "User has no recent attendances", error = "no-user-recent-attendances-found"});
+            return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
         }
         
         logger.LogInformation($"Most recent attendance for user with UNI-ID {uniId} successfully fetched");
@@ -163,14 +163,14 @@ public class AttendanceController(
 
         if (courseAttendance == null)
         {
-            return NotFound(new {message = "Attendance not found", error = "attendance-not-found"});
+            return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
         }
         
         var attendanceChecks = 
             await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
         if (attendanceChecks == null)
         {
-            return NotFound(new {message = "Attendance has no attendance checks", error = "attendance-has-no-checks"});
+            return Ok(new {message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks"});
         }
         
         logger.LogInformation($"Attendance checks for attendance with ID {attendanceId} successfully fetched");
@@ -186,7 +186,7 @@ public class AttendanceController(
 
         if (attendanceTypes == null)
         {
-            return NotFound(new {message = "Attendance types not found", error = "attendance-types-not-found"});
+            return NotFound(new {message = "Attendance types not found", messageCode = "attendance-types-not-found"});
         }
         
         logger.LogInformation($"All attendance types successfully fetched");
@@ -201,7 +201,7 @@ public class AttendanceController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new {message = "Invalid credentials", error = "invalid-credentials"});
+            return BadRequest(new {message = "Invalid credentials", messageCode = "invalid-credentials"});
         }
         
         var newAttendanceCheck = new AttendanceCheckEntity
@@ -218,14 +218,14 @@ public class AttendanceController(
             int workplaceId = model.WorkplaceId.Value;
             if(!await attendanceManagementService.DoesWorkplaceExist(workplaceId))
             {
-                return BadRequest(new {message = "Workplace was not found ", error = "workplace-not-found"});
+                return NotFound(new {message = "Workplace was not found ", messageCode = "workplace-not-found"});
             }
         }
 
         if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceId ?? null))
         {
             return BadRequest(new {message = "Attendance check already exists", 
-                error = "attendance-check-already-exists" });
+                messageCode = "attendance-check-already-exists" });
         }
 
         logger.LogInformation($"Attendance check added successfully");
@@ -239,19 +239,19 @@ public class AttendanceController(
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
         {
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
         var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUniId!);
         if (course == null)
         {
-            return NotFound(new {message = "Course not found", error = "course-not-found"});
+            return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
         var attendanceType = await attendanceManagementService.GetAttendanceTypeByIdAsync(model.AttendanceTypeId);
         if (attendanceType == null)
         {
-            return NotFound(new {message = "Attendance type not found", error = "attendance-type-not-found"});
+            return NotFound(new {message = "Attendance type not found", messageCode = "attendance-type-not-found"});
         }
         
         var newAttendance = new CourseAttendanceEntity()
@@ -265,7 +265,7 @@ public class AttendanceController(
                 model.EndTime))
         {
             return BadRequest(new {message = "One or more attendances could not be added", 
-                error = "attendances-could-not-be-added"});
+                messageCode = "attendances-could-not-be-added"});
         }
         
         logger.LogInformation($"Attendance added successfully");
@@ -280,20 +280,20 @@ public class AttendanceController(
         if (!ModelState.IsValid || model.Id == null)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
         var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUniId!);
         if (course == null)
         {
-            return NotFound(new {message = "Course not found", error = "course-not-found"});
+            return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
         var attendanceType = await attendanceManagementService.GetAttendanceTypeByIdAsync(model.AttendanceTypeId);
         if (attendanceType == null)
         {
-            return NotFound(new {message = "Attendance type not found", error = "attendance-type-not-found"});
+            return NotFound(new {message = "Attendance type not found", messageCode = "attendance-type-not-found"});
         }
         
         var newAttendance = new CourseAttendanceEntity()
@@ -309,7 +309,7 @@ public class AttendanceController(
         var attendanceId = model.Id ?? 0;
         if (!await attendanceManagementService.EditAttendanceAsync(attendanceId, newAttendance))
         {
-            return BadRequest(new { message = "Attendance does not exist", error = "attendance-does-not-exist" });
+            return BadRequest(new { message = "Attendance does not exist", messageCode = "attendance-does-not-exist" });
         }
 
         logger.LogInformation($"Attendance for attendance with ID {model.Id} updated successfully");
@@ -324,13 +324,13 @@ public class AttendanceController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
         if (!await attendanceManagementService.DeleteAttendance(id, tokenUniId!))
         {
-            return BadRequest(new { message = "Attendance does not exist", error = "attendance-does-not-exist" });
+            return BadRequest(new { message = "Attendance does not exist", messageCode = "attendance-does-not-exist" });
         }
 
         logger.LogInformation($"Attendance with ID {id} deleted successfully");
@@ -345,14 +345,14 @@ public class AttendanceController(
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", error = "invalid-credentials" });
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
         if (!await attendanceManagementService.DeleteAttendanceCheck(id, tokenUniId!))
         {
             return BadRequest(new { message = "AttendanceCheck does not exist", 
-                                                                        error = "attendance-check-does-not-exist" });
+                messageCode = "attendance-check-does-not-exist" });
         }
         
         logger.LogInformation($"Attendance check with ID {id} deleted successfully");

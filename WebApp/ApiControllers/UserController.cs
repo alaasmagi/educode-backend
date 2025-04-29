@@ -29,7 +29,7 @@ namespace WebApp.ApiControllers
            
            if (users == null)
            {
-               return NotFound(new {message = "Users not found", error = "users-not-found"});
+               return NotFound(new {message = "Users not found", messageCode = "users-not-found"});
            }
            
            logger.LogInformation($"All users fetched successfully");
@@ -45,7 +45,7 @@ namespace WebApp.ApiControllers
 
             if (userEntity == null)
             {
-                return NotFound(new {message = "User not found", error = "user-not-found"});
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
 
             logger.LogInformation($"User with UNI-ID {uniId} fetched successfully");
@@ -61,13 +61,13 @@ namespace WebApp.ApiControllers
 
             if (userEntity == null)
             {
-                return NotFound(new {message = "User not found", error = "user-not-found"});
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
             
             var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
             if (userEntity.UniId != tokenUniId)
             {
-                return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
+                return Unauthorized(new {message = "User not accessible", messageCode = "user-not-accessible"});
             }
 
             logger.LogInformation($"User with ID {id} fetched successfully");
@@ -82,13 +82,13 @@ namespace WebApp.ApiControllers
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
             if (userEntity == null)
             {
-                return NotFound(new {message = "User not found", error = "user-not-found"});
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
             
             var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
             if (userEntity.UniId != tokenUniId)
             {
-                return Unauthorized(new {message = "User not accessible", error = "user-not-accessible"});
+                return Unauthorized(new {message = "User not accessible", messageCode = "user-not-accessible"});
             }
             
             if (await userManagementService.DeleteUserAsync(userEntity))
@@ -97,7 +97,7 @@ namespace WebApp.ApiControllers
                 return Ok(new { message = "User deleted successfully" });
             }
             
-            return BadRequest(new {message = "User delete failed", error = "user-delete-failed"});
+            return BadRequest(new {message = "User delete failed", messageCode = "user-delete-failed"});
         }
     }
 }
