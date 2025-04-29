@@ -7,3 +7,14 @@
     ports:
       - "8080:8080"
       - "8081:8081"
+  webapp-1:
+    image: webapp-1
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile
+
+  webapp-2:
+    image: webapp-2
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile

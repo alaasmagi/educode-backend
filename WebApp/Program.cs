@@ -89,16 +89,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-/*builder.Services.AddRateLimiter(options =>
+builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", limiterOptions =>
     {
         limiterOptions.PermitLimit = 10;
-        limiterOptions.Window = TimeSpan.FromSeconds(10);
+        limiterOptions.Window = TimeSpan.FromSeconds(1);
         limiterOptions.QueueLimit = 2;
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
-});*/
+});
 
 builder.Services.AddAuthorization(); 
 builder.Services.AddControllersWithViews();
@@ -156,7 +156,6 @@ app.UseHttpsRedirection();
 app.UseSession();
 app.UseRouting();
 
-
 app.UseSwagger();
 app.UseSwaggerUI(c => {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Educode API");
@@ -176,7 +175,6 @@ app.MapControllerRoute(
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.UseRateLimiter();
-    //.RequireRateLimiting("fixed")
-app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index"));
+app.UseRateLimiter();
+app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 app.Run();
