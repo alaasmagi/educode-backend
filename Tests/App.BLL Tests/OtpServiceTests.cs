@@ -5,7 +5,7 @@ namespace App.BLL_Tests;
 [TestFixture]
 public class OtpServiceTests
 {
-    private OtpService _otpService;
+    private OtpService _otpService = null!;
 
     [SetUp]
     public void SetUp()

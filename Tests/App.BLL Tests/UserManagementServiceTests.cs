@@ -9,9 +9,9 @@ namespace App.BLL_Tests;
 [TestFixture]
 public class UserManagementServiceTests
 {
-    private AppDbContext _context;
-    private UserManagementService _service;
-    private ILogger<UserManagementService> _logger;
+    private AppDbContext _context = null!;
+    private UserManagementService _service = null!;
+    private ILogger<UserManagementService> _logger = null!;
 
     [SetUp]
     public void Setup()

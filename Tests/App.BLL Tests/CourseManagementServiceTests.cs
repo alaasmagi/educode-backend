@@ -9,9 +9,9 @@ namespace App.BLL_Tests;
 [TestFixture]
 public class CourseManagementServiceTests
 {
-    private AppDbContext _context;
-    private CourseManagementService _service;
-    private ILogger<CourseManagementService> _logger;
+    private AppDbContext _context = null!;
+    private CourseManagementService _service = null!;
+    private ILogger<CourseManagementService> _logger = null!;
 
     [SetUp]
     public void Setup()

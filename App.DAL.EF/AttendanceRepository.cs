@@ -60,16 +60,20 @@ public class AttendanceRepository(AppDbContext context)
     
     public async Task<bool> UpdateAttendance(int attendanceId, CourseAttendanceEntity updatedAttendance)
     {
-        updatedAttendance.UpdatedAt = DateTime.Now.ToUniversalTime();
-        return await context.CourseAttendances
-            .Where(a => a.Id == attendanceId)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(a => a.CourseId, updatedAttendance.CourseId)
-                .SetProperty(a => a.AttendanceTypeId, updatedAttendance.AttendanceTypeId)
-                .SetProperty(a => a.StartTime, updatedAttendance.StartTime)
-                .SetProperty(a => a.EndTime, updatedAttendance.EndTime)
-                .SetProperty(a => a.UpdatedAt, updatedAttendance.UpdatedAt)
-            ) > 0;
+        var attendance = await context.CourseAttendances.FirstOrDefaultAsync(a => a.Id == attendanceId);
+        if (attendance == null)
+        {
+            return false;
+        }
+
+        attendance.CourseId = updatedAttendance.CourseId;
+        attendance.AttendanceTypeId = updatedAttendance.AttendanceTypeId;
+        attendance.StartTime = updatedAttendance.StartTime;
+        attendance.EndTime = updatedAttendance.EndTime;
+        attendance.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        return true;
     }
     
     public async Task<bool> DeleteAttendanceEntity(CourseAttendanceEntity attendanceEntity)

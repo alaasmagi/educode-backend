@@ -10,10 +10,10 @@ public class Tests
     [TestFixture]
     public class AdminAccessServiceTests
     {
-        private ILogger<AdminAccessService> _logger;
-        private AdminAccessService _adminAccessService;
-        private string _storedUserNameBackup;
-        private string _storedPasswordBackup;
+        private ILogger<AdminAccessService> _logger = null!;
+        private AdminAccessService _adminAccessService = null!;
+        private string _storedUserNameBackup = null!;
+        private string _storedPasswordBackup = null!;
         
         [SetUp]
         public void Setup()

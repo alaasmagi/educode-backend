@@ -8,11 +8,11 @@ namespace App.BLL_Tests;
 
 public class AuthServiceTests
 {
-    private ILogger<AuthService> _logger;
-    private AuthService _authService;
-    private string _storedJwtKeyBackup;
-    private string _storedJwtIssBackup;
-    private string _storedJwtAudBackup;
+    private ILogger<AuthService> _logger = null!;
+    private AuthService _authService = null!;
+    private string _storedJwtKeyBackup = null!;
+    private string _storedJwtIssBackup = null!;
+    private string _storedJwtAudBackup = null!;
 
     [SetUp]
     public void Setup()

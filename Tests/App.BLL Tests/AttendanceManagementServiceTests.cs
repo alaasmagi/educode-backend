@@ -9,9 +9,9 @@ namespace App.BLL_Tests;
 [TestFixture]
 public class AttendanceManagementServiceTests
 {
-    private AppDbContext _context;
-    private AttendanceManagementService _service;
-    private ILogger<AttendanceManagementService> _logger;
+    private AppDbContext _context = null!;
+    private AttendanceManagementService _service = null!;
+    private ILogger<AttendanceManagementService> _logger = null!;
 
     [SetUp]
     public void Setup()

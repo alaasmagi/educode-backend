@@ -35,7 +35,6 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
         {
             mysqlOptions.CommandTimeout(60);
             mysqlOptions.EnableRetryOnFailure(3);
-            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }), poolSize: 500);
 
 Log.Logger = new LoggerConfiguration()

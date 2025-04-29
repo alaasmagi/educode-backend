@@ -32,15 +32,19 @@ public class CourseRepository(AppDbContext context)
     
     public async Task<bool> UpdateCourseEntity(int courseId, CourseEntity updatedCourse)
     {
-        updatedCourse.UpdatedAt = DateTime.Now.ToUniversalTime();
-        return await context.Courses
-            .Where(c => c.Id == courseId)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(c => c.CourseName, updatedCourse.CourseName)
-                .SetProperty(c => c.CourseCode, updatedCourse.CourseCode)
-                .SetProperty(c => c.CourseValidStatus, updatedCourse.CourseValidStatus)
-                .SetProperty(c => c.UpdatedAt, updatedCourse.UpdatedAt)
-            ) > 0;
+        var course = await context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+        if (course == null)
+        {
+            return false;
+        }
+
+        course.CourseName = updatedCourse.CourseName;
+        course.CourseCode = updatedCourse.CourseCode;
+        course.CourseValidStatus = updatedCourse.CourseValidStatus;
+        course.UpdatedAt = DateTime.Now.ToUniversalTime();
+
+        await context.SaveChangesAsync();
+        return true;
     }
     
     public async Task<bool> DeleteCourseEntity(CourseEntity course)
