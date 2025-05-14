@@ -4,7 +4,7 @@
 * UI language (Admin UI): English
 * Development year: **2025**
 * Languages and technologies: **C#, .NET Core, ASP.NET MVC, JWT, Entity Framework Core**
-* This is the backend part of my Bachelor's final thesis project EduCode along with [Mobile app](https://github.com/alaasmagi/educode-mobile) & [Browser client](https://github.com/alaasmagi/educode-web) 
+* This is the backend component of my Bachelor's final thesis project, which also includes a [mobile app](https://github.com/alaasmagi/educode-mobile) and a [browser client](https://github.com/alaasmagi/educode-web).
 
 ## How to run
 
