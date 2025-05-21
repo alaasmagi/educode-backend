@@ -304,7 +304,7 @@ public enum ECourseValidStatus
 * Tests are written using the NUnit framework
 
 ## Screenshots (Admin UI)
-* Login page:
+* Login page:  
 ![Screenshot 2025-05-21 232318](https://github.com/user-attachments/assets/2ec61886-e21c-4d92-ae5e-d6c45db64b54)
 * Main page:  
 ![Screenshot 2025-05-21 232335](https://github.com/user-attachments/assets/d093fbd4-ae64-4c50-ba93-6c3d8b6e3111)
