@@ -104,11 +104,16 @@ dotnet run
 I used ASP.NET MVC, because I think, that keeping logic and view separate keeps the code clean, well structured and provides better testability. 
 
 ### Services
-There are two main services:
-* SalaryCalculatorService - main service that calculates the output based on the user's input
-* OpenAiService - additional serice that communicates with OpenAI API and gets the short description of net income
+There are 7 main services:
+* **AdminAccessService** - main service that calculates the output based on the user's input
+* **AttendanceManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
+* **AuthService** - additional serice that communicates with OpenAI API and gets the short description of net income
+* **CourseManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
+* **EmailService** - additional serice that communicates with OpenAI API and gets the short description of net income
+* **OtpService** - additional serice that communicates with OpenAI API and gets the short description of net income
+* **UserManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
 And configuration helper service:
-* CalculatorConfig - service that gets all necessary data from .env file for SalaryCalculatorService
+* **CleanupService** - service that gets all necessary data from .env file for SalaryCalculatorService
 
 ### Database entities
 There are 9 DB entities to manage user data, course data, attendance data and attendance check data.  
