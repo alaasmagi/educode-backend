@@ -46,7 +46,7 @@ FRONTENDURL=<web-frontend-url-for-cors>
 After meeting all prerequisites above - 
 * application can be run via terminal/cmd opened in the root of WebApp folder `/WebApp` by command
 ```bash
-dotnet run
+docker run --env-file .env -p 8080:8080 alaasmagi/educode-backend:<version-number>
 ```
 * user interface can be viewed from the web browser on the address the application provided in the terminal/cmd
 
