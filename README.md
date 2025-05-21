@@ -299,16 +299,13 @@ public enum ECourseValidStatus
 * Bootstrap is used for quick customisation
 
 ### Unit tests
-* The Admin UI is implemented using ASP.NET MVC default pages (Views)
-* Bootstrap is used for quick customisation
+* Unit tests cover 100% of the business logic
+* Tests are written using the NUnit framework
 
 ## Improvements & scaling possibilities
 
-### Taxation
+### The use of external APIs
 * Some kind of tax office API could be used to get the most updated taxation data
 
-### More AI models as options
+### Integration with more education related services
 * As OpenAI develops more and more different AI models, they could be added in this openai-enhancer-app as options
-
-### Mobile Application
-* Separate mobile application could be made with React Native or Flutter to make UX better on mobile interfaces
