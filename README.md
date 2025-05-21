@@ -303,6 +303,15 @@ public enum ECourseValidStatus
 * Unit tests cover 100% of the business logic
 * Tests are written using the NUnit framework
 
+## Screenshots (Admin UI)
+* Login page:
+![Screenshot 2025-05-21 231840-front](https://github.com/user-attachments/assets/59f53661-87c0-4018-af34-a2b6c95caae8)
+* Main page:  
+![Screenshot 2025-05-21 231853-front](https://github.com/user-attachments/assets/08b1d3fd-4460-4413-9e89-0c72f20c381c)
+* Entity main page:  
+![Screenshot 2025-05-21 231925-front](https://github.com/user-attachments/assets/6c4b9c6e-8e4c-45c7-b31a-a8e3172ef207)
+
+
 ## Improvements & scaling possibilities
 
 ### Integration with more education related services
