@@ -6,7 +6,39 @@
 * Languages and technologies: **C#, .NET Core, ASP.NET MVC, JWT, Entity Framework Core**
 * This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web).
 
-## How to run
+## How to run #1
+
+### Prerequisites
+
+* .NET SDK 9.0
+
+The application should have .env file in the root folder `/` and it shoult have following content:
+```bash
+OPENAI_API_KEY=<your-openai-api-key>
+
+CURRENCY=€
+SOCIAL_TAX=0.33
+INCOME_TAX=0.22
+UNEMPLOYMENT_INSURANCE_EMPLOYEE=0.016
+UNEMPLOYMENT_INSURANCE_EMPLOYER=0.008
+MANDATORY_PENSION_PERCENT=0.02
+
+MINIMUM_TAX_FREE_GROSS_INCOME=1200
+MAXIMUM_TAX_FREE_GROSS_INCOME=2100
+BASE_TAX_FREE_INCOME=654
+```
+The idea behind this complicated .env file is that if government decides to change something about taxation, the app does not need to be changed, only environment variables change.
+
+### Running the app
+
+After meeting all prerequisites above - 
+* application can be run via terminal/cmd opened in the root of WebApp folder `/WebApp` by command
+```bash
+dotnet run
+```
+* user interface can be viewed from the web browser on the address the application provided in the terminal/cmd
+
+## How to run #2
 
 ### Prerequisites
 
