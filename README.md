@@ -35,7 +35,7 @@ MAILSENDER_KEY=<external-smtp-mailservice-key>
 MAILSENDER_HOST=<external-smtp-mailsender-host>
 MAILSENDER_PORT=<external-smtp-port>
 
-EMAILDOMAIN=<email-domain-for-otp> //Default value: "@taltech.ee"
+EMAILDOMAIN=<email-domain-for-otp> //For example: "@taltech.ee"
 
 FRONTENDURL=<web-frontend-url-for-cors>
 ```
@@ -79,7 +79,7 @@ MAILSENDER_KEY=<external-smtp-mailservice-key>
 MAILSENDER_HOST=<external-smtp-mailsender-host>
 MAILSENDER_PORT=<external-smtp-port>
 
-EMAILDOMAIN=<email-domain-for-otp> //Default value: "@taltech.ee"
+EMAILDOMAIN=<email-domain-for-otp> //For example: "@taltech.ee"
 
 FRONTENDURL=<web-frontend-url-for-cors>
 ```
