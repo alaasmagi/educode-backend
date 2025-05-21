@@ -110,35 +110,186 @@ There are two main services:
 And configuration helper service:
 * CalculatorConfig - service that gets all necessary data from .env file for SalaryCalculatorService
 
-### Models
-Models are used to transfer data between the user interface and business logic.  
-* **SalaryInputModel**
+### Database entities
+There are 9 DB entities to manage user data, course data, attendance data and attendance check data.  
+* **AttendanceCheckEntity**
 ```csharp
-public class SalaryInputModel
+public class AttendanceCheckEntity : BaseEntity
 {
-    public decimal? NetSalary { get; set; }
-    public decimal? GrossSalary { get; set; }
-    public decimal? EmployerCost { get; set; }
-
-    public int PensionPercent { get; set; } = 2;     // Mandatory in Estonia
-    public bool IncludeUnemploymentInsurance { get; set; } = true;
-    public bool UseTaxFreeIncome { get; set; } = true;
+    [Required]
+    public string StudentCode { get; set; } = default!;
+    [Required]
+    public string FullName { get; set; } = default!;
+    [Required]
+    public int CourseAttendanceId { get; set; }
+    public int? WorkplaceId { get; set; }
+    public WorkplaceEntity? Workplace { get; set; }
 }
 ```
-* **SalaryResultModel**
+* **AttendanceTypeEntity**
 ```csharp
-public class SalaryResultModel
+public class AttendanceTypeEntity : BaseEntity
 {
-    public decimal NetSalary { get; set; }
-    public decimal GrossSalary { get; set; }
-    public decimal EmployerCost { get; set; }
+    [Required]
+    [MaxLength(128)]
+    public string AttendanceType { get; set; } = default!;
+}
+```
+* **CourseAttendanceEntity**
+```csharp
+public class CourseAttendanceEntity : BaseEntity
+{
+    [Required]
+    [ForeignKey("Course")]
+    public int CourseId { get; set; }
+    public CourseEntity? Course { get; set; }
+    [Required]
+    [ForeignKey("AttendanceType")]
+    public int AttendanceTypeId { get; set; }
+    public AttendanceTypeEntity? AttendanceType { get; set; }
+    [Required]
+    public DateTime StartTime { get; set; }
+    [Required]
+    public DateTime EndTime { get; set; }
+
+    public ICollection<AttendanceCheckEntity>? AttendanceChecks { get; set; }
+}
+```
+* **CourseEntity**
+```csharp
+public class CourseEntity : BaseEntity
+{
+    [Required]
+    [MaxLength(128)]
+    public string CourseCode { get; set; } = default!;
+    [Required]
+    [MaxLength(128)]
+    public string CourseName { get; set; } = default!;
+    [Required]
+    public ECourseValidStatus CourseValidStatus { get; set; }
+    public ICollection<CourseTeacherEntity>? CourseTeacherEntities { get; set; }
+}
+```
+* **CourseTeacherEntity**
+```csharp
+public class CourseTeacherEntity : BaseEntity
+{
+    [Required]
+    [ForeignKey("Course")]
+    public int CourseId { get; set; }
+    public CourseEntity? Course { get; set; }
+    [Required]
+    [ForeignKey("Teacher")]
+    public int TeacherId { get; set; }
+    public UserEntity? Teacher { get; set; }
+}
+```
+* **UserAuthEntity**
+```csharp
+public class UserAuthEntity : BaseEntity
+{
+    [Required]
+    [ForeignKey("User")]
+    public int UserId { get; set; }
+    public UserEntity? User { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string PasswordHash { get; set; } = default!;
+}
+```
+* **UserEntity**
+```csharp
+public class UserEntity : BaseEntity
+{
+    [Required]
+    [ForeignKey("UserType")]
+    public int? UserTypeId { get; set; }
+    public UserTypeEntity? UserType { get; set; }
+    [Required]
+    [MaxLength(128)]
+    public string UniId { get; set; } = default!;
+    [MaxLength(128)]
+    public string? StudentCode { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string FullName { get; set; } = default!;
+}
+```
+* **UserTypeEntity**
+```csharp
+public class UserTypeEntity : BaseEntity
+{
+    [Required]
+    [MaxLength(128)]
+    public string UserType { get; set; } = default!;
     
-    public string? AiComment { get; set; } 
+}
+```
+* **WorkplaceEntity**
+```csharp
+public class WorkplaceEntity : BaseEntity
+{
+    [Required]
+    [MaxLength(128)]
+    public string ClassRoom { get; set; } = default!;
+    [Required]
+    [MaxLength(128)]
+    public string ComputerCode { get; set; } = default!;
+}
+```
+
+### BaseEntity
+The `BaseEntity` class is defined in this project, and it is uploaded as a NuGet package [AL_AppDev.Base(v1.0.2)](https://www.nuget.org/packages/AL_AppDev.Base/1.0.2).
+```csharp
+public class BaseEntity
+{
+    [Required]
+    public int Id { get; set; }
+    [Required]
+    [MaxLength(128)]
+    public string CreatedBy { get; set; } = default!;
+    [Required]
+    public DateTime CreatedAt { get; set; }
+    [Required]
+    [MaxLength(128)]
+    public string UpdatedBy { get; set; } = default!;
+    [Required]
+    public DateTime UpdatedAt { get; set; }
+    [Required] 
+    public bool Deleted { get; set; } = false;
+}
+```
+
+### DTOs and enums
+There are several DTOs and enums that are used in the application.  
+* **CourseStatusDto**
+```csharp
+public class CourseStatusDto
+{
+    public int Id { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
+```
+* **CourseUserCountDto**
+```csharp
+public class CourseUserCountDto
+{
+    public DateTime AttendanceDate { get; set; }
+    public int UserCount { get; set; } = 0;
+}
+```
+* **ECourseValidStatus**
+```csharp
+public enum ECourseValidStatus
+{
+    Available,
+    TempUnavailable,
+    Unavailable
 }
 ```
   
-### User Interface
-* UI is implemented using ASP.NET MVC default pages (Views)
+### User Interface (Admin UI)
+* The Admin UI is implemented using ASP.NET MVC default pages (Views)
 * Bootstrap is used for quick customisation
 
 ## Improvements & scaling possibilities
