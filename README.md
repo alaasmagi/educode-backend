@@ -83,7 +83,6 @@ EMAILDOMAIN=<email-domain-for-otp> //For example: "@taltech.ee"
 
 FRONTENDURL=<web-frontend-url-for-cors>
 ```
-The idea behind this complicated .env file is that if government decides to change something about taxation, the app does not need to be changed, only environment variables change.
 
 ### Running the app
 
@@ -92,13 +91,12 @@ After meeting all prerequisites above -
 ```bash
 dotnet run
 ```
-* user interface can be viewed from the web browser on the address the application provided in the terminal/cmd
+* The Admin UI can be viewed from the web browser on the address the application provided in the terminal/cmd
 
 ## Features
-* Users can calculate their salary based on different input types (e.g., gross salary, net salary, or employer's cost)
-* Additional parameters include pension contributions and unemployment insurance
-* The application takes into account Estonia’s unique tax-free income system
-* OpenAI provides a short description about the net salary
+* The Admin UI allows convenient management of the application's database.
+
+
 
 ## Design choices
 
