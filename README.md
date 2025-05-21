@@ -6,7 +6,7 @@
 * Languages and technologies: **C#, .NET Core, ASP.NET MVC, JWT, Entity Framework Core**
 * This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web).
 
-## How to run #1
+## How to run - option #1
 
 ### Prerequisites
 
