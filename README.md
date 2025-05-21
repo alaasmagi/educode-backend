@@ -112,6 +112,7 @@ There are 7 main services:
 * **EmailService** - sends emails containing OTPs
 * **OtpService** - handles OTP generation and verification
 * **UserManagementService** - manages all CRUD operations related to users  
+
 Additionally, there is a helper service:  
 * **CleanupService** - performs automatic cleanup of attendances older than 6 months
   
