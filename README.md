@@ -22,9 +22,9 @@ DBKEY=<your-db-password>
 
 OTPKEY=<hash-for-otp-generation> //OTP-s are used to create accounts and recover forgotten passwords
 
-ADMINUSER=
-ADMINKEY=
-ADMINTOKENSALT=
+ADMINUSER=<your-bcrypted(12rounds)-and-base64-encoded-admin-username>
+ADMINKEY=<your-bcrypted(12rounds)-and-base64-encoded-admin-password>
+ADMINTOKENSALT=<your-admin-token-salt-for-token-generation-and-verification> //Use some kind of hash value
 
 JWTKEY=<your-json-web-token-authenticity-key> //Use some kind of hashed value
 JWTAUD=<your-json-web-token-audience>
@@ -66,9 +66,9 @@ DBKEY=<your-db-password>
 
 OTPKEY=<hash-for-otp-generation> //OTP-s are used to create accounts and recover forgotten passwords
 
-ADMINUSER=
-ADMINKEY=
-ADMINTOKENSALT=
+ADMINUSER=<your-bcrypted(12rounds)-and-base64-encoded-admin-username>
+ADMINKEY=<your-bcrypted(12rounds)-and-base64-encoded-admin-password>
+ADMINTOKENSALT=<your-admin-token-salt-for-token-generation-and-verification> //Use some kind of hash value
 
 JWTKEY=<your-json-web-token-authenticity-key> //Use some kind of hashed value
 JWTAUD=<your-json-web-token-audience>
