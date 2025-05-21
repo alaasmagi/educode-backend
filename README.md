@@ -40,7 +40,6 @@ EMAILDOMAIN=<email-domain-for-otp> //For example: "@taltech.ee"
 
 FRONTENDURL=<web-frontend-url-for-cors>
 ```
-The idea behind this complicated .env file is that if government decides to change something about taxation, the app does not need to be changed, only environment variables change.
 
 ### Running the app
 
@@ -102,8 +101,7 @@ dotnet run
 ## Design choices
 
 ### Application overall design
-I used ASP.NET MVC, because I think, that keeping logic and view separate keeps the code clean, well structured and provides better testability. 
-
+ASP.NET MVC is used because it promotes a clear separation of concerns between application logic and presentation. This architectural pattern helps maintain clean and well-structured code, thereby enhancing maintainability, scalability, and testability.  
 ### Services
 There are 7 main services:
 * **AdminAccessService** - controls admin access to the Admin UI
