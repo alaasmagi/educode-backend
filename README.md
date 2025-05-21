@@ -14,18 +14,30 @@
 
 The application should have .env file in the root folder `/` and it shoult have following content:
 ```bash
-OPENAI_API_KEY=<your-openai-api-key>
+HOST=<your-db-host>
+PORT=<your-db-port>
+USER=<your-db-username>
+DB=<your-db-name>
+DBKEY=<your-db-password>
 
-CURRENCY=€
-SOCIAL_TAX=0.33
-INCOME_TAX=0.22
-UNEMPLOYMENT_INSURANCE_EMPLOYEE=0.016
-UNEMPLOYMENT_INSURANCE_EMPLOYER=0.008
-MANDATORY_PENSION_PERCENT=0.02
+OTPKEY=<hash-for-otp-generation> //OTP-s are used to create accounts and recover forgotten passwords
 
-MINIMUM_TAX_FREE_GROSS_INCOME=1200
-MAXIMUM_TAX_FREE_GROSS_INCOME=2100
-BASE_TAX_FREE_INCOME=654
+ADMINUSER=
+ADMINKEY=
+ADMINTOKENSALT=
+
+JWTKEY=<your-json-web-token-authenticity-key> //Use some kind of hashed value
+JWTAUD=<your-json-web-token-audience>
+JWTISS=<your-json-web-token-issuer>
+
+MAILSENDER_EMAIL=<external-smtp-mailservice-email-address>
+MAILSENDER_KEY=<external-smtp-mailservice-key>
+MAILSENDER_HOST=<external-smtp-mailsender-host>
+MAILSENDER_PORT=<external-smtp-port>
+
+EMAILDOMAIN=<email-domain-for-otp> //Default value: "@taltech.ee"
+
+FRONTENDURL=<web-frontend-url-for-cors>
 ```
 The idea behind this complicated .env file is that if government decides to change something about taxation, the app does not need to be changed, only environment variables change.
 
@@ -46,18 +58,30 @@ dotnet run
 
 The application should have .env file in the root folder `/` and it shoult have following content:
 ```bash
-OPENAI_API_KEY=<your-openai-api-key>
+HOST=<your-db-host>
+PORT=<your-db-port>
+USER=<your-db-username>
+DB=<your-db-name>
+DBKEY=<your-db-password>
 
-CURRENCY=€
-SOCIAL_TAX=0.33
-INCOME_TAX=0.22
-UNEMPLOYMENT_INSURANCE_EMPLOYEE=0.016
-UNEMPLOYMENT_INSURANCE_EMPLOYER=0.008
-MANDATORY_PENSION_PERCENT=0.02
+OTPKEY=<hash-for-otp-generation> //OTP-s are used to create accounts and recover forgotten passwords
 
-MINIMUM_TAX_FREE_GROSS_INCOME=1200
-MAXIMUM_TAX_FREE_GROSS_INCOME=2100
-BASE_TAX_FREE_INCOME=654
+ADMINUSER=
+ADMINKEY=
+ADMINTOKENSALT=
+
+JWTKEY=<your-json-web-token-authenticity-key> //Use some kind of hashed value
+JWTAUD=<your-json-web-token-audience>
+JWTISS=<your-json-web-token-issuer>
+
+MAILSENDER_EMAIL=<external-smtp-mailservice-email-address>
+MAILSENDER_KEY=<external-smtp-mailservice-key>
+MAILSENDER_HOST=<external-smtp-mailsender-host>
+MAILSENDER_PORT=<external-smtp-port>
+
+EMAILDOMAIN=<email-domain-for-otp> //Default value: "@taltech.ee"
+
+FRONTENDURL=<web-frontend-url-for-cors>
 ```
 The idea behind this complicated .env file is that if government decides to change something about taxation, the app does not need to be changed, only environment variables change.
 
