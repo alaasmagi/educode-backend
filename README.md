@@ -105,16 +105,16 @@ I used ASP.NET MVC, because I think, that keeping logic and view separate keeps 
 
 ### Services
 There are 7 main services:
-* **AdminAccessService** - main service that calculates the output based on the user's input
-* **AttendanceManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
-* **AuthService** - additional serice that communicates with OpenAI API and gets the short description of net income
-* **CourseManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
-* **EmailService** - additional serice that communicates with OpenAI API and gets the short description of net income
-* **OtpService** - additional serice that communicates with OpenAI API and gets the short description of net income
-* **UserManagementService** - additional serice that communicates with OpenAI API and gets the short description of net income
-And configuration helper service:
-* **CleanupService** - service that gets all necessary data from .env file for SalaryCalculatorService
-
+* **AdminAccessService** - controls admin access to the Admin UI
+* **AttendanceManagementService** - handles CRUD operations for attendances and attendance checks
+* **AuthService** - responsible for JWT generation
+* **CourseManagementService** - manages CRUD operations for courses
+* **EmailService** - sends emails containing OTPs
+* **OtpService** - handles OTP generation and verification
+* **UserManagementService** - manages all CRUD operations related to users  
+Additionally, there is a helper service:  
+* **CleanupService** - performs automatic cleanup of attendances older than 6 months
+  
 ### Database entities
 There are 9 DB entities to manage user data, course data, attendance data and attendance check data.  
 * **AttendanceCheckEntity**
@@ -244,7 +244,7 @@ public class WorkplaceEntity : BaseEntity
 ```
 
 ### BaseEntity
-The `BaseEntity` class is defined in this project, and it is uploaded as a NuGet package [AL_AppDev.Base(v1.0.2)](https://www.nuget.org/packages/AL_AppDev.Base/1.0.2).
+The `BaseEntity` class is defined in this project, and it is uploaded as a NuGet package [AL_AppDev.Base(v1.0.2)](https://www.nuget.org/packages/AL_AppDev.Base/1.0.2)
 ```csharp
 public class BaseEntity
 {
