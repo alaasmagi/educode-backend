@@ -4,7 +4,8 @@
 * UI language (Admin UI): English
 * Development year: **2025**
 * Languages and technologies: **C#, .NET Core, ASP.NET MVC, JWT, Entity Framework Core**
-* This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web).
+* This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web)
+* Detailed documentation of my Bachelor's final thesis:<link>.
 
 ## How to run - option #1
 
@@ -304,8 +305,5 @@ public enum ECourseValidStatus
 
 ## Improvements & scaling possibilities
 
-### The use of external APIs
-* Some kind of tax office API could be used to get the most updated taxation data
-
 ### Integration with more education related services
-* As OpenAI develops more and more different AI models, they could be added in this openai-enhancer-app as options
+* User testing results raised an idea of integrating this application with already existing infrastructure of the University (TalTech app)
