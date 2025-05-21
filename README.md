@@ -316,4 +316,4 @@ public enum ECourseValidStatus
 ## Improvements & scaling possibilities
 
 ### Integration with more education related services
-* User testing results raised an idea of integrating this application with already existing infrastructure of the University (TalTech app)
+* User testing results suggested the idea of integrating this application with the existing infrastructure of the University (e.g., the TalTech app)
