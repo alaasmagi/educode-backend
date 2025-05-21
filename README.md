@@ -305,11 +305,12 @@ public enum ECourseValidStatus
 
 ## Screenshots (Admin UI)
 * Login page:
-![Screenshot 2025-05-21 231840-front](https://github.com/user-attachments/assets/59f53661-87c0-4018-af34-a2b6c95caae8)
+![Screenshot 2025-05-21 232318](https://github.com/user-attachments/assets/2ec61886-e21c-4d92-ae5e-d6c45db64b54)
 * Main page:  
-![Screenshot 2025-05-21 231853-front](https://github.com/user-attachments/assets/08b1d3fd-4460-4413-9e89-0c72f20c381c)
+![Screenshot 2025-05-21 232335](https://github.com/user-attachments/assets/d093fbd4-ae64-4c50-ba93-6c3d8b6e3111)
 * Entity main page:  
-![Screenshot 2025-05-21 231925-front](https://github.com/user-attachments/assets/6c4b9c6e-8e4c-45c7-b31a-a8e3172ef207)
+![Screenshot 2025-05-21 232350](https://github.com/user-attachments/assets/e3796688-dbcd-4d14-a244-89e1349437ed)
+
 
 
 ## Improvements & scaling possibilities
