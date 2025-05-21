@@ -298,6 +298,10 @@ public enum ECourseValidStatus
 * The Admin UI is implemented using ASP.NET MVC default pages (Views)
 * Bootstrap is used for quick customisation
 
+### Unit tests
+* The Admin UI is implemented using ASP.NET MVC default pages (Views)
+* Bootstrap is used for quick customisation
+
 ## Improvements & scaling possibilities
 
 ### Taxation
