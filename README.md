@@ -7,7 +7,7 @@
 * This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web)
 * Detailed documentation of my Bachelor's final thesis project:<link>.
 
-## How to run - option #1
+## How to run - option #1 (Using Docker)
 
 ### Prerequisites
 
@@ -50,7 +50,7 @@ docker run --env-file .env -p 8080:8080 alaasmagi/educode-backend:<version-numbe
 ```
 * user interface can be viewed from the web browser on the address the application provided in the terminal/cmd
 
-## How to run #2
+## How to run - option #2 (Using .NET SDK)
 
 ### Prerequisites
 
