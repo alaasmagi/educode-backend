@@ -11,9 +11,14 @@
 
 ### Prerequisites
 
-* .NET SDK 9.0
+* Docker
 
-The application should have .env file in the root folder `/` and it shoult have following content:
+Pull the Docker image from Docker Hub:  
+```bash
+docker pull alaasmagi/educode-backend:<version-number>
+```
+
+The application should have .env file in the path of current terminal/cmd window and it shoult have following content:
 ```bash
 HOST=<your-db-host>
 PORT=<your-db-port>
