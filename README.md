@@ -323,5 +323,7 @@ This diagram is purely conseptual and describes relationships between different 
 
 ## Improvements & scaling possibilities
 
+### Implementation of soft delete functionality
+* As soft delete is becoming standard in IT industry, logical deletion with user account recovery is great implementation idea as database already supports soft deletion 
 ### Integration with more education related services
 * User testing results suggested the idea of integrating this application with the existing infrastructure of the University (e.g., the TalTech app)
