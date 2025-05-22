@@ -5,7 +5,7 @@
 * Development year: **2025**
 * Languages and technologies: **C#, .NET Core, ASP.NET MVC, JWT, Entity Framework Core**
 * This is the backend component of my Bachelor's final thesis project, which also includes [mobile app](https://github.com/alaasmagi/educode-mobile) and [browser client](https://github.com/alaasmagi/educode-web)
-* Detailed documentation of my Bachelor's final thesis project:<link>
+* Detailed documentation (in Estonian) of my Bachelor's final thesis project:<link>
 
 ## How to run - option #1 (Using Docker)
 
