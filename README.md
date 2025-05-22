@@ -87,7 +87,7 @@ MAILSENDER_PORT=<external-smtp-port>
 
 EMAILDOMAIN=<email-domain-for-otp> //For example: "@taltech.ee"
 
-FRONTENDURL=<web-frontend-url-for-cors>
+FRONTENDURL=<your-educode-web-frontend-url> //For CORS
 ```
 
 ### Running the app
