@@ -13,6 +13,7 @@
 
 * Docker
 
+Docker image [link](https://hub.docker.com/r/alaasmagi/educode-backend)  
 Pull the Docker image from Docker Hub:  
 ```bash
 docker pull alaasmagi/educode-backend:<version-number>
