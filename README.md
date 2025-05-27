@@ -16,7 +16,7 @@
 Docker image [link](https://hub.docker.com/r/alaasmagi/educode-backend)  
 Pull the Docker image from Docker Hub:  
 ```bash
-docker pull alaasmagi/educode-backend:<version-number>
+docker pull alaasmagi/educode-backend
 ```
 
 The application should have .env file in the path of current terminal/cmd window and it shoult have following content:
