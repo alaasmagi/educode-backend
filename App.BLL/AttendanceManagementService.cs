@@ -232,8 +232,8 @@ public class AttendanceManagementService : IAttendanceManagementService
                 CourseId = attendance.CourseId,
                 AttendanceTypeId = attendance.AttendanceTypeId,
                 AttendanceType = attendance.AttendanceType,
-                StartTime = date.ToDateTime(startTime).ToUniversalTime(),
-                EndTime = date.ToDateTime(endTime).ToUniversalTime(),
+                StartTime = date.ToDateTime(startTime),
+                EndTime = date.ToDateTime(endTime),
                 CreatedBy = attendance.CreatedBy,
                 UpdatedBy = attendance.UpdatedBy
             };
