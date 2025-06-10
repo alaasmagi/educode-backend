@@ -23,14 +23,14 @@
                 <span asp-validation-for="FullName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CourseAttendanceId" class="control-label"></label>
-                <select asp-for="CourseAttendanceId" class="form-control" asp-items="ViewBag.CourseAttendanceId"></select>
-                <span asp-validation-for="CourseAttendanceId" class="text-danger"></span>
+                <label asp-for="AttendanceIdentifier" class="control-label"></label>
+                <select asp-for="AttendanceIdentifier" class="form-control" asp-items="ViewBag.CourseAttendanceId"></select>
+                <span asp-validation-for="AttendanceIdentifier" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="WorkplaceId" class="control-label"></label>
-                <select asp-for="WorkplaceId" class="form-control" asp-items="ViewBag.WorkplaceId"></select>
-                <span asp-validation-for="WorkplaceId" class="text-danger"></span>
+                <label asp-for="WorkplaceIdentifier" class="control-label"></label>
+                <select asp-for="WorkplaceIdentifier" class="form-control" asp-items="ViewBag.WorkplaceId"></select>
+                <span asp-validation-for="WorkplaceIdentifier" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
