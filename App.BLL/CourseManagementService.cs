@@ -1,5 +1,6 @@
 ﻿using App.DAL.EF;
 using App.Domain;
+using App.DTO;
 using Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ public class CourseManagementService : ICourseManagementService
         _userRepository = new UserRepository(_context);
     }
 
-    public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(int attendanceId)
+    public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(Guid attendanceId)
     {
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
@@ -46,7 +47,7 @@ public class CourseManagementService : ICourseManagementService
         return course;
     }
 
-    public async Task<CourseEntity?> GetCourseByIdAsync(int courseId, string uniId)
+    public async Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string uniId)
     {
         var result = await _courseRepository.GetCourseById(courseId);
 
@@ -133,7 +134,7 @@ public class CourseManagementService : ICourseManagementService
         
         return true;
     }
-    public async Task<bool> EditCourse(int courseId, CourseEntity newCourse)
+    public async Task<bool> EditCourse(Guid courseId, CourseEntity newCourse)
     {
         var courseExistence = await DoesCourseExistByIdAsync(courseId);
         if (!courseExistence)
@@ -151,13 +152,13 @@ public class CourseManagementService : ICourseManagementService
         
         return true;
     }
-    public async Task<bool> DeleteCourse(int id, string uniId)
+    public async Task<bool> DeleteCourse(Guid courseId, string uniId)
     {
-        var course = await GetCourseByIdAsync(id, uniId);
+        var course = await GetCourseByIdAsync(courseId, uniId);
         
         if (course == null)
         {
-            _logger.LogError($"Failed to delete course with id {id}");
+            _logger.LogError($"Failed to delete course with id {courseId}");
             return false;
         }
         
@@ -165,25 +166,18 @@ public class CourseManagementService : ICourseManagementService
         
         if (!status)
         {
-            _logger.LogError($"Failed to delete course with id {id}");
+            _logger.LogError($"Failed to delete course with id {courseId}");
             return false;
         }
         
         return true;
     }
     
-    public List<CourseStatusDto>? GetAllCourseStatuses()
+    public async Task<List<CourseStatusEntity>?> GetAllCourseStatuses()
     {
-        var result = Enum.GetValues(typeof(ECourseValidStatus))
-            .Cast<ECourseValidStatus>()
-            .Select(status => new CourseStatusDto
-            {
-                Id = (int)status,
-                Status = status.ToString().ToLower()
-            })
-            .ToList();
+        var result = await _courseRepository.GetAllCourseStatuses();
 
-        if (result.Count <= 0)
+        if (result != null && result.Count <= 0)
         {
             _logger.LogError($"Failed to get course statuses");
             return null;
@@ -192,7 +186,7 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<List<CourseEntity>?> GetCoursesByUserAsync(int userId)
+    public async Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId)
     {
         var result = await _courseRepository.GetCoursesByUser(userId);
 
@@ -205,7 +199,7 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<List<CourseUserCountDto>?> GetAttendancesUserCountsByCourseAsync(int courseId)
+    public async Task<List<AttendanceStudentCountDto>?> GetAttendancesUserCountsByCourseAsync(Guid courseId)
     {
         var result = await _courseRepository.GetAllUserCountsByCourseId(courseId);
 
@@ -252,7 +246,7 @@ public class CourseManagementService : ICourseManagementService
         return true;        
     }
     
-    public async Task<bool> DoesCourseExistByIdAsync(int id)
+    public async Task<bool> DoesCourseExistByIdAsync(Guid id)
     {
         var status = await _courseRepository.CourseAvailabilityCheckById(id);
 

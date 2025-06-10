@@ -20,11 +20,11 @@ namespace WebApp.Controllers
             }
             
             var appDbContext = context.AttendanceChecks.Include(a => a.Workplace);
-            return View(await appDbContext.ToListAsync());
+            return View(await appDbContext.IgnoreQueryFilters().ToListAsync());
         }
 
-        // GET: AttendanceCheck/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: AttendanceCheck/Details/ID
+        public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -67,7 +67,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Create([Bind("StudentId,FullName,AttendanceIdentifier,WorkplaceIdentifier,Id,CreatedBy,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -83,7 +83,7 @@ namespace WebApp.Controllers
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceIdentifier);
             return View(attendanceCheckEntity);
         }
 
@@ -106,8 +106,8 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
-            ViewData["CourseAttendanceId"] = new SelectList(context.CourseAttendances, "Id", "Id", attendanceCheckEntity.CourseAttendanceId);
+            ViewData["WorkplaceIdentifier"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceIdentifier);
+            ViewData["AttendanceIdentifier"] = new SelectList(context.CourseAttendances, "Id", "Id", attendanceCheckEntity.AttendanceIdentifier);
             return View(attendanceCheckEntity);
         }
 
@@ -116,7 +116,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StudentId,FullName,CourseAttendanceId,WorkplaceId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("StudentId,FullName,AttendanceIdentifier,WorkplaceIdentifier,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] AttendanceCheckEntity attendanceCheckEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -150,12 +150,12 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceId);
+            ViewData["WorkplaceId"] = new SelectList(context.Workplaces, "Id", "ClassRoom", attendanceCheckEntity.WorkplaceIdentifier);
             return View(attendanceCheckEntity);
         }
 
         // GET: AttendanceCheck/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -200,7 +200,7 @@ namespace WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AttendanceCheckEntityExists(int id)
+        private bool AttendanceCheckEntityExists(Guid id)
         {
             return context.AttendanceChecks.Any(e => e.Id == id);
         }

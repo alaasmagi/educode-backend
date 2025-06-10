@@ -22,48 +22,48 @@ public class AttendanceManagementService : IAttendanceManagementService
         _courseRepository = new CourseRepository(_context); 
         _userRepository = new UserRepository(_context); 
     }
-    public async Task<bool> DoesWorkplaceExist(int id)
+    public async Task<bool> DoesWorkplaceExist(int workplaceIdentifier)
     {
-        var result = await _attendanceRepository.WorkplaceAvailabilityCheckById(id);
+        var result = await _attendanceRepository.WorkplaceAvailabilityCheckById(workplaceIdentifier);
 
         if (!result)
         {
-            _logger.LogError($"Workplace with id {id} was not found");
+            _logger.LogError($"Workplace with id {workplaceIdentifier} was not found");
             return false;
         }
 
         return true;
     }
     
-    public async Task<bool> DoesAttendanceExist(int id)
+    public async Task<bool> DoesAttendanceExist(Guid attendanceId)
     {
-        var result = await _attendanceRepository.AttendanceAvailabilityCheckById(id);
+        var result = await _attendanceRepository.AttendanceAvailabilityCheckById(attendanceId);
 
         if (!result)
         {
-            _logger.LogError($"Attendance with ID {id} was not found");
-            return false;
-        }
-        
-        _logger.LogInformation($"Attendance with ID {id} was found");
-        return true;
-    }
-    
-    public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceId)
-    {
-        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, attendanceId);
-
-        if (!result)
-        {
-            _logger.LogError($"AttendanceCheck with student code {studentCode}, fullname {fullName} and attendance ID {attendanceId} was not found");
+            _logger.LogError($"Attendance with ID {attendanceId} was not found");
             return false;
         }
         
-        _logger.LogInformation($"AttendanceCheck with student code {studentCode} and attendance ID {attendanceId} was found");
+        _logger.LogInformation($"Attendance with ID {attendanceId} was found");
         return true;
     }
     
-    public async Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(int userId)
+    public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceIdentifier)
+    {
+        var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, attendanceIdentifier);
+
+        if (!result)
+        {
+            _logger.LogError($"AttendanceCheck with student code {studentCode}, fullname {fullName} and attendance identifier {attendanceIdentifier} was not found");
+            return false;
+        }
+        
+        _logger.LogInformation($"AttendanceCheck with student code {studentCode} and attendance identifier {attendanceIdentifier} was found");
+        return true;
+    }
+    
+    public async Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(Guid userId)
     {
         var currentAttendance = await _attendanceRepository.GetCurrentAttendance(userId);
 
@@ -76,7 +76,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return currentAttendance;
     }
     
-    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(int attendanceId, string uniId)
+    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string uniId)
     {
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
@@ -95,18 +95,18 @@ public class AttendanceManagementService : IAttendanceManagementService
         return courseAttendance;
     }
 
-    public async Task<int> GetStudentsCountByAttendanceIdAsync(int attendanceId)
+    public async Task<int> GetStudentsCountByAttendanceIdAsync(int attendanceIdentifier)
     {
-        var result = await _attendanceRepository.GetStudentCountByAttendanceId(attendanceId);
+        var result = await _attendanceRepository.GetStudentCountByAttendanceId(attendanceIdentifier);
         if (result <= 0)
         {
-            _logger.LogError($"Attendance with ID {attendanceId} has no attendance checks");
+            _logger.LogError($"Attendance with identifier {attendanceIdentifier} has no attendance checks");
             return 0;
         }
         return result;
     }
     
-    public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(int courseId)
+    public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(Guid courseId)
     {
         var attendances = await _attendanceRepository.GetCourseAttendancesByCourseId(courseId);
 
@@ -119,9 +119,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendances;
     }
 
-    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceId)
+    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceIdentifer)
     {
-        var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.FullName, attendanceCheck.CourseAttendanceId);
+        var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.FullName, attendanceCheck.AttendanceIdentifier);
 
         if (attendanceCheckExist)
         {
@@ -131,9 +131,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         
         bool status;
         attendanceCheck.StudentCode = attendanceCheck.StudentCode.ToUpper();
-        if (workplaceId != null)
+        if (workplaceIdentifer != null)
         {
-            var workplace = await _attendanceRepository.GetWorkplaceById(workplaceId.Value);
+            var workplace = await _attendanceRepository.GetWorkplaceByIdentifier(workplaceIdentifer.Value);
             status = await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator, workplace);
         }
         else
@@ -150,20 +150,20 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceId)
+    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceIdentifier)
     {
-        var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceId(attendanceId);
+        var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceIdentifier(attendanceIdentifier);
         
         if (attendanceChecks.Count <= 0)
         {
-            _logger.LogError($"Attendance checks for attendance with ID {attendanceId} were not found");
+            _logger.LogError($"Attendance checks for attendance with identifier {attendanceIdentifier} were not found");
             return null;
         }
         
         return attendanceChecks;
     }
 
-    public async Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(int userId)
+    public async Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(Guid userId)
     {
         var attendance = await _attendanceRepository.GetMostRecentAttendanceByUser(userId);
 
@@ -176,19 +176,19 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendance;
     }
 
-    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(int id, string uniId)
+    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid attendanceCheckId, string uniId)
     {
-        var result = await _attendanceRepository.GetAttendanceCheckById(id);
+        var result = await _attendanceRepository.GetAttendanceCheckById(attendanceCheckId);
         if (result == null)
         {
-            _logger.LogError($"AttendanceCheck with ID {id} was not found");
+            _logger.LogError($"AttendanceCheck with ID {attendanceCheckId} was not found");
             return null;
         }
         
         var accessible = await IsAttendanceCheckAccessibleByUser(result, uniId);
         if (!accessible)
         {
-            _logger.LogError($"AttendanceCheck with ID {id} cannot be fetched");
+            _logger.LogError($"AttendanceCheck with ID {attendanceCheckId} cannot be fetched");
             return null;
         }
         
@@ -208,7 +208,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return result;
     }
 
-    public async Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(int attendanceTypeId)
+    public async Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(Guid attendanceTypeId)
     {
         var result = await _attendanceRepository.GetAttendanceTypeById(attendanceTypeId);
 
@@ -253,7 +253,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<bool> EditAttendanceAsync(int attendanceId, CourseAttendanceEntity updatedAttendance)
+    public async Task<bool> EditAttendanceAsync(Guid attendanceId, CourseAttendanceEntity updatedAttendance)
     {
         if (!await DoesAttendanceExist(attendanceId))
         {
@@ -272,12 +272,12 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<bool> DeleteAttendance(int id, string uniId)
+    public async Task<bool> DeleteAttendance(Guid attendanceId, string uniId)
     {
-        var attendance = await GetCourseAttendanceByIdAsync(id, uniId);
+        var attendance = await GetCourseAttendanceByIdAsync(attendanceId, uniId);
         if (attendance == null)
         {
-            _logger.LogError($"Deleting attendance with ID {id} failed");
+            _logger.LogError($"Deleting attendance with ID {attendanceId} failed");
             return false;
         }
         
@@ -285,19 +285,19 @@ public class AttendanceManagementService : IAttendanceManagementService
         
         if (!status)
         {
-            _logger.LogError($"Deleting attendance with ID {id} failed");
+            _logger.LogError($"Deleting attendance with ID {attendanceId} failed");
             return false;
         }
         
         return true;
     }
     
-    public async Task<bool> DeleteAttendanceCheck(int id, string uniId)
+    public async Task<bool> DeleteAttendanceCheck(Guid attendanceCheckId, string uniId)
     {
-        var attendanceCheck = await GetAttendanceCheckByIdAsync(id, uniId);
+        var attendanceCheck = await GetAttendanceCheckByIdAsync(attendanceCheckId, uniId);
         if (attendanceCheck == null)
         {
-            _logger.LogError($"Deleting attendance check with ID {id} failed");
+            _logger.LogError($"Deleting attendance check with ID {attendanceCheckId} failed");
             return false;
         }
         
@@ -305,7 +305,7 @@ public class AttendanceManagementService : IAttendanceManagementService
 
         if (!status)
         {
-            _logger.LogError($"Deleting attendance check with ID {id} failed");
+            _logger.LogError($"Deleting attendance check with ID {attendanceCheckId} failed");
             return false;
         }
         return true;
@@ -340,10 +340,10 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
-        var attendance = await _attendanceRepository.GetAttendanceById(attendanceCheck.CourseAttendanceId);
+        var attendance = await _attendanceRepository.GetAttendanceByIdentifier(attendanceCheck.AttendanceIdentifier);
         if (attendance == null)
         {
-            _logger.LogError($"Attendance with ID {attendanceCheck.CourseAttendanceId} was not found");
+            _logger.LogError($"Attendance with identifier {attendanceCheck.AttendanceIdentifier} was not found");
             return false;
         }
         

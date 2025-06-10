@@ -8,7 +8,7 @@ public class UserEntity : BaseEntity
 {
     [Required]
     [ForeignKey("UserType")]
-    public int? UserTypeId { get; set; }
+    public Guid UserTypeId { get; set; }
     public UserTypeEntity? UserType { get; set; }
     [Required]
     [MaxLength(128)]
@@ -18,4 +18,5 @@ public class UserEntity : BaseEntity
     [Required]
     [MaxLength(255)]
     public string FullName { get; set; } = default!;
+    public ICollection<RefreshTokenEntity>? RefreshTokens { get; set; }
 }

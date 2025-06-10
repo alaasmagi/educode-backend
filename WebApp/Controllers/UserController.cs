@@ -20,11 +20,11 @@ namespace WebApp.Controllers
             }
             
             var users = context.Users.Include(u => u.UserType);
-            return View(await users.ToListAsync());
+            return View(await users.IgnoreQueryFilters().ToListAsync());
         }
 
         // GET: User/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -88,7 +88,7 @@ namespace WebApp.Controllers
         }
 
         // GET: User/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -115,7 +115,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserTypeId,UniId,StudentCode,FullName,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,UniId,StudentCode,FullName,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -154,7 +154,7 @@ namespace WebApp.Controllers
         }
 
         // GET: User/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -181,7 +181,7 @@ namespace WebApp.Controllers
         // POST: User/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -199,7 +199,7 @@ namespace WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserEntityExists(int id)
+        private bool UserEntityExists(Guid id)
         {
             return context.Users.Any(e => e.Id == id);
         }

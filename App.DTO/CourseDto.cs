@@ -1,0 +1,12 @@
+﻿using App.Domain;
+
+namespace App.DTO;
+
+public class CourseDto(CourseEntity course)
+{
+    public Guid Id { get; set; } = course.Id;
+    public string CourseCode { get; set; } = course.CourseCode;
+    public string CourseName = course.CourseName;
+    public Guid? CourseStatusId { get; set; } = course.CourseStatusId;
+    public string? CourseStatus { get; set; } = course.CourseStatus?.CourseStatus;
+}

@@ -18,11 +18,11 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await context.AttendanceTypes.ToListAsync());
+            return View(await context.AttendanceTypes.IgnoreQueryFilters().ToListAsync());
         }
 
         // GET: AttendanceType/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -108,7 +108,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] AttendanceTypeEntity attendanceTypeEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("AttendanceType,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] AttendanceTypeEntity attendanceTypeEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -146,7 +146,7 @@ namespace WebApp.Controllers
         }
 
         // GET: AttendanceType/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -190,7 +190,7 @@ namespace WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AttendanceTypeEntityExists(int id)
+        private bool AttendanceTypeEntityExists(Guid id)
         {
             return context.AttendanceTypes.Any(e => e.Id == id);
         }

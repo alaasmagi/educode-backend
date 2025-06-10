@@ -23,14 +23,14 @@ public class UserRepository (AppDbContext context)
         return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task<UserAuthEntity?> GetUserAuthDataByUserId(int userId)
+    public async Task<UserAuthEntity?> GetUserAuthDataByUserId(Guid userId)
     {
         return await context.UserAuthData
             .Include(ua => ua.User).ThenInclude(ua => ua!.UserType) 
             .FirstOrDefaultAsync(ua => ua.UserId == userId);
     }
 
-    public async Task<bool> UpdateUserAuthEntity(int userId, string newPasswordHash)
+    public async Task<bool> UpdateUserAuthEntity(Guid userId, string newPasswordHash)
     {
         var userAuth = await context.UserAuthData.FirstOrDefaultAsync(u => u.UserId == userId);
 
@@ -62,7 +62,7 @@ public class UserRepository (AppDbContext context)
             .FirstOrDefaultAsync(x => x.UniId == uniId);
     }
     
-    public async Task<UserEntity?> GetUserByIdAsync(int userId)
+    public async Task<UserEntity?> GetUserByIdAsync(Guid userId)
     {
         return await context.Users.FindAsync(userId);
     }

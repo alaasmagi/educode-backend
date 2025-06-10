@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using App.Domain;
+using App.DTO;
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("Id/{id}")]
-    public async Task<ActionResult<CourseEntity>> GetCourseDetails(int id)
+    public async Task<ActionResult<CourseEntity>> GetCourseDetails(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
@@ -35,7 +36,7 @@ public class CourseController(
     
     [Authorize]
     [HttpGet("AttendanceId/{id}")]
-    public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(int id)
+    public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
@@ -51,7 +52,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("Statuses")]
-    public ActionResult<IEnumerable<CourseStatusDto>> GetAllCourseStatuses()
+    public ActionResult<IEnumerable<AttendanceStudentCountDto>> GetAllCourseStatuses()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseStatuses = courseManagementService.GetAllCourseStatuses();
@@ -89,7 +90,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("StudentCounts/{id}")]
-    public async Task<ActionResult<IEnumerable<CourseUserCountDto>>> GetAllStudentCountsByCourse(int id)
+    public async Task<ActionResult<IEnumerable<AttendanceStudentCountDto>>> GetAllStudentCountsByCourse(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var validity = await courseManagementService.DoesCourseExistByIdAsync(id);
@@ -131,7 +132,7 @@ public class CourseController(
         {
             CourseName = model.CourseName,
             CourseCode = model.CourseCode,
-            CourseValidStatus = model.Status,
+            CourseStatusId = model.CourseStatusId,
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator,
         };
@@ -161,12 +162,12 @@ public class CourseController(
         {
             CourseName = model.CourseName,
             CourseCode = model.CourseCode,
-            CourseValidStatus = model.Status,
+            CourseStatusId = model.CourseStatusId,
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator,
         };
 
-        var courseId = model.Id ?? 0;
+        var courseId = model.Id.Value;
         if (!await courseManagementService.EditCourse(courseId, newCourse))
         {
             return BadRequest(new { message = "Course does not exist", messageCode = "course-does-not-exist" });
@@ -178,7 +179,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteCourse(int id)
+    public async Task<ActionResult<CourseEntity>> DeleteCourse(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)

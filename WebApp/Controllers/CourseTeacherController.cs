@@ -20,11 +20,11 @@ namespace WebApp.Controllers
             }
             
             var appDbContext = context.CourseTeachers.Include(c => c.Course).Include(c => c.Teacher);
-            return View(await appDbContext.ToListAsync());
+            return View(await appDbContext.IgnoreQueryFilters().ToListAsync());
         }
 
         // GET: CourseTeacher/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -90,7 +90,7 @@ namespace WebApp.Controllers
         }
 
         // GET: CourseTeacher/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -118,7 +118,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -158,7 +158,7 @@ namespace WebApp.Controllers
         }
 
         // GET: CourseTeacher/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -186,7 +186,7 @@ namespace WebApp.Controllers
         // POST: CourseTeacher/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -204,7 +204,7 @@ namespace WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CourseTeacherEntityExists(int id)
+        private bool CourseTeacherEntityExists(Guid id)
         {
             return context.CourseTeachers.Any(e => e.Id == id);
         }

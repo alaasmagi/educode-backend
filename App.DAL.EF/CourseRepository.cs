@@ -1,15 +1,16 @@
 ﻿using App.Domain;
+using App.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
 
 public class CourseRepository(AppDbContext context)
 {
-   public async Task<List<CourseEntity>?> GetCoursesByUser(int id)
+   public async Task<List<CourseEntity>?> GetCoursesByUser(Guid userId)
     {
         var result = await context.Courses
             .Where(ca => ca.CourseTeacherEntities!
-                .Any(ct => ct.TeacherId == id)).ToListAsync();
+                .Any(ct => ct.TeacherId == userId)).ToListAsync();
         
         return result.Count > 0 ? result : null; 
     }
@@ -30,7 +31,7 @@ public class CourseRepository(AppDbContext context)
         return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task<bool> UpdateCourseEntity(int courseId, CourseEntity updatedCourse)
+    public async Task<bool> UpdateCourseEntity(Guid courseId, CourseEntity updatedCourse)
     {
         var course = await context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
         if (course == null)
@@ -40,7 +41,7 @@ public class CourseRepository(AppDbContext context)
 
         course.CourseName = updatedCourse.CourseName;
         course.CourseCode = updatedCourse.CourseCode;
-        course.CourseValidStatus = updatedCourse.CourseValidStatus;
+        course.CourseStatusId = updatedCourse.CourseStatusId;
         course.UpdatedAt = DateTime.Now.ToUniversalTime();
 
         await context.SaveChangesAsync();
@@ -53,7 +54,7 @@ public class CourseRepository(AppDbContext context)
         return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task<List<CourseUserCountDto>?> GetAllUserCountsByCourseId(int courseId)
+    public async Task<List<AttendanceStudentCountDto>?> GetAllUserCountsByCourseId(Guid courseId)
     {
         var courseExists = await context.Courses.AnyAsync(c => c.Id == courseId);
         if (!courseExists)
@@ -63,17 +64,17 @@ public class CourseRepository(AppDbContext context)
             .Where(ca => ca.CourseId == courseId)
             .ToListAsync();
 
-        var result = new List<CourseUserCountDto>();
+        var result = new List<AttendanceStudentCountDto>();
 
         foreach (var attendance in attendances)
         {
             var count = await context.AttendanceChecks
-                .CountAsync(ac => ac.CourseAttendanceId == attendance.Id);
+                .CountAsync(ac => ac.AttendanceIdentifier == attendance.Identifier);
 
-            result.Add(new CourseUserCountDto
+            result.Add(new AttendanceStudentCountDto
             {
                 AttendanceDate = attendance.StartTime,
-                UserCount = count
+                StudentCount = count
             });
         }
 
@@ -85,12 +86,12 @@ public class CourseRepository(AppDbContext context)
         return await context.Courses.AnyAsync(c => c.CourseCode == courseCode);
     }
     
-    public async Task<bool> CourseAvailabilityCheckById(int id)
+    public async Task<bool> CourseAvailabilityCheckById(Guid id)
     {
         return await context.Courses.AnyAsync(c => c.Id == id);
     }
     
-    public async Task<CourseEntity?> GetCourseById(int courseId)
+    public async Task<CourseEntity?> GetCourseById(Guid courseId)
     {
         return await context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
     }
@@ -105,13 +106,18 @@ public class CourseRepository(AppDbContext context)
         return await context.Courses.FirstOrDefaultAsync(c => c.CourseCode == courseCode);
     }
 
-    public async Task<int> CourseAccessibilityCheck(int courseId, int userId)
+    public async Task<int> CourseAccessibilityCheck(Guid courseId, Guid userId)
     {
         return await context.CourseTeachers
             .CountAsync(ct => ct.TeacherId == userId && ct.CourseId == courseId);
     }
+    public async Task<List<CourseStatusEntity>?> GetAllCourseStatuses()
+    {
+        return await context.CourseStatuses.ToListAsync();
+    }
+    
 
-    public async Task<bool> CourseOnlyTeacherCheck(int userId, int courseId)
+    public async Task<bool> CourseOnlyTeacherCheck(Guid userId, Guid courseId)
     {
         var courseTeachers = await context.CourseTeachers.Where(c => c.CourseId == courseId).ToListAsync();
 

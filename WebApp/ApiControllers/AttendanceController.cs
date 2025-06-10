@@ -18,7 +18,7 @@ public class AttendanceController(
 {
     [Authorize]
     [HttpGet("Id/{id}")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendanceById(int id)
+    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendanceById(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             
@@ -59,7 +59,7 @@ public class AttendanceController(
     
     [Authorize(Roles="Teacher")]
     [HttpGet("StudentCount/AttendanceId/{id}")]
-    public async Task<ActionResult<int>> GetAttendanceStudentCount(int id)
+    public async Task<ActionResult<int>> GetAttendanceStudentCount(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         
@@ -71,7 +71,7 @@ public class AttendanceController(
             return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
         }
         
-        var studentCount = await attendanceManagementService.GetStudentsCountByAttendanceIdAsync(id);
+        var studentCount = await attendanceManagementService.GetStudentsCountByAttendanceIdAsync(attendance.Identifier);
        
         logger.LogInformation($"Students count for attendance with ID {id} successfully fetched");
         return Ok(studentCount);
@@ -155,7 +155,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("AttendanceChecks/AttendanceId/{attendanceId}")]
-    public async Task<ActionResult<IEnumerable<AttendanceCheckEntity>>> GetAttendanceChecksByAttendanceId(int attendanceId)
+    public async Task<ActionResult<IEnumerable<AttendanceCheckEntity>>> GetAttendanceChecksByAttendanceId(Guid attendanceId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
@@ -167,7 +167,7 @@ public class AttendanceController(
         }
         
         var attendanceChecks = 
-            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(attendanceId);
+            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier);
         if (attendanceChecks == null)
         {
             return Ok(new {message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks"});
@@ -208,21 +208,21 @@ public class AttendanceController(
         {
             StudentCode = model.StudentCode,
             FullName = model.FullName,
-            CourseAttendanceId = model.CourseAttendanceId,
+            AttendanceIdentifier = model.CourseAttendanceIdentifier,
             CreatedBy = model.Creator,
             UpdatedBy = model.Creator,
         };
 
-        if (model.WorkplaceId != null)
+        if (model.WorkplaceIdentifier != null)
         {
-            int workplaceId = model.WorkplaceId.Value;
-            if(!await attendanceManagementService.DoesWorkplaceExist(workplaceId))
+            int workplaceIdentifier = model.WorkplaceIdentifier.Value;
+            if(!await attendanceManagementService.DoesWorkplaceExist(workplaceIdentifier))
             {
                 return NotFound(new {message = "Workplace was not found ", messageCode = "workplace-not-found"});
             }
         }
 
-        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceId ?? null))
+        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceIdentifier ?? null))
         {
             return BadRequest(new {message = "Attendance check already exists", 
                 messageCode = "attendance-check-already-exists" });
@@ -306,7 +306,7 @@ public class AttendanceController(
             UpdatedBy = model.Creator
         };
 
-        var attendanceId = model.Id ?? 0;
+        var attendanceId = model.Id.Value;
         if (!await attendanceManagementService.EditAttendanceAsync(attendanceId, newAttendance))
         {
             return BadRequest(new { message = "Attendance does not exist", messageCode = "attendance-does-not-exist" });
@@ -318,7 +318,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteAttendance(int id)
+    public async Task<ActionResult<CourseEntity>> DeleteAttendance(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
@@ -339,7 +339,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("AttendanceCheck/Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(int id)
+    public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)

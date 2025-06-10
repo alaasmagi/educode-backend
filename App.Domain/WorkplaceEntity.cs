@@ -6,6 +6,8 @@ namespace App.Domain;
 public class WorkplaceEntity : BaseEntity
 {
     [Required]
+    public int Identifier { get; set; }
+    [Required]
     [MaxLength(128)]
     public string ClassRoom { get; set; } = default!;
     [Required]

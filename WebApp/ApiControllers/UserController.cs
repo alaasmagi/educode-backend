@@ -54,7 +54,7 @@ namespace WebApp.ApiControllers
         
         [Authorize]
         [HttpGet("Id/{id}")]
-        public async Task<IActionResult> GetUserEntity(int id)
+        public async Task<IActionResult> GetUserEntity(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByIdAsync(id);

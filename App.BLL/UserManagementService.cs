@@ -21,7 +21,7 @@ public class UserManagementService : IUserManagementService
         _logger = logger;
     }
     
-    public async Task<UserEntity?> AuthenticateUserAsync(int userId, string password)
+    public async Task<UserEntity?> AuthenticateUserAsync(Guid userId, string password)
     {
         var userAuthData = await _userRepository.GetUserAuthDataByUserId(userId);
 
@@ -142,7 +142,7 @@ public class UserManagementService : IUserManagementService
         return result;
     }
     
-    public async Task<UserEntity?> GetUserByIdAsync(int id)
+    public async Task<UserEntity?> GetUserByIdAsync(Guid id)
     {
         var result = await _userRepository.GetUserByIdAsync(id);
 
