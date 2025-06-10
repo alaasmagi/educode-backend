@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("public");
         // UserEntity relationship
         modelBuilder.Entity<UserEntity>()
             .ToTable("Users")
@@ -60,13 +61,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // CourseAttendance relationship
         modelBuilder.Entity<CourseAttendanceEntity>()
             .ToTable("CourseAttendances")
-            .HasQueryFilter(c => c.Deleted == false)
-            .HasMany(c => c.AttendanceChecks)
-            .WithOne()
-            .HasForeignKey(c => c.AttendanceIdentifier);
+            .HasQueryFilter(c => c.Deleted == false);
+        modelBuilder.Entity<CourseAttendanceEntity>()
+            .HasAlternateKey(c => c.Identifier);
         modelBuilder.Entity<CourseAttendanceEntity>()
             .HasIndex(c => c.Identifier)
             .IsUnique();
+        modelBuilder.Entity<AttendanceCheckEntity>()
+            .HasOne(a => a.CourseAttendance)
+            .WithMany(c => c.AttendanceChecks)
+            .HasForeignKey(a => a.AttendanceIdentifier)
+            .HasPrincipalKey(c => c.Identifier);
         modelBuilder.Entity<CourseAttendanceEntity>()
             .HasOne(c => c.Course)
             .WithMany()
@@ -75,7 +80,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(c => c.AttendanceType)
             .WithMany()
             .HasForeignKey(c => c.AttendanceTypeId);
-        
+
         // AttendanceCheck relationship
         modelBuilder.Entity<AttendanceCheckEntity>()
             .ToTable("AttendanceChecks")
@@ -143,12 +148,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // Workplace relationship
         modelBuilder.Entity<WorkplaceEntity>()
             .ToTable("Workplaces")
-            .HasQueryFilter(c => c.Deleted == false);
-        modelBuilder.Entity<WorkplaceEntity>()
             .HasIndex(w => w.Identifier)
             .IsUnique();
         modelBuilder.Entity<WorkplaceEntity>()
-            .HasIndex(w => w.ComputerCode)
-            .IsUnique();
+            .HasAlternateKey(w => w.Identifier);
+        modelBuilder.Entity<AttendanceCheckEntity>()
+            .HasOne(a => a.Workplace)
+            .WithMany()
+            .HasForeignKey(a => a.WorkplaceIdentifier)
+            .HasPrincipalKey(w => w.Identifier);
     }
 }

@@ -14,13 +14,13 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 DotNetEnv.Env.Load("../.env");
-var host = Environment.GetEnvironmentVariable("HOST");
+/*var host = Environment.GetEnvironmentVariable("HOST");
 var port = Environment.GetEnvironmentVariable("PORT");
 var user = Environment.GetEnvironmentVariable("USER");
 var db = Environment.GetEnvironmentVariable("DB");
-var dbKey = Environment.GetEnvironmentVariable("DBKEY");
+var dbKey = Environment.GetEnvironmentVariable("DBKEY");*/
 
-var connectionString = $"Server={host};Port={port};Database={db};User={user};Password={dbKey};Pooling=true;Minimum Pool Size=0;Maximum Pool Size=100";
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
 
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
@@ -28,14 +28,12 @@ var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
 
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
 
-
 builder.Services.AddDbContextPool<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-        mysqlOptions =>
-        {
-            mysqlOptions.CommandTimeout(60);
-            mysqlOptions.EnableRetryOnFailure(3);
-        }), poolSize: 500);
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.CommandTimeout(60);
+        npgsqlOptions.EnableRetryOnFailure(3);
+    }), poolSize: 500);
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
