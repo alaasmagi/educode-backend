@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250610213720_DbMigration_v8")]
+    [Migration("20250611040100_DbMigration_v8")]
     partial class DbMigration_v8
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace App.DAL.EF.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("public")
+                .HasDefaultSchema("educode")
                 .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -75,7 +75,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("StudentCode", "AttendanceIdentifier")
                         .IsUnique();
 
-                    b.ToTable("AttendanceChecks", "public");
+                    b.ToTable("AttendanceChecks", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.AttendanceTypeEntity", b =>
@@ -113,7 +113,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("AttendanceType")
                         .IsUnique();
 
-                    b.ToTable("AttendanceTypes", "public");
+                    b.ToTable("AttendanceTypes", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>
@@ -165,7 +165,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("Identifier")
                         .IsUnique();
 
-                    b.ToTable("CourseAttendances", "public");
+                    b.ToTable("CourseAttendances", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.CourseEntity", b =>
@@ -213,7 +213,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("CourseStatusId");
 
-                    b.ToTable("Courses", "public");
+                    b.ToTable("Courses", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.CourseStatusEntity", b =>
@@ -251,7 +251,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("CourseStatus")
                         .IsUnique();
 
-                    b.ToTable("CourseStatuses", "public");
+                    b.ToTable("CourseStatuses", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.CourseTeacherEntity", b =>
@@ -291,7 +291,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("CourseTeachers", "public");
+                    b.ToTable("CourseTeachers", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.RefreshTokenEntity", b =>
@@ -358,7 +358,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", "public");
+                    b.ToTable("RefreshTokens", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.UserAuthEntity", b =>
@@ -399,7 +399,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserAuthData", "public");
+                    b.ToTable("UserAuthData", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.UserEntity", b =>
@@ -456,7 +456,7 @@ namespace App.DAL.EF.Migrations
 
                     b.HasIndex("UserTypeId");
 
-                    b.ToTable("Users", "public");
+                    b.ToTable("Users", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.UserTypeEntity", b =>
@@ -494,7 +494,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("UserType")
                         .IsUnique();
 
-                    b.ToTable("UserTypes", "public");
+                    b.ToTable("UserTypes", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.WorkplaceEntity", b =>
@@ -540,7 +540,7 @@ namespace App.DAL.EF.Migrations
                     b.HasIndex("Identifier")
                         .IsUnique();
 
-                    b.ToTable("Workplaces", "public");
+                    b.ToTable("Workplaces", "educode");
                 });
 
             modelBuilder.Entity("App.Domain.AttendanceCheckEntity", b =>

@@ -17,7 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("public");
+        modelBuilder.HasDefaultSchema("educode");
         // UserEntity relationship
         modelBuilder.Entity<UserEntity>()
             .ToTable("Users")

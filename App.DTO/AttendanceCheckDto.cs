@@ -9,5 +9,14 @@ public class AttendanceCheckDto(AttendanceCheckEntity attendanceCheck)
     public string FullName { get; set; } = attendanceCheck.FullName;
     public int AttendanceIdentifier { get; set; } = attendanceCheck.AttendanceIdentifier;
     public int? WorkplaceIdentifier { get; set; } = attendanceCheck.WorkplaceIdentifier;
+    
+    public static List<AttendanceCheckDto> ToDtoList(List<AttendanceCheckEntity>? entities)
+    {
+        if (entities == null)
+        {
+            return new List<AttendanceCheckDto>();
+        }
+        return entities.Select(e => new AttendanceCheckDto(e)).ToList();
+    }
 }
 

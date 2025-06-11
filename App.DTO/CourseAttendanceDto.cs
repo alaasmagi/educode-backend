@@ -12,4 +12,14 @@ public class CourseAttendanceDto(CourseAttendanceEntity courseAttendance)
     public string? AttendanceType { get; set; } = courseAttendance.AttendanceType?.AttendanceType;
     public DateTime StartTime { get; set; } = courseAttendance.StartTime;
     public DateTime EndTime { get; set; } = courseAttendance.EndTime;
+    
+    
+    public static List<CourseAttendanceDto> ToDtoList(List<CourseAttendanceEntity>? entities)
+    {
+        if (entities == null)
+        {
+            return new List<CourseAttendanceDto>();
+        }
+        return entities.Select(e => new CourseAttendanceDto(e)).ToList();
+    }
 }

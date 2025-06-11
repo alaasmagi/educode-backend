@@ -9,4 +9,13 @@ public class CourseDto(CourseEntity course)
     public string CourseName = course.CourseName;
     public Guid? CourseStatusId { get; set; } = course.CourseStatusId;
     public string? CourseStatus { get; set; } = course.CourseStatus?.CourseStatus;
+    
+    public static List<CourseDto> ToDtoList(List<CourseEntity>? entities)
+    {
+        if (entities == null)
+        {
+            return new List<CourseDto>();
+        }
+        return entities.Select(e => new CourseDto(e)).ToList();
+    }
 }

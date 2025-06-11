@@ -12,11 +12,11 @@ namespace App.DAL.EF.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "public");
+                name: "educode");
 
             migrationBuilder.CreateTable(
                 name: "AttendanceTypes",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -34,7 +34,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "CourseStatuses",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -52,7 +52,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserTypes",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -70,7 +70,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Workplaces",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -91,7 +91,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Courses",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -110,7 +110,7 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_Courses_CourseStatuses_CourseStatusId",
                         column: x => x.CourseStatusId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "CourseStatuses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -118,7 +118,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -138,7 +138,7 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_Users_UserTypes_UserTypeId",
                         column: x => x.UserTypeId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "UserTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -146,7 +146,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "CourseAttendances",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -168,14 +168,14 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_CourseAttendances_AttendanceTypes_AttendanceTypeId",
                         column: x => x.AttendanceTypeId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "AttendanceTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CourseAttendances_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -183,7 +183,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "CourseTeachers",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -201,14 +201,14 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_CourseTeachers_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CourseTeachers_Users_TeacherId",
                         column: x => x.TeacherId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -216,7 +216,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RefreshTokens",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -241,7 +241,7 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_RefreshTokens_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -249,7 +249,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserAuthData",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -267,7 +267,7 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_UserAuthData_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -275,7 +275,7 @@ namespace App.DAL.EF.Migrations
 
             migrationBuilder.CreateTable(
                 name: "AttendanceChecks",
-                schema: "public",
+                schema: "educode",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -295,151 +295,151 @@ namespace App.DAL.EF.Migrations
                     table.ForeignKey(
                         name: "FK_AttendanceChecks_CourseAttendances_AttendanceIdentifier",
                         column: x => x.AttendanceIdentifier,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "CourseAttendances",
                         principalColumn: "Identifier",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AttendanceChecks_Workplaces_WorkplaceIdentifier",
                         column: x => x.WorkplaceIdentifier,
-                        principalSchema: "public",
+                        principalSchema: "educode",
                         principalTable: "Workplaces",
                         principalColumn: "Identifier");
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceChecks_AttendanceIdentifier",
-                schema: "public",
+                schema: "educode",
                 table: "AttendanceChecks",
                 column: "AttendanceIdentifier");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceChecks_StudentCode_AttendanceIdentifier",
-                schema: "public",
+                schema: "educode",
                 table: "AttendanceChecks",
                 columns: new[] { "StudentCode", "AttendanceIdentifier" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceChecks_WorkplaceIdentifier",
-                schema: "public",
+                schema: "educode",
                 table: "AttendanceChecks",
                 column: "WorkplaceIdentifier");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AttendanceTypes_AttendanceType",
-                schema: "public",
+                schema: "educode",
                 table: "AttendanceTypes",
                 column: "AttendanceType",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseAttendances_AttendanceTypeId",
-                schema: "public",
+                schema: "educode",
                 table: "CourseAttendances",
                 column: "AttendanceTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseAttendances_CourseId",
-                schema: "public",
+                schema: "educode",
                 table: "CourseAttendances",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseAttendances_Identifier",
-                schema: "public",
+                schema: "educode",
                 table: "CourseAttendances",
                 column: "Identifier",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_CourseCode",
-                schema: "public",
+                schema: "educode",
                 table: "Courses",
                 column: "CourseCode",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_CourseStatusId",
-                schema: "public",
+                schema: "educode",
                 table: "Courses",
                 column: "CourseStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseStatuses_CourseStatus",
-                schema: "public",
+                schema: "educode",
                 table: "CourseStatuses",
                 column: "CourseStatus",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseTeachers_CourseId",
-                schema: "public",
+                schema: "educode",
                 table: "CourseTeachers",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseTeachers_TeacherId",
-                schema: "public",
+                schema: "educode",
                 table: "CourseTeachers",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_Token",
-                schema: "public",
+                schema: "educode",
                 table: "RefreshTokens",
                 column: "Token",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserId",
-                schema: "public",
+                schema: "educode",
                 table: "RefreshTokens",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAuthData_UserId",
-                schema: "public",
+                schema: "educode",
                 table: "UserAuthData",
                 column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_FullName",
-                schema: "public",
+                schema: "educode",
                 table: "Users",
                 column: "FullName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_StudentCode",
-                schema: "public",
+                schema: "educode",
                 table: "Users",
                 column: "StudentCode",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_UniId",
-                schema: "public",
+                schema: "educode",
                 table: "Users",
                 column: "UniId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_UserTypeId",
-                schema: "public",
+                schema: "educode",
                 table: "Users",
                 column: "UserTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTypes_UserType",
-                schema: "public",
+                schema: "educode",
                 table: "UserTypes",
                 column: "UserType",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Workplaces_Identifier",
-                schema: "public",
+                schema: "educode",
                 table: "Workplaces",
                 column: "Identifier",
                 unique: true);
@@ -450,47 +450,47 @@ namespace App.DAL.EF.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AttendanceChecks",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "CourseTeachers",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "UserAuthData",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "CourseAttendances",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "Workplaces",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "Users",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "AttendanceTypes",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "Courses",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "UserTypes",
-                schema: "public");
+                schema: "educode");
 
             migrationBuilder.DropTable(
                 name: "CourseStatuses",
-                schema: "public");
+                schema: "educode");
         }
     }
 }
