@@ -19,7 +19,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("Id/{id}")]
-    public async Task<ActionResult<CourseEntity>> GetCourseDetails(Guid id)
+    public async Task<ActionResult<CourseDto>> GetCourseDetails(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
@@ -30,13 +30,15 @@ public class CourseController(
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
+        var result = new CourseDto(courseEntity);
+        
         logger.LogInformation($"Successfully fetched course by course ID {id}");
-        return Ok(courseEntity);
+        return Ok(result);
     }
     
     [Authorize]
     [HttpGet("AttendanceId/{id}")]
-    public async Task<ActionResult<CourseEntity>> GetCourseByAttendanceId(Guid id)
+    public async Task<ActionResult<CourseDto>> GetCourseByAttendanceId(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
@@ -46,29 +48,33 @@ public class CourseController(
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
+        var result = new CourseDto(courseEntity);
+        
         logger.LogInformation($"Successfully fetched course by attendance with ID {id}");
-        return Ok(courseEntity);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("Statuses")]
-    public ActionResult<IEnumerable<AttendanceStudentCountDto>> GetAllCourseStatuses()
+    public async Task<IActionResult> GetAllCourseStatuses()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var courseStatuses = courseManagementService.GetAllCourseStatuses();
+        var courseStatuses = await courseManagementService.GetAllCourseStatuses();
 
         if (courseStatuses == null)
         {
             return NotFound(new {message = "Course statuses not found", messageCode = "course-statuses-not-found"});
         }
         
+        var result = CourseStatusDto.ToDtoList(courseStatuses);
+        
         logger.LogInformation($"All course statuses fetched successfully");
-        return Ok(courseStatuses);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("UniId/{uniId}")]
-    public async Task<ActionResult<IEnumerable<CourseEntity>>> GetAllCoursesByUser(string uniId)
+    public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(string uniId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
@@ -77,12 +83,14 @@ public class CourseController(
             return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
-        var result = await courseManagementService.GetCoursesByUserAsync(user.Id);
+        var courses = await courseManagementService.GetCoursesByUserAsync(user.Id);
         
-        if (result == null)
+        if (courses == null)
         {
             return Ok(new {message = "No courses found", messageCode = "courses-not-found"});
         }
+        
+        var result = CourseDto.ToDtoList(courses);
         
         logger.LogInformation($"All courses for user with UNI-ID {uniId}");
         return Ok(result);
@@ -104,7 +112,6 @@ public class CourseController(
         if (result == null)
         {
             return NotFound(new {message = "No student counts found", messageCode = "student-counts-not-found"});
-
         }
         
         logger.LogInformation($"All student counts for course with ID {id}");
@@ -113,7 +120,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpPost("Add")]
-    public async Task<ActionResult<CourseEntity>> AddCourse([FromBody] CourseModel model)
+    public async Task<ActionResult> AddCourse([FromBody] CourseModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
@@ -149,7 +156,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpPatch("Edit")]
-    public async Task<ActionResult<CourseEntity>> EditCourse([FromBody] CourseModel model)
+    public async Task<ActionResult> EditCourse([FromBody] CourseModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid || model.Id == null)
@@ -179,7 +186,7 @@ public class CourseController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteCourse(Guid id)
+    public async Task<ActionResult> DeleteCourse(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)

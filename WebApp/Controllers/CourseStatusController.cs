@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
@@ -6,11 +11,10 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserTypeController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class CourseStatusController(AppDbContext context, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
-
-        // GET: UserType
+        // GET: CourseStatus
         public async Task<IActionResult> Index()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -19,10 +23,10 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await context.UserTypes.IgnoreQueryFilters().ToListAsync());
+            return View(await context.CourseStatuses.IgnoreQueryFilters().ToListAsync());
         }
 
-        // GET: UserType/Details/5
+        // GET: CourseStatus/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -36,17 +40,17 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes
+            var courseStatusEntity = await context.CourseStatuses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userTypeEntity == null)
+            if (courseStatusEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userTypeEntity);
+            return View(courseStatusEntity);
         }
 
-        // GET: UserType/Create
+        // GET: CourseStatus/Create
         public async Task<IActionResult> Create()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -58,12 +62,12 @@ namespace WebApp.Controllers
             return View();
         }
 
-        // POST: UserType/Create
+        // POST: CourseStatus/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Create([Bind("CourseStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")] CourseStatusEntity courseStatusEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -73,16 +77,17 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                userTypeEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                context.Add(userTypeEntity);
+                courseStatusEntity.Id = Guid.NewGuid();
+                courseStatusEntity.CreatedAt = DateTime.Now.ToUniversalTime();
+                courseStatusEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                context.Add(courseStatusEntity);
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(userTypeEntity);
+            return View(courseStatusEntity);
         }
 
-        // GET: UserType/Edit/5
+        // GET: CourseStatus/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -96,20 +101,20 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes.FindAsync(id);
-            if (userTypeEntity == null)
+            var courseStatusEntity = await context.CourseStatuses.FindAsync(id);
+            if (courseStatusEntity == null)
             {
                 return NotFound();
             }
-            return View(userTypeEntity);
+            return View(courseStatusEntity);
         }
 
-        // POST: UserType/Edit/5
+        // POST: CourseStatus/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CourseStatus,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")] CourseStatusEntity courseStatusEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -117,7 +122,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            if (id != userTypeEntity.Id)
+            if (id != courseStatusEntity.Id)
             {
                 return NotFound();
             }
@@ -126,13 +131,13 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    context.Update(userTypeEntity);
+                    courseStatusEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                    context.Update(courseStatusEntity);
                     await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserTypeEntityExists(userTypeEntity.Id))
+                    if (!CourseStatusEntityExists(courseStatusEntity.Id))
                     {
                         return NotFound();
                     }
@@ -143,10 +148,10 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(userTypeEntity);
+            return View(courseStatusEntity);
         }
 
-        // GET: UserType/Delete/5
+        // GET: CourseStatus/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -160,17 +165,17 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes
+            var courseStatusEntity = await context.CourseStatuses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userTypeEntity == null)
+            if (courseStatusEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userTypeEntity);
+            return View(courseStatusEntity);
         }
 
-        // POST: UserType/Delete/5
+        // POST: CourseStatus/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -181,19 +186,19 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userTypeEntity = await context.UserTypes.FindAsync(id);
-            if (userTypeEntity != null)
+            var courseStatusEntity = await context.CourseStatuses.FindAsync(id);
+            if (courseStatusEntity != null)
             {
-                context.UserTypes.Remove(userTypeEntity);
+                context.CourseStatuses.Remove(courseStatusEntity);
             }
 
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserTypeEntityExists(Guid id)
+        private bool CourseStatusEntityExists(Guid id)
         {
-            return context.UserTypes.Any(e => e.Id == id);
+            return context.CourseStatuses.Any(e => e.Id == id);
         }
     }
 }

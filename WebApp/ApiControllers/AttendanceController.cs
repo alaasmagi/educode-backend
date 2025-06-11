@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using App.Domain;
+using App.DTO;
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ public class AttendanceController(
 {
     [Authorize]
     [HttpGet("Id/{id}")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendanceById(Guid id)
+    public async Task<ActionResult<CourseAttendanceDto>> GetAttendanceById(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             
@@ -29,14 +30,16 @@ public class AttendanceController(
         {
             return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
         }
+
+        var result = new CourseAttendanceDto(attendanceEntity);
         
         logger.LogInformation($"Attendance with ID {id} successfully fetched");
-        return attendanceEntity;
+        return result;
     }
 
     [Authorize]
     [HttpGet("CurrentAttendance/UniId/{uniId}")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetCurrenAttendance(string uniId)
+    public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance(string uniId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var user = await userManagementService.GetUserByUniIdAsync(uniId);
@@ -53,8 +56,10 @@ public class AttendanceController(
             return Ok(new {message = "Current attendance not found", messageCode = "current-attendance-not-found"});
         }
         
+        var result = new CourseAttendanceDto(courseAttendanceEntity);
+        
         logger.LogInformation($"Current attendance for UNI-ID {uniId} successfully fetched");
-        return Ok(courseAttendanceEntity);
+        return Ok(result);
     }
     
     [Authorize(Roles="Teacher")]
@@ -80,7 +85,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("CourseCode/{courseCode}")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetAttendancesByCourseCode(string courseCode)
+    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseCode(string courseCode)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         
@@ -100,13 +105,15 @@ public class AttendanceController(
             return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
         }
         
+        var result = CourseAttendanceDto.ToDtoList(attendances);
+        
         logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
-        return Ok(attendances);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("CourseName/{courseName}")]
-    public async Task<ActionResult<IEnumerable<CourseAttendanceEntity>>> GetAttendancesByCourseName(string courseName)
+    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseName(string courseName)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
@@ -126,13 +133,15 @@ public class AttendanceController(
             return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
         }
         
+        var result = CourseAttendanceDto.ToDtoList(attendances);
+        
         logger.LogInformation($"Attendances for course {courseName} successfully fetched");
-        return Ok(attendances);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("RecentAttendance/UniId/{uniId}")]
-    public async Task<ActionResult<CourseAttendanceEntity>> GetMostRecentAttendance(string uniId)
+    public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance(string uniId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var user= await userManagementService.GetUserByUniIdAsync(uniId);
@@ -148,14 +157,16 @@ public class AttendanceController(
         {
             return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
         }
+
+        var result = new CourseAttendanceDto(attendance);
         
         logger.LogInformation($"Most recent attendance for user with UNI-ID {uniId} successfully fetched");
-        return Ok(attendance);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("AttendanceChecks/AttendanceId/{attendanceId}")]
-    public async Task<ActionResult<IEnumerable<AttendanceCheckEntity>>> GetAttendanceChecksByAttendanceId(Guid attendanceId)
+    public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid attendanceId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
@@ -173,13 +184,15 @@ public class AttendanceController(
             return Ok(new {message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks"});
         }
         
+        var result = AttendanceCheckDto.ToDtoList(attendanceChecks);
+        
         logger.LogInformation($"Attendance checks for attendance with ID {attendanceId} successfully fetched");
-        return Ok(attendanceChecks);
+        return Ok(result);
     }
     
     [Authorize(Roles = "Teacher")]
     [HttpGet("AttendanceTypes")]
-    public async Task<ActionResult<IEnumerable<AttendanceTypeEntity>>> GetAllAttendanceTypes()
+    public async Task<ActionResult<IEnumerable<AttendanceTypeDto>>> GetAllAttendanceTypes()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var attendanceTypes = await attendanceManagementService.GetAttendanceTypesAsync();
@@ -189,8 +202,10 @@ public class AttendanceController(
             return NotFound(new {message = "Attendance types not found", messageCode = "attendance-types-not-found"});
         }
         
+        var result = AttendanceTypeDto.ToDtoList(attendanceTypes);
+        
         logger.LogInformation($"All attendance types successfully fetched");
-        return Ok(attendanceTypes);
+        return Ok(result);
     }
     
     [Authorize]
@@ -234,7 +249,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpPost("Add")]
-    public async Task<ActionResult<CourseAttendanceEntity>> AddCourseAttendance([FromBody] AttendanceModel model)
+    public async Task<ActionResult> AddCourseAttendance([FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
@@ -274,7 +289,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpPatch("Edit")]
-    public async Task<ActionResult<CourseEntity>> EditAttendance([FromBody] AttendanceModel model)
+    public async Task<ActionResult> EditAttendance([FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid || model.Id == null)
@@ -318,7 +333,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteAttendance(Guid id)
+    public async Task<ActionResult> DeleteAttendance(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)
@@ -339,7 +354,7 @@ public class AttendanceController(
     
     [Authorize(Roles = "Teacher")]
     [HttpDelete("AttendanceCheck/Delete/{id}")]
-    public async Task<ActionResult<CourseEntity>> DeleteAttendanceCheck(Guid id)
+    public async Task<ActionResult> DeleteAttendanceCheck(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid)

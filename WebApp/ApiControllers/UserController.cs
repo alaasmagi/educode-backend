@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using App.Domain;
+using App.DTO;
 using Contracts;
 
 namespace WebApp.ApiControllers
@@ -22,7 +23,7 @@ namespace WebApp.ApiControllers
         
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserEntity>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
            var users = await userManagementService.GetAllUsersAsync();
@@ -32,13 +33,15 @@ namespace WebApp.ApiControllers
                return NotFound(new {message = "Users not found", messageCode = "users-not-found"});
            }
            
+           var result = UserDto.ToDtoList(users);
+           
            logger.LogInformation($"All users fetched successfully");
-           return Ok(users);
+           return Ok(result);
         }
         
         [Authorize]
         [HttpGet("UniId/{uniId}")]
-        public async Task<IActionResult> GetUserEntityByUniId(string uniId)
+        public async Task<ActionResult<UserDto>> GetUserEntityByUniId(string uniId)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
@@ -48,13 +51,15 @@ namespace WebApp.ApiControllers
                 return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
 
+            var result = new UserDto(userEntity);
+            
             logger.LogInformation($"User with UNI-ID {uniId} fetched successfully");
-            return Ok(userEntity);
+            return Ok(result);
         }
         
         [Authorize]
         [HttpGet("Id/{id}")]
-        public async Task<IActionResult> GetUserEntity(Guid id)
+        public async Task<ActionResult<UserDto>> GetUserEntity(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userEntity = await userManagementService.GetUserByIdAsync(id);
@@ -69,9 +74,11 @@ namespace WebApp.ApiControllers
             {
                 return Unauthorized(new {message = "User not accessible", messageCode = "user-not-accessible"});
             }
+            
+            var result = new UserDto(userEntity);
 
             logger.LogInformation($"User with ID {id} fetched successfully");
-            return Ok(userEntity);
+            return Ok(result);
         }
 
         [Authorize]

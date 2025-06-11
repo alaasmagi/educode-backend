@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
@@ -6,11 +11,10 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserTypeController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class RefreshTokenController(AppDbContext context, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
-
-        // GET: UserType
+        // GET: RefreshToken
         public async Task<IActionResult> Index()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -19,10 +23,11 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await context.UserTypes.IgnoreQueryFilters().ToListAsync());
+            var appDbContext = context.RefreshTokens.Include(r => r.User);
+            return View(await appDbContext.IgnoreQueryFilters().ToListAsync());
         }
 
-        // GET: UserType/Details/5
+        // GET: RefreshToken/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -36,17 +41,18 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes
+            var refreshTokenEntity = await context.RefreshTokens
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userTypeEntity == null)
+            if (refreshTokenEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userTypeEntity);
+            return View(refreshTokenEntity);
         }
 
-        // GET: UserType/Create
+        // GET: RefreshToken/Create
         public async Task<IActionResult> Create()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -55,15 +61,16 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId");
             return View();
         }
 
-        // POST: UserType/Create
+        // POST: RefreshToken/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Create([Bind("UserId,Token,ExpirationTime,IsUsed,IsRevoked,ReplacedByTokenId,RevokedAt,RevokedByIp,CreatedByIp,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")] RefreshTokenEntity refreshTokenEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -73,16 +80,22 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                userTypeEntity.CreatedAt = DateTime.Now.ToUniversalTime();
-                context.Add(userTypeEntity);
+                refreshTokenEntity.Id = Guid.NewGuid();
+                refreshTokenEntity.ExpirationTime = DateTime.SpecifyKind(
+                    refreshTokenEntity.ExpirationTime,
+                    DateTimeKind.Local
+                ).ToUniversalTime();
+                refreshTokenEntity.CreatedAt = DateTime.Now.ToUniversalTime();
+                refreshTokenEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                context.Add(refreshTokenEntity);
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(userTypeEntity);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", refreshTokenEntity.UserId);
+            return View(refreshTokenEntity);
         }
 
-        // GET: UserType/Edit/5
+        // GET: RefreshToken/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -96,20 +109,21 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes.FindAsync(id);
-            if (userTypeEntity == null)
+            var refreshTokenEntity = await context.RefreshTokens.FindAsync(id);
+            if (refreshTokenEntity == null)
             {
                 return NotFound();
             }
-            return View(userTypeEntity);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", refreshTokenEntity.UserId);
+            return View(refreshTokenEntity);
         }
 
-        // POST: UserType/Edit/5
+        // POST: RefreshToken/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("UserType,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("UserId,Token,ExpirationTime,IsUsed,IsRevoked,ReplacedByTokenId,RevokedAt,RevokedByIp,CreatedByIp,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")] RefreshTokenEntity refreshTokenEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -117,7 +131,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            if (id != userTypeEntity.Id)
+            if (id != refreshTokenEntity.Id)
             {
                 return NotFound();
             }
@@ -126,13 +140,17 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    userTypeEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    context.Update(userTypeEntity);
+                    refreshTokenEntity.ExpirationTime = DateTime.SpecifyKind(
+                        refreshTokenEntity.ExpirationTime,
+                        DateTimeKind.Local
+                    ).ToUniversalTime();
+                    refreshTokenEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                    context.Update(refreshTokenEntity);
                     await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserTypeEntityExists(userTypeEntity.Id))
+                    if (!RefreshTokenEntityExists(refreshTokenEntity.Id))
                     {
                         return NotFound();
                     }
@@ -143,10 +161,11 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(userTypeEntity);
+            ViewData["UserId"] = new SelectList(context.Users, "Id", "UniId", refreshTokenEntity.UserId);
+            return View(refreshTokenEntity);
         }
 
-        // GET: UserType/Delete/5
+        // GET: RefreshToken/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -160,17 +179,18 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userTypeEntity = await context.UserTypes
+            var refreshTokenEntity = await context.RefreshTokens
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (userTypeEntity == null)
+            if (refreshTokenEntity == null)
             {
                 return NotFound();
             }
 
-            return View(userTypeEntity);
+            return View(refreshTokenEntity);
         }
 
-        // POST: UserType/Delete/5
+        // POST: RefreshToken/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -181,19 +201,19 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userTypeEntity = await context.UserTypes.FindAsync(id);
-            if (userTypeEntity != null)
+            var refreshTokenEntity = await context.RefreshTokens.FindAsync(id);
+            if (refreshTokenEntity != null)
             {
-                context.UserTypes.Remove(userTypeEntity);
+                context.RefreshTokens.Remove(refreshTokenEntity);
             }
 
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserTypeEntityExists(Guid id)
+        private bool RefreshTokenEntityExists(Guid id)
         {
-            return context.UserTypes.Any(e => e.Id == id);
+            return context.RefreshTokens.Any(e => e.Id == id);
         }
     }
 }
