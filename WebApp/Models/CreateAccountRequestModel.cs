@@ -1,6 +1,6 @@
 ﻿namespace WebApp.Models;
 
-public class CreateAccountModel
+public class CreateAccountRequestModel
 {
     public required string Fullname { get; set; }
     public required string UniId { get; set; }

@@ -18,17 +18,17 @@ public class AuthController(
 {
 
     [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    public async Task<IActionResult> Login([FromBody] LoginRequestModel requestModel)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
+        var user = await userManagementService.GetUserByUniIdAsync(requestModel.UniId);
 
         if (user == null)
         {
             return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
-        var userAuthData = await userManagementService.AuthenticateUserAsync(user.Id, model.Password);
+        var userAuthData = await userManagementService.AuthenticateUserAsync(user.Id, requestModel.Password);
         if (userAuthData == null || !ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
@@ -44,12 +44,46 @@ public class AuthController(
             MaxAge = TimeSpan.FromDays(60)
         });
         
-        logger.LogInformation($"User with UNI-ID {model.UniId} was logged in successfully");
+        logger.LogInformation($"User with ID {user.Id} was logged in successfully");
         return Ok(new { Token = token });
     }
+    
+    [HttpPost("Refresh")]
+    public async Task<IActionResult> Refresh([FromBody] CreateAccountRequestModel requestModel)
+    {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+        var userType = await userManagementService.GetUserTypeAsync(requestModel.UserRole);
+        var newUser = new UserEntity();
+        var newUserAuth = new UserAuthEntity();
 
-    [HttpPost("Register")]
-    public async Task<IActionResult> Register([FromBody] CreateAccountModel model)
+        if (userType == null || !ModelState.IsValid)
+        {
+            logger.LogWarning($"Form data is invalid");
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
+        }
+
+        newUser.UniId = requestModel.UniId;
+        newUser.FullName = requestModel.Fullname;
+        newUser.StudentCode = requestModel.StudentCode;
+        newUser.UserTypeId = userType.Id;
+        newUser.CreatedBy = requestModel.Creator;
+        newUser.UpdatedBy = requestModel.Creator;
+        newUserAuth.CreatedBy = requestModel.Creator;
+        newUserAuth.UpdatedBy = requestModel.Creator;
+
+        newUserAuth.PasswordHash = userManagementService.GetPasswordHash(requestModel.Password);
+
+        if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
+        {
+            return BadRequest(new { message = "User already exists", messageCode = "user-already-exists" });
+        }
+        
+        logger.LogInformation($"User with UNI-ID {requestModel.UniId} was created successfully");
+        return Ok();
+    }
+    
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Logout([FromBody] string refreshToken)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userType = await userManagementService.GetUserTypeAsync(model.UserRole);
@@ -79,6 +113,40 @@ public class AuthController(
         }
         
         logger.LogInformation($"User with UNI-ID {model.UniId} was created successfully");
+        return Ok();
+    }
+
+    [HttpPost("Register")]
+    public async Task<IActionResult> Register([FromBody] CreateAccountRequestModel requestModel)
+    {
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+        var userType = await userManagementService.GetUserTypeAsync(requestModel.UserRole);
+        var newUser = new UserEntity();
+        var newUserAuth = new UserAuthEntity();
+
+        if (userType == null || !ModelState.IsValid)
+        {
+            logger.LogWarning($"Form data is invalid");
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
+        }
+
+        newUser.UniId = requestModel.UniId;
+        newUser.FullName = requestModel.Fullname;
+        newUser.StudentCode = requestModel.StudentCode;
+        newUser.UserTypeId = userType.Id;
+        newUser.CreatedBy = requestModel.Creator;
+        newUser.UpdatedBy = requestModel.Creator;
+        newUserAuth.CreatedBy = requestModel.Creator;
+        newUserAuth.UpdatedBy = requestModel.Creator;
+
+        newUserAuth.PasswordHash = userManagementService.GetPasswordHash(requestModel.Password);
+
+        if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
+        {
+            return BadRequest(new { message = "User already exists", messageCode = "user-already-exists" });
+        }
+        
+        logger.LogInformation($"User with UNI-ID {newUser.Id} was created successfully");
         return Ok();
     }
 

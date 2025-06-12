@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using App.Domain;
 using Contracts;
@@ -23,6 +24,9 @@ public class AuthService : IAuthService
         var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
         var issuer = Environment.GetEnvironmentVariable("JWTISS");
         var audience = Environment.GetEnvironmentVariable("JWTAUD");
+        
+        var jwtExiprationDays = 7; // TODO: ENV!
+
 
         if (string.IsNullOrWhiteSpace(jwtKey))
         {
@@ -49,7 +53,7 @@ public class AuthService : IAuthService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(60),
+            Expires = DateTime.UtcNow.AddDays(jwtExiprationDays),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -58,5 +62,26 @@ public class AuthService : IAuthService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+    
+    public string GenerateRefreshToken(Guid userId, string creatorIp)
+    {
+        var refreshExpirationDays = 7; // TODO: ENV!
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var now = DateTime.Now.ToUniversalTime();
+        var tokenEntity = new RefreshTokenEntity()
+        {
+            UserId = userId,
+            Token = token,
+            ExpirationTime = DateTime.UtcNow.AddDays(refreshExpirationDays),
+            CreatedByIp = creatorIp,
+            CreatedBy = "aspnet-auth",
+            CreatedAt = now,
+            UpdatedBy = "aspnet-auth",
+            UpdatedAt = now,
+        };
+        
+        
+        return token;
     }
 }

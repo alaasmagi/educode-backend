@@ -14,23 +14,19 @@ public class DbInitializer
             {
                 new UserTypeEntity
                 {
-                    Id = Guid.NewGuid(),
                     UserType = "student",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 },
                 new UserTypeEntity
                 {
-                    Id = Guid.NewGuid(),
                     UserType = "teacher",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 }
             };
             
@@ -49,33 +45,27 @@ public class DbInitializer
             {
                 new CourseStatusEntity
                 {
-                    Id = Guid.NewGuid(),
                     CourseStatus = "available",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 },
                 new CourseStatusEntity
                 {
-                    Id = Guid.NewGuid(),
                     CourseStatus = "unavailable",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 },
                 new CourseStatusEntity
                 {
-                    Id = Guid.NewGuid(),
                     CourseStatus = "temp-unavailable",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 }
             };
 
@@ -94,33 +84,27 @@ public class DbInitializer
             {
                 new AttendanceTypeEntity
                 {
-                    Id = Guid.NewGuid(),
                     AttendanceType = "lecture",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 },
                 new AttendanceTypeEntity
                 {
-                    Id = Guid.NewGuid(),
                     AttendanceType = "practice",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 },
                 new AttendanceTypeEntity
                 {
-                    Id = Guid.NewGuid(),
                     AttendanceType = "lecture-practice",
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
                     UpdatedAt = now,
-                    Deleted = false
                 }
             };
 

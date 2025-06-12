@@ -1,6 +1,6 @@
 ﻿namespace WebApp.Models;
 
-public class LoginModel
+public class LoginRequestModel
 {
     public required string UniId { get; set; }
     public required string Password { get; set; }
