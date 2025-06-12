@@ -82,7 +82,7 @@ namespace WebApp.Controllers
         }
 
         // GET: AttendanceType/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -172,7 +172,7 @@ namespace WebApp.Controllers
         // POST: AttendanceType/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)

@@ -35,6 +35,8 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
         npgsqlOptions.EnableRetryOnFailure(3);
     }), poolSize: 500);
 
+
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit:14)  
@@ -175,4 +177,16 @@ app.UseAuthorization();
 
 app.UseRateLimiter();
 app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.SeedUserTypes(context);
+    DbInitializer.SeedCourseStatuses(context);
+    DbInitializer.SeedAttendanceTypes(context);
+
+}
+
+app.Run();
+
 app.Run();
