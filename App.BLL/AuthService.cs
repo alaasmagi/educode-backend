@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.Extensions.Logging;
@@ -12,10 +13,16 @@ namespace App.BLL;
 public class AuthService : IAuthService
 {
     private readonly ILogger<AuthService> _logger;
+    private readonly AppDbContext _context;
+    public readonly UserRepository _userRepository;
+    public readonly AuthRepository _authRepository;
     
-    public AuthService(ILogger<AuthService> logger)
+    public AuthService(AppDbContext context, ILogger<AuthService> logger)
     {
         _logger = logger;
+        _context = context;
+        _userRepository = new UserRepository(_context);
+        _authRepository = new AuthRepository(_context);
     }
     
     public string GenerateJwtToken(UserEntity user)
@@ -64,7 +71,7 @@ public class AuthService : IAuthService
         return tokenHandler.WriteToken(token);
     }
     
-    public string GenerateRefreshToken(Guid userId, string creatorIp)
+    public async Task<string?> GenerateRefreshToken(Guid userId, string creatorIp)
     {
         var refreshExpirationDays = 7; // TODO: ENV!
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
@@ -80,8 +87,14 @@ public class AuthService : IAuthService
             UpdatedBy = "aspnet-auth",
             UpdatedAt = now,
         };
+
+        if (!await _authRepository.AddRefreshToken(tokenEntity))
+        {
+            _logger.LogError($"Refresh token creation failed for user with ID: {userId}");
+            return null;
+        }
         
-        
+        _logger.LogInformation($"Refresh token creation successfully for user with ID: {userId}");
         return token;
     }
 }
