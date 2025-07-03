@@ -50,7 +50,7 @@ FRONTENDURL=<web-frontend-url-for-cors>
 ### Running the app
 
 After meeting all prerequisites above - 
-* application can be run via terminal/cmd opened in the root of WebApp folder `/WebApp` by command
+* application can be run via terminal/cmd by command
 ```bash
 docker run --env-file .env -p 8080:8080 alaasmagi/educode-backend:<version-number>
 ```
