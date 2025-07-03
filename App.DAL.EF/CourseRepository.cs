@@ -162,4 +162,43 @@ public class CourseRepository(AppDbContext context)
         
         return true;
     }
+    
+    public void SeedCourseStatuses()
+    {
+        if (!context.CourseStatuses.Any())
+        {
+            var now = DateTime.Now.ToUniversalTime();
+
+            var courseStatuses = new List<CourseStatusEntity>
+            {
+                new CourseStatusEntity
+                {
+                    CourseStatus = "available",
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                },
+                new CourseStatusEntity
+                {
+                    CourseStatus = "unavailable",
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                },
+                new CourseStatusEntity
+                {
+                    CourseStatus = "temp-unavailable",
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                }
+            };
+
+            context.CourseStatuses.AddRange(courseStatuses);
+            context.SaveChanges();
+        }
+    }
 }

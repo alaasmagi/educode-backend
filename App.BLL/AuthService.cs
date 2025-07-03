@@ -13,24 +13,24 @@ namespace App.BLL;
 public class AuthService : IAuthService
 {
     private readonly ILogger<AuthService> _logger;
-    private readonly AppDbContext _context;
-    public readonly UserRepository _userRepository;
-    public readonly AuthRepository _authRepository;
+    private readonly UserRepository _userRepository;
+    private readonly AuthRepository _authRepository;
+    private readonly Initializer _initializer;
     
-    public AuthService(AppDbContext context, ILogger<AuthService> logger)
+    public AuthService(AppDbContext context, ILogger<AuthService> logger, Initializer initializer)
     {
         _logger = logger;
-        _context = context;
-        _userRepository = new UserRepository(_context);
-        _authRepository = new AuthRepository(_context);
+        _userRepository = new UserRepository(context);
+        _authRepository = new AuthRepository(context);
+        _initializer = initializer;
     }
     
     public string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
-        var issuer = Environment.GetEnvironmentVariable("JWTISS");
-        var audience = Environment.GetEnvironmentVariable("JWTAUD");
+        var jwtKey = _initializer.jwtKey;
+        var issuer = _initializer.jwtIssuer;
+        var audience = _initializer.jwtAudience;
         
         var jwtExiprationDays = 7; // TODO: ENV!
 
@@ -51,16 +51,14 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.UserData, user.UniId),
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.Role, user.UserType?.UserType ?? "User")
+            new Claim("userId", user.Id.ToString()),
+            new Claim("accessLevel", user.UserType?.AccessLevel.ToString() ?? "0"),
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(jwtExiprationDays),
+            Expires = DateTime.Now.ToUniversalTime().AddDays(jwtExiprationDays),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -80,7 +78,7 @@ public class AuthService : IAuthService
         {
             UserId = userId,
             Token = token,
-            ExpirationTime = DateTime.UtcNow.AddDays(refreshExpirationDays),
+            ExpirationTime = DateTime.Now.ToUniversalTime().AddDays(refreshExpirationDays),
             CreatedByIp = creatorIp,
             CreatedBy = "aspnet-auth",
             CreatedAt = now,
@@ -88,7 +86,7 @@ public class AuthService : IAuthService
             UpdatedAt = now,
         };
 
-        if (!await _authRepository.AddRefreshToken(tokenEntity))
+        if (!await _authRepository.AddRefreshTokenAsync(tokenEntity))
         {
             _logger.LogError($"Refresh token creation failed for user with ID: {userId}");
             return null;
@@ -97,4 +95,61 @@ public class AuthService : IAuthService
         _logger.LogInformation($"Refresh token creation successfully for user with ID: {userId}");
         return token;
     }
+    
+    public async Task<(string? JwtToken, string? RefreshToken)> RefreshJwtToken(string refreshToken, string ipAddress)
+    {
+        var tokenEntity = await _authRepository.GetRefreshTokenAsync(refreshToken);
+
+        if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.Now.ToUniversalTime())
+        {
+            _logger.LogWarning("Invalid or expired refresh token");
+            return (null, null);
+        }
+    
+        if (tokenEntity.IsUsed || tokenEntity.IsRevoked)
+        {
+            _logger.LogWarning("Refresh token already used or revoked");
+            return (null, null);
+        }
+
+        var user = await _userRepository.GetUserByIdAsync(tokenEntity.UserId);
+
+        if (user == null)
+        {
+            _logger.LogWarning("User not found for refresh token");
+            return (null, null);
+        }
+
+        tokenEntity.IsUsed = true;
+        tokenEntity.IsRevoked = true;
+        tokenEntity.RevokedAt = DateTime.Now.ToUniversalTime();
+        tokenEntity.RevokedByIp = ipAddress;
+        tokenEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+        tokenEntity.UpdatedBy = "aspnet-auth";
+
+        var newRefreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var now = DateTime.Now.ToUniversalTime();
+        var newRefreshToken = new RefreshTokenEntity()
+        {
+            UserId = user.Id,
+            Token = newRefreshTokenString,
+            ExpirationTime = now.AddDays(7),
+            CreatedByIp = ipAddress,
+            CreatedAt = now,
+            CreatedBy = "aspnet-auth",
+            UpdatedAt = now,
+            UpdatedBy = "aspnet-auth",
+            ReplacedByTokenId = null,
+        };
+
+        await _authRepository.AddRefreshTokenAsync(newRefreshToken);
+
+        tokenEntity.ReplacedByTokenId = newRefreshToken.Id;
+        await _authRepository.UpdateRefreshTokenAsync(tokenEntity);
+
+        var jwt = GenerateJwtToken(user);
+
+        return (jwt, newRefreshTokenString);
+    }
+
 }

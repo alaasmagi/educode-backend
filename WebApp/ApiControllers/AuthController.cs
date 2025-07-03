@@ -49,38 +49,22 @@ public class AuthController(
     }
     
     [HttpPost("Refresh")]
-    public async Task<IActionResult> Refresh([FromBody] CreateAccountRequestModel requestModel)
+public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel model)
+{
+    logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+
+    if (string.IsNullOrWhiteSpace(model.RefreshToken))
+        return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
+
+    var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
+    if (newJwt == null || newRefreshToken == null)
     {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userType = await userManagementService.GetUserTypeAsync(requestModel.UserRole);
-        var newUser = new UserEntity();
-        var newUserAuth = new UserAuthEntity();
-
-        if (userType == null || !ModelState.IsValid)
-        {
-            logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
-        }
-
-        newUser.UniId = requestModel.UniId;
-        newUser.FullName = requestModel.Fullname;
-        newUser.StudentCode = requestModel.StudentCode;
-        newUser.UserTypeId = userType.Id;
-        newUser.CreatedBy = requestModel.Creator;
-        newUser.UpdatedBy = requestModel.Creator;
-        newUserAuth.CreatedBy = requestModel.Creator;
-        newUserAuth.UpdatedBy = requestModel.Creator;
-
-        newUserAuth.PasswordHash = userManagementService.GetPasswordHash(requestModel.Password);
-
-        if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
-        {
-            return BadRequest(new { message = "User already exists", messageCode = "user-already-exists" });
-        }
-        
-        logger.LogInformation($"User with UNI-ID {requestModel.UniId} was created successfully");
-        return Ok();
+        return Unauthorized(new { message = "Invalid or expired refresh token", messageCode = "invalid-refresh-token" });
     }
+
+    return Ok(new { Token = newJwt });
+}
     
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout([FromBody] string refreshToken)

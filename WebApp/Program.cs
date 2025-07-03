@@ -54,8 +54,9 @@ builder.Services.AddScoped<ICourseManagementService, CourseManagementService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
-
 builder.Services.AddSingleton<IHostedService, CleanupService>();
+builder.Services.AddSingleton<Initializer>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -178,15 +179,12 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 
+
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    DbInitializer.SeedUserTypes(context);
-    DbInitializer.SeedCourseStatuses(context);
-    DbInitializer.SeedAttendanceTypes(context);
-
+    var initializer = scope.ServiceProvider.GetRequiredService<Initializer>();
+    initializer.InitializeEnv();
+    initializer.InitializeDb();
 }
-
-app.Run();
 
 app.Run();

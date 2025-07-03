@@ -18,6 +18,7 @@ public class RefreshTokenEntity : BaseEntity
     [Required]
     public bool IsRevoked { get; set; } = false;
     public Guid? ReplacedByTokenId { get; set; }
+    public RefreshTokenEntity? ReplacedByToken { get; set; }
     public DateTime? RevokedAt { get; set; }
     [MaxLength(128)]
     public string? RevokedByIp { get; set; }

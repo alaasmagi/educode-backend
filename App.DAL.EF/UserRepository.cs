@@ -110,4 +110,35 @@ public class UserRepository (AppDbContext context)
         
         return true;
     }
+    
+    public void SeedUserTypes()
+    {
+        if (!context.UserTypes.Any())
+        {
+            var now = DateTime.Now.ToUniversalTime();
+
+            var userTypes = new List<UserTypeEntity>
+            {
+                new UserTypeEntity
+                {
+                    UserType = "student",
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                },
+                new UserTypeEntity
+                {
+                    UserType = "teacher",
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                }
+            };
+            
+            context.UserTypes.AddRange(userTypes);
+            context.SaveChanges();
+        }
+    }
 }
