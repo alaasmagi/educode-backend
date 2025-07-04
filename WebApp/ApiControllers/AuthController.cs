@@ -67,37 +67,34 @@ public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel mod
 }
     
     [HttpPost("Logout")]
-    public async Task<IActionResult> Logout([FromBody] string refreshToken)
+    public async Task<IActionResult> Logout([FromBody] LogoutRequestModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userType = await userManagementService.GetUserTypeAsync(model.UserRole);
-        var newUser = new UserEntity();
-        var newUserAuth = new UserAuthEntity();
-
-        if (userType == null || !ModelState.IsValid)
+    
+        if (string.IsNullOrWhiteSpace(model.RefreshToken))
         {
-            logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
+            return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
         }
 
-        newUser.UniId = model.UniId;
-        newUser.FullName = model.Fullname;
-        newUser.StudentCode = model.StudentCode;
-        newUser.UserTypeId = userType.Id;
-        newUser.CreatedBy = model.Creator;
-        newUser.UpdatedBy = model.Creator;
-        newUserAuth.CreatedBy = model.Creator;
-        newUserAuth.UpdatedBy = model.Creator;
-
-        newUserAuth.PasswordHash = userManagementService.GetPasswordHash(model.Password);
-
-        if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
+        var tokenEntity = await authService.GetRefreshTokenEntity(model.RefreshToken);
+        if (tokenEntity == null)
         {
-            return BadRequest(new { message = "User already exists", messageCode = "user-already-exists" });
+            return NotFound(new { message = "Refresh token not found", messageCode = "refresh-token-not-found" });
         }
-        
-        logger.LogInformation($"User with UNI-ID {model.UniId} was created successfully");
-        return Ok();
+
+        tokenEntity.IsRevoked = true;
+        tokenEntity.RevokedAt = DateTime.UtcNow;
+        tokenEntity.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        tokenEntity.UpdatedAt = DateTime.UtcNow;
+        tokenEntity.UpdatedBy = "Logout";
+
+        await authService.UpdateRefreshToken(tokenEntity);
+
+        // Kustuta JWT cookie
+        Response.Cookies.Delete("token");
+
+        logger.LogInformation($"Refresh token revoked successfully for user with ID {tokenEntity.UserId}");
+        return Ok(new { message = "Logged out successfully" });
     }
 
     [HttpPost("Register")]
