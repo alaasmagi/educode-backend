@@ -2,6 +2,6 @@
 
 public interface IOtpService
 {
-    string GenerateTotp(string uniId);
-    bool VerifyTotp(string uniId, string otpToVerify);
+    Task<bool> GenerateAndStoreOtp(Guid userId);
+    Task<bool> VerifyOtp(Guid userId, string otpToVerify);
 }

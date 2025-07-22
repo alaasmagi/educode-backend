@@ -1,38 +1,51 @@
-﻿using OtpNet;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
+using App.DAL.EF;
 using Contracts;
+using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace App.BLL;
 
 public class OtpService : IOtpService
 {
-    private static string GenerateDynamicSecret(string uniId)
+    private readonly ILogger<OtpService> _logger;
+    private readonly CacheRepository _cacheRepository;
+    
+    public OtpService(IConnectionMultiplexer redis, ILogger<OtpService> logger)
     {
-        using var sha256 = SHA256.Create();
-        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(uniId));
-        var base32Secret = Base32Encoding.ToString(hash);
+        _logger = logger;
+        _cacheRepository = new CacheRepository(redis);
+    }
+    
+    public async Task<bool> GenerateAndStoreOtp(Guid userId)
+    {
+        var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[4];
+        rng.GetBytes(bytes);
+        var otp = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
+
+        var status = await _cacheRepository.SetOtpAsync(userId, otp.ToString());
         
-        return base32Secret;
+        return status;
     }
 
-    public string GenerateTotp(string uniId)
+    public async Task<bool> VerifyOtp(Guid userId, string otpToVerify)
     {
-        var dynamicSecret = GenerateDynamicSecret(uniId);
-        var secretBytes = Base32Encoding.ToBytes(dynamicSecret);
-        var totp = new Totp(secretBytes, step: 300);
-        var otp = totp.ComputeTotp();
+        var originalOtp =  await _cacheRepository.GetOtpAsync(userId);
 
-        return otp;
-    }
+        if (originalOtp == null)
+        {
+            // TODO: Error logging
+            return false;
+        }
 
-    public bool VerifyTotp(string uniId, string otpToVerify)
-    {
-        var dynamicSecret = GenerateDynamicSecret(uniId);
-        var secretBytes = Base32Encoding.ToBytes(dynamicSecret);
-        var totp = new Totp(secretBytes, step: 300);
-        var isValid = totp.VerifyTotp(otpToVerify, out var timeStepMatched);
+        if (originalOtp == otpToVerify)
+        {
+            // TODO: Logging
+            return true;
+        }
 
-        return isValid;
+        // TODO: Logging
+        return false;
     }
 }

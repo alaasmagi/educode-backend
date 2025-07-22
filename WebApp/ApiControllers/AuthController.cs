@@ -49,22 +49,22 @@ public class AuthController(
     }
     
     [HttpPost("Refresh")]
-public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel model)
-{
-    logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-
-    if (string.IsNullOrWhiteSpace(model.RefreshToken))
-        return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
-
-    var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
-
-    if (newJwt == null || newRefreshToken == null)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel model)
     {
-        return Unauthorized(new { message = "Invalid or expired refresh token", messageCode = "invalid-refresh-token" });
-    }
+        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
 
-    return Ok(new { Token = newJwt });
-}
+        if (string.IsNullOrWhiteSpace(model.RefreshToken))
+            return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
+
+        var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+
+        if (newJwt == null || newRefreshToken == null)
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token", messageCode = "invalid-refresh-token" });
+        }
+
+        return Ok(new { Token = newJwt });
+    }
     
     [HttpPost("Logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutRequestModel model)
@@ -90,7 +90,6 @@ public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel mod
 
         await authService.UpdateRefreshToken(tokenEntity);
 
-        // Kustuta JWT cookie
         Response.Cookies.Delete("token");
 
         logger.LogInformation($"Refresh token revoked successfully for user with ID {tokenEntity.UserId}");
