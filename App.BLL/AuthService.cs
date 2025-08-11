@@ -28,9 +28,9 @@ public class AuthService : IAuthService
     public string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtKey = _initializer.jwtKey;
-        var issuer = _initializer.jwtIssuer;
-        var audience = _initializer.jwtAudience;
+        var jwtKey = _initializer.JwtKey;
+        var issuer = _initializer.JwtIssuer;
+        var audience = _initializer.JwtAudience;
         
         var jwtExiprationDays = 7; // TODO: ENV!
 

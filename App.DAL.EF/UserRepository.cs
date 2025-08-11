@@ -122,6 +122,16 @@ public class UserRepository (AppDbContext context)
                 new UserTypeEntity
                 {
                     UserType = "student",
+                    AccessLevel = EAccessLevel.PrimaryLevel,
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                },
+                new UserTypeEntity
+                {
+                    UserType = "teacher-assistant",
+                    AccessLevel = EAccessLevel.SecondaryLevel,
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
@@ -130,6 +140,16 @@ public class UserRepository (AppDbContext context)
                 new UserTypeEntity
                 {
                     UserType = "teacher",
+                    AccessLevel = EAccessLevel.TertiaryLevel,
+                    CreatedBy = "aspnet-initializer",
+                    CreatedAt = now,
+                    UpdatedBy = "aspnet-initializer",
+                    UpdatedAt = now,
+                },
+                new UserTypeEntity
+                {
+                    UserType = "school-administrator",
+                    AccessLevel = EAccessLevel.QuaternaryLevel,
                     CreatedBy = "aspnet-initializer",
                     CreatedAt = now,
                     UpdatedBy = "aspnet-initializer",
