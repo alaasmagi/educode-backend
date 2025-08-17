@@ -48,7 +48,7 @@ public class AuthController(
         return Ok(new { Token = token });
     }
     
-    [HttpPost("Refresh")]
+   /* [HttpPost("Refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -64,9 +64,9 @@ public class AuthController(
         }
 
         return Ok(new { Token = newJwt });
-    }
+    }*/
     
-    [HttpPost("Logout")]
+   /* [HttpPost("Logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutRequestModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -94,7 +94,7 @@ public class AuthController(
 
         logger.LogInformation($"Refresh token revoked successfully for user with ID {tokenEntity.UserId}");
         return Ok(new { message = "Logged out successfully" });
-    }
+    }*/
 
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] CreateAccountRequestModel requestModel)
@@ -146,11 +146,11 @@ public class AuthController(
             return Unauthorized(new { message = "Invalid UNI-ID", messageCode = "invalid-uni-id" });
         }
 
-        var key = otpService.GenerateTotp(user?.UniId ?? model.UniId);
+       // var key = otpService.GenerateTotp(user?.UniId ?? model.UniId);
         var recipientUniId = user?.UniId ?? model.UniId;
         var recipientName = user?.FullName ?? model.FullName ?? "EduCode user";
 
-        if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
+        //if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
         {
             return BadRequest(new { message = "Email was not sent", messageCode = "email-was-not-sent" });
         }
@@ -172,12 +172,12 @@ public class AuthController(
         
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
         
-        var result = otpService.VerifyTotp(model.UniId, model.Otp);
+    /*    var result = otpService.VerifyTotp(model.UniId, model.Otp);
 
         if (!result)
         {
             return Unauthorized(new { message = "Invalid OTP", messageCode = "invalid-otp" });
-        }
+        }*/
 
         var token = string.Empty;
         if (user != null)

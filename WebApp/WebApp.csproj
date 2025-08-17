@@ -52,6 +52,11 @@
       <_ContentIncludedByDefault Remove="Views\AuthToken\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\AuthToken\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\AuthToken\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\RefreshToken\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\RefreshToken\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\RefreshToken\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\RefreshToken\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\RefreshToken\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

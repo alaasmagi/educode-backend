@@ -14,14 +14,12 @@ public class AuthService : IAuthService
 {
     private readonly ILogger<AuthService> _logger;
     private readonly UserRepository _userRepository;
-    private readonly AuthRepository _authRepository;
     private readonly Initializer _initializer;
     
     public AuthService(AppDbContext context, ILogger<AuthService> logger, Initializer initializer)
     {
         _logger = logger;
         _userRepository = new UserRepository(context);
-        _authRepository = new AuthRepository(context);
         _initializer = initializer;
     }
     
@@ -86,19 +84,19 @@ public class AuthService : IAuthService
             UpdatedAt = now,
         };
 
-        if (!await _authRepository.AddRefreshTokenAsync(tokenEntity))
+        /*if (!await _authRepository.AddRefreshTokenAsync(tokenEntity))
         {
             _logger.LogError($"Refresh token creation failed for user with ID: {userId}");
             return null;
-        }
+        }*/
         
         _logger.LogInformation($"Refresh token creation successfully for user with ID: {userId}");
         return token;
     }
     
-    public async Task<(string? JwtToken, string? RefreshToken)> RefreshJwtToken(string refreshToken, string ipAddress)
+   public async Task<(string? JwtToken, string? RefreshToken)> RefreshJwtToken(string refreshToken, string ipAddress)
     {
-        var tokenEntity = await _authRepository.GetRefreshTokenAsync(refreshToken);
+        /*var tokenEntity = await _authRepository.GetRefreshTokenAsync(refreshToken);
 
         if (tokenEntity == null || tokenEntity.ExpirationTime < DateTime.Now.ToUniversalTime())
         {
@@ -149,7 +147,8 @@ public class AuthService : IAuthService
 
         var jwt = GenerateJwtToken(user);
 
-        return (jwt, newRefreshTokenString);
+        return (jwt, newRefreshTokenString);*/
+        return ("jwt", "newRefreshTokenString");
     }
 
 }

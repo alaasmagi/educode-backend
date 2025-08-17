@@ -17,6 +17,5 @@ public class UserEntity : BaseEntity
     public string? StudentCode { get; set; }
     [Required]
     [MaxLength(255)]
-    public string FullName { get; set; } = default!;
-    public ICollection<RefreshTokenEntity>? RefreshTokens { get; set; }
+    public string FullName { get; set; } = default!; 
 }

@@ -14,7 +14,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserTypeEntity> UserTypes { get; set; }
     public DbSet<WorkplaceEntity> Workplaces { get; set; }
     public DbSet<UserAuthEntity> UserAuthData { get; set; }
-    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("educode");
@@ -25,11 +24,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(u => u.UserType)
             .WithMany()
             .HasForeignKey(u => u.UserTypeId);
-        modelBuilder.Entity<UserEntity>()
-            .HasMany(u => u.RefreshTokens)
-            .WithOne(u => u.User)
-            .HasForeignKey(u => u.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<UserEntity>()
             .HasIndex(u => u.UniId)
             .IsUnique();
@@ -48,14 +42,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey<UserAuthEntity>(u => u.UserId);
         modelBuilder.Entity<UserAuthEntity>()
             .HasIndex(u => u.UserId)
-            .IsUnique();
-        
-        // RefreshToken relationship
-        modelBuilder.Entity<RefreshTokenEntity>()
-            .ToTable("RefreshTokens")
-            .HasQueryFilter(c => c.Deleted == false);
-        modelBuilder.Entity<RefreshTokenEntity>()
-            .HasIndex(r => r.Token)
             .IsUnique();
         
         // CourseAttendance relationship
