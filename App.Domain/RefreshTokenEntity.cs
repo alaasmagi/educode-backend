@@ -3,7 +3,7 @@ using Base.Domain;
 
 namespace App.Domain;
 
-public class RefreshTokenEntity : BaseEntity
+public class RefreshTokenEntity
 {
     public Guid UserId { get; set; }
     public string Token { get; set; } = default!; 
