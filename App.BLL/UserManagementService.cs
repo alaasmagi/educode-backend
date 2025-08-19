@@ -3,6 +3,7 @@ using App.Domain;
 using Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace App.BLL;
 
@@ -11,13 +12,15 @@ public class UserManagementService : IUserManagementService
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
     private readonly CourseRepository _courseRepository;
+    private readonly RedisRepository _redisRepository;
     private readonly ILogger<UserManagementService> _logger;
 
-    public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger)
+    public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _context = context;
         _userRepository = new UserRepository(_context); 
         _courseRepository = new CourseRepository(_context); 
+        _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger); 
         _logger = logger;
     }
     
