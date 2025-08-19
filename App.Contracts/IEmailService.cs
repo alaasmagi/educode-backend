@@ -2,5 +2,5 @@
 
 public interface IEmailService
 {
-    Task<bool> SendEmailAsync(string uniId, string fullName, string oneTimeKey);
+    Task<bool> SendEmailAsync(string uniId, string fullName, int oneTimeKey);
 }

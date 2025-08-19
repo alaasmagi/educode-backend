@@ -18,7 +18,7 @@ public class OtpService : IOtpService
         _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger);
     }
     
-    public async Task<bool> GenerateAndStoreOtp(Guid userId)
+    public async Task<int> GenerateAndStoreOtp(string uniId)
     {
         var rng = RandomNumberGenerator.Create();
         var bytes = new byte[4];
@@ -26,29 +26,34 @@ public class OtpService : IOtpService
         var otp = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
 
         var otpExpirationMinutes = 5; // TODO: ENV!
-        var status = await _redisRepository.SetDataAsync(Constants.OtpPrefix + userId, otp.ToString(), 
+        var status = await _redisRepository.SetDataAsync(Constants.OtpPrefix + uniId, otp.ToString(), 
                                                                     TimeSpan.FromMinutes(otpExpirationMinutes));
+        if (status == false)
+        {
+            _logger.LogWarning($"Otp generation failed for user with id {uniId}");
+        }
         
-        return status;
+        _logger.LogInformation($"Otp generation successful for user with id {uniId}");
+        return otp;
     }
 
-    public async Task<bool> VerifyOtp(Guid userId, string otpToVerify)
+    public async Task<bool> VerifyOtp(string uniId, string otpToVerify)
     {
-        var originalOtp =  await _redisRepository.GetDataAsync(Constants.OtpPrefix + userId);
+        var originalOtp =  await _redisRepository.GetDataAsync(Constants.OtpPrefix + uniId);
 
         if (originalOtp == null)
         {
-            // TODO: Error logging
+            _logger.LogWarning($"Otp verification failed for user with id {uniId}");
             return false;
         }
 
         if (originalOtp == otpToVerify)
         {
-            // TODO: Logging
+            _logger.LogWarning($"Otp verification successful for user with id {uniId}");
             return true;
         }
 
-        // TODO: Logging
+        _logger.LogWarning($"Otp verification failed for user with id {uniId}");
         return false;
     }
 }

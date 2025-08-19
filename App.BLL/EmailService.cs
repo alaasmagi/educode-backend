@@ -14,7 +14,7 @@ public class EmailService : IEmailService
         _logger = logger;
     }
 
-    public async Task<bool> SendEmailAsync(string uniId, string fullName, string oneTimeKey)
+    public async Task<bool> SendEmailAsync(string uniId, string fullName, int oneTimeKey)
     {
         var mail = Environment.GetEnvironmentVariable("MAILSENDER_EMAIL") ?? "EMAIL";
         var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";

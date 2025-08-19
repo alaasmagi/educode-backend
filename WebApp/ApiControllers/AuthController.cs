@@ -35,66 +35,82 @@ public class AuthController(
             return Unauthorized(new { message = "Invalid UNI-ID or password", messageCode = "invalid-uni-id-password" });
         }
 
-        var token = authService.GenerateJwtToken(user);
-        Response.Cookies.Append("token", token, new CookieOptions
+        var jwtToken = authService.GenerateJwtToken(user);
+        var creatorIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp);
+
+        if (refreshToken == null)
+        {
+            logger.LogWarning($"Refresh token generation failed");
+            return BadRequest(new { message = "Refresh token generation failed", messageCode = "refresh-token-error" });
+        }
+        
+        Response.Cookies.Append("token", jwtToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            MaxAge = TimeSpan.FromDays(60)
+            MaxAge = TimeSpan.FromMinutes(15) // TODO: ENV!
+        });
+        
+        Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,                
+            Secure = true,                 
+            SameSite = SameSiteMode.None,   
+            MaxAge = TimeSpan.FromDays(15) // TODO: ENV!
         });
         
         logger.LogInformation($"User with ID {user.Id} was logged in successfully");
-        return Ok(new { Token = token });
+        return Ok(new { Token = jwtToken, RefreshToken = refreshToken});
     }
     
-   /* [HttpPost("Refresh")]
+    [HttpPost("Refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
 
-        if (string.IsNullOrWhiteSpace(model.RefreshToken))
-            return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
+        if (!ModelState.IsValid)
+        {
+            logger.LogWarning($"Form data is invalid");
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
+        }
 
-        var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, model.JwtToken, ipAddress);
 
         if (newJwt == null || newRefreshToken == null)
         {
             return Unauthorized(new { message = "Invalid or expired refresh token", messageCode = "invalid-refresh-token" });
         }
 
-        return Ok(new { Token = newJwt });
-    }*/
+        return Ok(new { Token = newJwt, RefreshToken = newRefreshToken });
+    }
     
-   /* [HttpPost("Logout")]
-    public async Task<IActionResult> Logout([FromBody] LogoutRequestModel model)
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
     
-        if (string.IsNullOrWhiteSpace(model.RefreshToken))
+        if (!ModelState.IsValid)
         {
-            return BadRequest(new { message = "Refresh token is required", messageCode = "refresh-token-required" });
+            logger.LogWarning($"Form data is invalid");
+            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
+        
+        var status = await authService.DeleteRefreshToken(model.RefreshToken);
 
-        var tokenEntity = await authService.GetRefreshTokenEntity(model.RefreshToken);
-        if (tokenEntity == null)
+        if (status == false)
         {
-            return NotFound(new { message = "Refresh token not found", messageCode = "refresh-token-not-found" });
+            logger.LogWarning($"Logging out failed");
+            return BadRequest(new { message = "Logging out failed", messageCode = "logout-failed" });
         }
-
-        tokenEntity.IsRevoked = true;
-        tokenEntity.RevokedAt = DateTime.UtcNow;
-        tokenEntity.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-        tokenEntity.UpdatedAt = DateTime.UtcNow;
-        tokenEntity.UpdatedBy = "Logout";
-
-        await authService.UpdateRefreshToken(tokenEntity);
 
         Response.Cookies.Delete("token");
+        Response.Cookies.Delete("refreshToken");
 
-        logger.LogInformation($"Refresh token revoked successfully for user with ID {tokenEntity.UserId}");
-        return Ok(new { message = "Logged out successfully" });
-    }*/
+        return Ok(new { message = "Logged out successfully", messageCode = "logout-successful" });
+    }
 
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] CreateAccountRequestModel requestModel)
@@ -116,9 +132,9 @@ public class AuthController(
         newUser.UserTypeId = userType.Id;
         newUser.CreatedBy = requestModel.Creator;
         newUser.UpdatedBy = requestModel.Creator;
+        
         newUserAuth.CreatedBy = requestModel.Creator;
         newUserAuth.UpdatedBy = requestModel.Creator;
-
         newUserAuth.PasswordHash = userManagementService.GetPasswordHash(requestModel.Password);
 
         if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
@@ -146,11 +162,11 @@ public class AuthController(
             return Unauthorized(new { message = "Invalid UNI-ID", messageCode = "invalid-uni-id" });
         }
 
-       // var key = otpService.GenerateTotp(user?.UniId ?? model.UniId);
+        var key = await otpService.GenerateAndStoreOtp(model.UniId);
         var recipientUniId = user?.UniId ?? model.UniId;
         var recipientName = user?.FullName ?? model.FullName ?? "EduCode user";
 
-        //if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
+        if (!await emailService.SendEmailAsync(recipientUniId, recipientName, key))
         {
             return BadRequest(new { message = "Email was not sent", messageCode = "email-was-not-sent" });
         }
@@ -172,33 +188,39 @@ public class AuthController(
         
         var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
         
-    /*    var result = otpService.VerifyTotp(model.UniId, model.Otp);
+        var result = await otpService.VerifyOtp(model.UniId, model.Otp);
 
         if (!result)
         {
             return Unauthorized(new { message = "Invalid OTP", messageCode = "invalid-otp" });
-        }*/
+        }
 
-        var token = string.Empty;
         if (user != null)
         {
-            token = authService.GenerateJwtToken(user);
+            var token = authService.GenerateJwtToken(user);
             Response.Cookies.Append("token", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                MaxAge = TimeSpan.FromDays(60)
+                MaxAge = TimeSpan.FromMinutes(15) // TODO: ENV!
             });
-        }
-        
-        if (token != string.Empty)
-        {
-            logger.LogInformation($"OTP verified successfully");
+            
+            var creatorIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp);
+            Response.Cookies.Append("refreshToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                MaxAge = TimeSpan.FromDays(15) // TODO: ENV!
+            });
+                
+            logger.LogInformation($"OTP verified successfully for user with UNI-ID {user.UniId}");
             return Ok(new { Token = token });
         }
         
-        logger.LogInformation($"OTP verified successfully for user with UNI-ID {model.UniId}");
+        logger.LogInformation($"OTP verified successfully");
         return Ok();
     }
 
