@@ -17,7 +17,7 @@ public class AttendanceController(
     ILogger<AttendanceController> logger)
     : ControllerBase
 {
-    [Authorize]
+    [Authorize(Roles = nameof(EAccessLevel.PrimaryLevel))]
     [HttpGet("Id/{id}")]
     public async Task<ActionResult<CourseAttendanceDto>> GetAttendanceById(Guid id)
     {
@@ -37,7 +37,7 @@ public class AttendanceController(
         return result;
     }
 
-    [Authorize]
+    [Authorize(Roles = nameof(EAccessLevel.PrimaryLevel))]
     [HttpGet("CurrentAttendance/UniId/{uniId}")]
     public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance(string uniId)
     {
@@ -62,7 +62,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles="Teacher")]
+    [Authorize(Roles = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("StudentCount/AttendanceId/{id}")]
     public async Task<ActionResult<int>> GetAttendanceStudentCount(Guid id)
     {

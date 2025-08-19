@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
@@ -19,11 +20,11 @@ public class AuthService : IAuthService
     private readonly RedisRepository _redisRepository;
     private readonly Initializer _initializer;
     
-    public AuthService(AppDbContext context, ILogger<AuthService> logger, Initializer initializer, IConnectionMultiplexer connectionMultiplexer)
+    public AuthService(AppDbContext context, ILogger<AuthService> logger, Initializer initializer, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
         _userRepository = new UserRepository(context);
-        _redisRepository = new RedisRepository(connectionMultiplexer);
+        _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger);
         _initializer = initializer;
     }
     
@@ -53,8 +54,8 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>
         {
-            new Claim("userId", user.Id.ToString()),
-            new Claim("accessLevel", user.UserType?.AccessLevel.ToString() ?? "0"),
+            new Claim(Constants.UserIdClaim, user.Id.ToString()),
+            new Claim(Constants.AccessLevelClaim, ((int)(user.UserType?.AccessLevel ?? EAccessLevel.NoAccess)).ToString())
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -75,7 +76,16 @@ public class AuthService : IAuthService
     {
         var refreshTokenExpirationDays = 15; // TODO: ENV!
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        if (!await _redisRepository.SetRefreshTokenAsync(token, userId, creatorIp, TimeSpan.FromDays(refreshTokenExpirationDays)))
+        
+        var tokenData = new RefreshTokenEntity
+        {
+            UserId = userId,
+            Token = token,
+            CreatedByIp = creatorIp,
+        };
+        var json = JsonSerializer.Serialize(tokenData);
+        
+        if (!await _redisRepository.SetDataAsync(Constants.RefreshTokenPrefix + token, json, TimeSpan.FromDays(refreshTokenExpirationDays)))
         {
             _logger.LogError($"Refresh token creation failed for user with ID: {userId}");
             return null;
@@ -103,7 +113,7 @@ public class AuthService : IAuthService
         var user = await _userRepository.GetUserByIdAsync(userId.Value);
         var newJwtToken = GenerateJwtToken(user!);
         
-        await _redisRepository.DeleteRefreshTokenAsync(refreshToken);
+        await _redisRepository.DeleteDataAsync(Constants.RefreshTokenPrefix + refreshToken);
         var newRefreshToken = await GenerateRefreshToken(userId.Value, ipAddress);
         
         _logger.LogInformation($"JWT and refresh tokens successfully refreshed for user with ID: {userId}");
@@ -125,8 +135,15 @@ public class AuthService : IAuthService
     
     public async Task<bool> VerifyRefreshToken(string refreshToken, Guid userId, string ipAddress)
     {
-        var tokenEntity = await _redisRepository.GetRefreshTokenAsync(refreshToken);
-
+        var serializedToken = await _redisRepository.GetDataAsync(Constants.RefreshTokenPrefix + refreshToken);
+        
+        if (serializedToken == null)
+        {
+            return false;
+        }
+        
+        var tokenEntity = JsonSerializer.Deserialize<RefreshTokenEntity>(serializedToken);
+        
         if (tokenEntity == null)
         {
             return false;
@@ -140,10 +157,16 @@ public class AuthService : IAuthService
         return true;
     }
 
-    public async Task DeleteRefreshToken(string refreshToken)
+    public async Task<bool> DeleteRefreshToken(string refreshToken)
     {
-        await _redisRepository.DeleteRefreshTokenAsync(refreshToken);
+        if (!await _redisRepository.DeleteDataAsync(Constants.RefreshTokenPrefix + refreshToken))
+        {
+            _logger.LogError($"Refresh token deletion failed");
+            return false;
+        }
+        
         _logger.LogInformation($"Refresh token deletion successfully");
+        return true;
     }
 
 }

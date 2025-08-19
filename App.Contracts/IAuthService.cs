@@ -10,5 +10,5 @@ public interface IAuthService
     Task<(string? JwtToken, string? RefreshToken)> RefreshJwtToken(string refreshToken, string jwtToken, string ipAddress);
     Guid? GetUserIdFromJwt(string jwtToken);
     Task<bool> VerifyRefreshToken(string refreshToken, Guid userId, string ipAddress);
-    Task DeleteRefreshToken(string refreshToken);
+    Task<bool> DeleteRefreshToken(string refreshToken);
 }

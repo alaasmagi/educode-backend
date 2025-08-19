@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using App.DAL.EF;
+using App.Domain;
 using Contracts;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
@@ -9,12 +10,12 @@ namespace App.BLL;
 public class OtpService : IOtpService
 {
     private readonly ILogger<OtpService> _logger;
-    private readonly CacheRepository _cacheRepository;
+    private readonly RedisRepository _redisRepository;
     
-    public OtpService(IConnectionMultiplexer redis, ILogger<OtpService> logger)
+    public OtpService(IConnectionMultiplexer redis, ILogger<OtpService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
-        _cacheRepository = new CacheRepository(redis);
+        _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger);
     }
     
     public async Task<bool> GenerateAndStoreOtp(Guid userId)
@@ -24,14 +25,16 @@ public class OtpService : IOtpService
         rng.GetBytes(bytes);
         var otp = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
 
-        var status = await _cacheRepository.SetOtpAsync(userId, otp.ToString());
+        var otpExpirationMinutes = 5; // TODO: ENV!
+        var status = await _redisRepository.SetDataAsync(Constants.OtpPrefix + userId, otp.ToString(), 
+                                                                    TimeSpan.FromMinutes(otpExpirationMinutes));
         
         return status;
     }
 
     public async Task<bool> VerifyOtp(Guid userId, string otpToVerify)
     {
-        var originalOtp =  await _cacheRepository.GetOtpAsync(userId);
+        var originalOtp =  await _redisRepository.GetDataAsync(Constants.OtpPrefix + userId);
 
         if (originalOtp == null)
         {

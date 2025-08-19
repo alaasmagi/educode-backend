@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Threading.RateLimiting;
 using App.BLL;
+using App.Domain;
 using Contracts;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
@@ -62,14 +63,23 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policyBuilder =>
     {
-        policyBuilder
-            .WithOrigins(frontendUrl ?? "")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-        
+        if (!string.IsNullOrWhiteSpace(frontendUrl))
+        {
+            policyBuilder
+                .WithOrigins(frontendUrl)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            policyBuilder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        }
     });
-    
+
     options.DefaultPolicyName = "Frontend";
 });
 
@@ -101,7 +111,19 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-builder.Services.AddAuthorization(); 
+builder.Services.AddAuthorization(options =>
+{
+    foreach (EAccessLevel level in Enum.GetValues(typeof(EAccessLevel)))
+    {
+        options.AddPolicy(level.ToString(), policy =>
+            policy.RequireAssertion(context =>
+            {
+                var userLevel = Helpers.GetAccessLevelFromClaims(context);
+                return userLevel >= (int)level;
+            }));
+    }
+});
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddSwaggerGen(c =>
@@ -166,17 +188,15 @@ app.MapStaticAssets();
 
 app.UseStaticFiles();
 
-
-
 app.MapControllerRoute(
         name: "default",
         pattern: "{controller=AdminPanel}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseRateLimiter();
 app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 
 
