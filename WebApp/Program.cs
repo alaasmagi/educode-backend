@@ -11,6 +11,7 @@ using Contracts;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
 var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
 var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
 var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
+var redisConnectionString = "localhost:6379";//Environment.GetEnvironmentVariable("REDIS_CONNECTION");
 
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
 
@@ -36,7 +38,10 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
         npgsqlOptions.EnableRetryOnFailure(3);
     }), poolSize: 500);
 
-
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    return ConnectionMultiplexer.Connect(redisConnectionString!);
+});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -56,7 +61,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddSingleton<IHostedService, CleanupService>();
-builder.Services.AddSingleton<Initializer>();
+builder.Services.AddScoped<Initializer>();
 
 
 builder.Services.AddCors(options =>
