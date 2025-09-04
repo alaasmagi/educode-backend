@@ -17,7 +17,7 @@ public class AttendanceController(
     ILogger<AttendanceController> logger)
     : ControllerBase
 {
-    [Authorize(Roles = nameof(EAccessLevel.PrimaryLevel))]
+    [Authorize(Policy = nameof(EAccessLevel.SecondaryLevel))]
     [HttpGet("Id/{id}")]
     public async Task<ActionResult<CourseAttendanceDto>> GetAttendanceById(Guid id)
     {
@@ -37,7 +37,7 @@ public class AttendanceController(
         return result;
     }
 
-    [Authorize(Roles = nameof(EAccessLevel.PrimaryLevel))]
+    [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
     [HttpGet("CurrentAttendance/UniId/{uniId}")]
     public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance(string uniId)
     {
@@ -62,7 +62,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles = nameof(EAccessLevel.TertiaryLevel))]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("StudentCount/AttendanceId/{id}")]
     public async Task<ActionResult<int>> GetAttendanceStudentCount(Guid id)
     {
@@ -83,7 +83,7 @@ public class AttendanceController(
     }
     
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("CourseCode/{courseCode}")]
     public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseCode(string courseCode)
     {
@@ -111,7 +111,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("CourseName/{courseName}")]
     public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseName(string courseName)
     {
@@ -139,7 +139,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("RecentAttendance/UniId/{uniId}")]
     public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance(string uniId)
     {
@@ -164,7 +164,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("AttendanceChecks/AttendanceId/{attendanceId}")]
     public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid attendanceId)
     {
@@ -190,7 +190,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("AttendanceTypes")]
     public async Task<ActionResult<IEnumerable<AttendanceTypeDto>>> GetAllAttendanceTypes()
     {
@@ -208,7 +208,7 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    [Authorize]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpPost("AttendanceCheck/Add")]
     public async Task<IActionResult> AddAttendanceCheck([FromBody] AttendanceCheckModel model)
     {
@@ -247,7 +247,7 @@ public class AttendanceController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpPost("Add")]
     public async Task<ActionResult> AddCourseAttendance([FromBody] AttendanceModel model)
     {
@@ -287,7 +287,7 @@ public class AttendanceController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpPatch("Edit")]
     public async Task<ActionResult> EditAttendance([FromBody] AttendanceModel model)
     {
@@ -331,7 +331,7 @@ public class AttendanceController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpDelete("Delete/{id}")]
     public async Task<ActionResult> DeleteAttendance(Guid id)
     {
@@ -352,7 +352,7 @@ public class AttendanceController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpDelete("AttendanceCheck/Delete/{id}")]
     public async Task<ActionResult> DeleteAttendanceCheck(Guid id)
     {

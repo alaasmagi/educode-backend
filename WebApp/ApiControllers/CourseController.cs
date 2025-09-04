@@ -17,7 +17,7 @@ public class CourseController(
     : ControllerBase
 {
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Id/{id}")]
     public async Task<ActionResult<CourseDto>> GetCourseDetails(Guid id)
     {
@@ -36,7 +36,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize]
+    [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
     [HttpGet("AttendanceId/{id}")]
     public async Task<ActionResult<CourseDto>> GetCourseByAttendanceId(Guid id)
     {
@@ -54,7 +54,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Statuses")]
     public async Task<IActionResult> GetAllCourseStatuses()
     {
@@ -72,7 +72,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("UniId/{uniId}")]
     public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(string uniId)
     {
@@ -96,7 +96,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("StudentCounts/{id}")]
     public async Task<ActionResult<IEnumerable<AttendanceStudentCountDto>>> GetAllStudentCountsByCourse(Guid id)
     {
@@ -118,7 +118,7 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpPost("Add")]
     public async Task<ActionResult> AddCourse([FromBody] CourseModel model)
     {
@@ -154,7 +154,7 @@ public class CourseController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpPatch("Edit")]
     public async Task<ActionResult> EditCourse([FromBody] CourseModel model)
     {
@@ -184,7 +184,7 @@ public class CourseController(
         return Ok();
     }
     
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpDelete("Delete/{id}")]
     public async Task<ActionResult> DeleteCourse(Guid id)
     {

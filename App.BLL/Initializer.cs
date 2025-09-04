@@ -1,5 +1,6 @@
 using App.DAL.EF;
 using App.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace App.BLL;
@@ -7,11 +8,7 @@ namespace App.BLL;
 public class Initializer
 {
     private readonly ILogger<Initializer> _logger;
-    private readonly AppDbContext _context;
-    private readonly AttendanceRepository _attendanceRepository;
-    private readonly CourseRepository _courseRepository;
-    private readonly UserRepository _userRepository;
-
+    private readonly IServiceScopeFactory _scopeFactory;
     public string OtpKey { get; private set; } = string.Empty;
     public string AdminUser { get; private set; } = string.Empty;
     public string AdminKey { get; private set; } = string.Empty;
@@ -24,20 +21,26 @@ public class Initializer
     public string MailSenderHost { get; private set; } = string.Empty;
     public string MailSenderPort { get; private set; } = string.Empty;
     
-    public Initializer(AppDbContext context, ILogger<Initializer> logger)
+    public Initializer(ILogger<Initializer> logger, IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
-        _context = context;
-        _attendanceRepository = new AttendanceRepository(_context);
-        _courseRepository = new CourseRepository(_context);
-        _userRepository = new UserRepository(_context);
+        _scopeFactory = scopeFactory;
     }
     
     public void InitializeDb()
     {
-        _attendanceRepository.SeedAttendanceTypes();
-        _courseRepository.SeedCourseStatuses();
-        _userRepository.SeedUserTypes();
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var attendanceRepository = new AttendanceRepository(context);
+        var courseRepository = new CourseRepository(context);
+        var userRepository = new UserRepository(context);
+
+        attendanceRepository.SeedAttendanceTypes();
+        courseRepository.SeedCourseStatuses();
+        userRepository.SeedUserTypes();
+
+        _logger.LogInformation("Database initialization completed.");
     }
 
     public void InitializeEnv()

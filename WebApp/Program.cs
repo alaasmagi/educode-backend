@@ -53,6 +53,7 @@ builder.Logging.AddSerilog();
 builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
+builder.Services.AddSingleton<Initializer>();
 builder.Services.AddScoped<IAdminAccessService, AdminAccessService>();
 builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -61,7 +62,6 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddSingleton<IHostedService, CleanupService>();
-builder.Services.AddScoped<Initializer>();
 
 
 builder.Services.AddCors(options =>

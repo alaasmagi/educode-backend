@@ -21,7 +21,7 @@ namespace WebApp.ApiControllers
             return Ok();
         }
         
-        [Authorize]
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
@@ -39,7 +39,7 @@ namespace WebApp.ApiControllers
            return Ok(result);
         }
         
-        [Authorize]
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet("UniId/{uniId}")]
         public async Task<ActionResult<UserDto>> GetUserEntityByUniId(string uniId)
         {
@@ -57,7 +57,7 @@ namespace WebApp.ApiControllers
             return Ok(result);
         }
         
-        [Authorize]
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet("Id/{id}")]
         public async Task<ActionResult<UserDto>> GetUserEntity(Guid id)
         {
@@ -81,7 +81,7 @@ namespace WebApp.ApiControllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpDelete("Delete/UniId/{uniId}")]
         public async Task<IActionResult> DeleteUserEntity(string uniId)
         {

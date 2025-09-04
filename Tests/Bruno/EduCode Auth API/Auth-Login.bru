@@ -1,0 +1,22 @@
+meta {
+  name: Auth/Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5139/api/Auth/Login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "uniId": "UNI-ID",
+    "password": "PASSWORD"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -7,7 +7,7 @@ public class CourseAttendanceDto(CourseAttendanceEntity courseAttendance)
     public Guid Id { get; set; } = courseAttendance.Id;
     public Guid CourseId { get; set; } = courseAttendance.CourseId;
     public string? CourseCode { get; set; } = courseAttendance.Course?.CourseCode;
-    public string? CourseName = courseAttendance.Course?.CourseName;
+    public string? CourseName { get; set; } = courseAttendance.Course?.CourseName;
     public Guid? AttendanceTypeId { get; set; } = courseAttendance.AttendanceTypeId;
     public string? AttendanceType { get; set; } = courseAttendance.AttendanceType?.AttendanceType;
     public DateTime StartTime { get; set; } = courseAttendance.StartTime;
