@@ -18,22 +18,22 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly UserRepository _userRepository;
     private readonly RedisRepository _redisRepository;
-    private readonly Initializer _initializer;
+    private readonly EnvInitializer _envInitializer;
     
-    public AuthService(AppDbContext context, ILogger<AuthService> logger, Initializer initializer, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
+    public AuthService(AppDbContext context, ILogger<AuthService> logger, EnvInitializer envInitializer, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
         _userRepository = new UserRepository(context);
         _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger);
-        _initializer = initializer;
+        _envInitializer = envInitializer;
     }
     
     public string GenerateJwtToken(UserEntity user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtKey = _initializer.JwtKey;
-        var issuer = _initializer.JwtIssuer;
-        var audience = _initializer.JwtAudience;
+        var jwtKey = _envInitializer.JwtKey;
+        var issuer = _envInitializer.JwtIssuer;
+        var audience = _envInitializer.JwtAudience;
         
         var jwtExpirationMinutes = 15; // TODO: ENV!
         var now = DateTime.Now.ToUniversalTime();

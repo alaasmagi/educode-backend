@@ -2,7 +2,6 @@ using App.DAL.EF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Threading.RateLimiting;
 using App.BLL;
@@ -14,46 +13,24 @@ using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
-
 DotNetEnv.Env.Load("../.env");
-/*var host = Environment.GetEnvironmentVariable("HOST");
-var port = Environment.GetEnvironmentVariable("PORT");
-var user = Environment.GetEnvironmentVariable("USER");
-var db = Environment.GetEnvironmentVariable("DB");
-var dbKey = Environment.GetEnvironmentVariable("DBKEY");*/
 
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
-
-var jwtKey = Environment.GetEnvironmentVariable("JWTKEY");
-var jwtAud = Environment.GetEnvironmentVariable("JWTAUD");
-var jwtIss = Environment.GetEnvironmentVariable("JWTISS");
-var redisConnectionString = "localhost:6379";//Environment.GetEnvironmentVariable("REDIS_CONNECTION");
-
-var frontendUrl = Environment.GetEnvironmentVariable("FRONTENDURL");
-
-builder.Services.AddDbContextPool<AppDbContext>(options =>
-    options.UseNpgsql(connectionString, npgsqlOptions =>
-    {
-        npgsqlOptions.CommandTimeout(60);
-        npgsqlOptions.EnableRetryOnFailure(3);
-    }), poolSize: 500);
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    return ConnectionMultiplexer.Connect(redisConnectionString!);
-});
-
+var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit:14)  
     .CreateLogger();
+
+var envInitializer = new EnvInitializer(loggerFactory.CreateLogger<EnvInitializer>());
+envInitializer.InitializeEnv();
+builder.Services.AddSingleton(envInitializer);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(); 
 builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
-builder.Services.AddSingleton<Initializer>();
+builder.Services.AddSingleton<DbInitializer>();
 builder.Services.AddScoped<IAdminAccessService, AdminAccessService>();
 builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -63,15 +40,26 @@ builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddSingleton<IHostedService, CleanupService>();
 
+builder.Services.AddDbContextPool<AppDbContext>(options =>
+    options.UseNpgsql(envInitializer.PgDbConnection, npgsqlOptions =>
+    {
+        npgsqlOptions.CommandTimeout(60);
+        npgsqlOptions.EnableRetryOnFailure(3);
+    }), poolSize: 500);
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policyBuilder =>
     {
-        if (!string.IsNullOrWhiteSpace(frontendUrl))
+        if (!string.IsNullOrWhiteSpace(envInitializer.FrontendUrl))
         {
             policyBuilder
-                .WithOrigins(frontendUrl)
+                .WithOrigins(envInitializer.FrontendUrl)
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
@@ -95,11 +83,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(envInitializer.JwtKey!)),
             ValidateIssuer = true,
-            ValidIssuer = jwtIss,
+            ValidIssuer = envInitializer.JwtIssuer,
             ValidateAudience = true,
-            ValidAudience = jwtAud,
+            ValidAudience = envInitializer.JwtAudience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
@@ -204,12 +192,10 @@ app.UseAuthorization();
 
 app.MapGet("/", () => Results.Redirect($"/AdminPanel/Index")).RequireRateLimiting("fixed");
 
-
 using (var scope = app.Services.CreateScope())
 {
-    var initializer = scope.ServiceProvider.GetRequiredService<Initializer>();
-    initializer.InitializeEnv();
-    initializer.InitializeDb();
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
+    dbInitializer.InitializeDb();
 }
 
 app.Run();
