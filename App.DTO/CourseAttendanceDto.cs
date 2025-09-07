@@ -8,6 +8,7 @@ public class CourseAttendanceDto(CourseAttendanceEntity courseAttendance)
     public Guid CourseId { get; set; } = courseAttendance.CourseId;
     public string? CourseCode { get; set; } = courseAttendance.Course?.CourseCode;
     public string? CourseName { get; set; } = courseAttendance.Course?.CourseName;
+    public int? StudentCount { get; set; } = courseAttendance.AttendanceChecks?.Count();
     public Guid? AttendanceTypeId { get; set; } = courseAttendance.AttendanceTypeId;
     public string? AttendanceType { get; set; } = courseAttendance.AttendanceType?.AttendanceType;
     public DateTime StartTime { get; set; } = courseAttendance.StartTime;
@@ -22,4 +23,5 @@ public class CourseAttendanceDto(CourseAttendanceEntity courseAttendance)
         }
         return entities.Select(e => new CourseAttendanceDto(e)).ToList();
     }
+    
 }

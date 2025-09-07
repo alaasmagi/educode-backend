@@ -18,12 +18,12 @@ public class CourseController(
 {
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("Id/{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<CourseDto>> GetCourseDetails(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var courseEntity = await courseManagementService.GetCourseByIdAsync(id, tokenUniId!);
+        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+        var courseEntity = await courseManagementService.GetCourseByIdAsync(id, userId!);
 
         if (courseEntity == null)
         {
@@ -37,7 +37,7 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    [HttpGet("AttendanceId/{id}")]
+    [HttpGet("Attendance/{id}")]
     public async Task<ActionResult<CourseDto>> GetCourseByAttendanceId(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -73,11 +73,12 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("UniId/{uniId}")]
-    public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(string uniId)
+    [HttpGet("User/{Id}")]
+    public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var user = await userManagementService.GetUserByUniIdAsync(uniId);
+        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+        var user = await userManagementService.GetUserByIdAsync(id);
         if(user == null)
         {
             return NotFound(new {message = "User not found", messageCode = "user-not-found"});
@@ -92,7 +93,7 @@ public class CourseController(
         
         var result = CourseDto.ToDtoList(courses);
         
-        logger.LogInformation($"All courses for user with UNI-ID {uniId}");
+        logger.LogInformation($"All courses for user with ID {id}");
         return Ok(result);
     }
     
@@ -119,17 +120,18 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpPost("Add")]
+    [HttpPost]
     public async Task<ActionResult> AddCourse([FromBody] CourseModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
-        var user = await userManagementService.GetUserByUniIdAsync(model.UniId);
+        var user = await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
         if (user == null)
         {
             return BadRequest(new { message = "User does not exist", messageCode = "user-not-found" });
@@ -155,7 +157,7 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpPatch("Edit")]
+    [HttpPatch]
     public async Task<ActionResult> EditCourse([FromBody] CourseModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -185,17 +187,19 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpDelete("Delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteCourse(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+        
         if (!ModelState.IsValid)
         {
             logger.LogWarning($"Form data is invalid");
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        if (!await courseManagementService.DeleteCourse(id, tokenUniId!))
+        
+        if (!await courseManagementService.DeleteCourse(id, userId!))
         {
             return BadRequest(new { message = "Course does not exist", messageCode = "course-does-not-exist" });
         }
