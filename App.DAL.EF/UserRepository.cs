@@ -51,15 +51,15 @@ public class UserRepository (AppDbContext context)
         return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UserAvailabilityCheckByUniId(string uniId)
+    public async Task<bool> UserAvailabilityCheckByEmail(string email)
     {
-       return await context.Users.AnyAsync(u => u.UniId == uniId);
+       return await context.Users.AnyAsync(u => u.Email == email);
     }
 
-    public async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
+    public async Task<UserEntity?> GetUserByEmailAsync(string email)
     {
         return await context.Users.Include(x => x.UserType)
-            .FirstOrDefaultAsync(x => x.UniId == uniId);
+            .FirstOrDefaultAsync(x => x.Email == email);
     }
     
     public async Task<UserEntity?> GetUserByIdAsync(Guid userId)

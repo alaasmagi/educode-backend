@@ -5,12 +5,15 @@ namespace App.Domain;
 
 public class WorkplaceEntity : BaseEntity
 {
-    [Required]
-    public int Identifier { get; set; }
+    [Required] 
+    public string Identifier { get; set; } = default!;
     [Required]
     [MaxLength(128)]
     public string ClassRoom { get; set; } = default!;
     [Required]
     [MaxLength(128)]
     public string ComputerCode { get; set; } = default!;
+    [Required]
+    public Guid SchoolId { get; set; }
+    public SchoolEntity? School { get; set; }
 }

@@ -87,7 +87,7 @@ public class AttendanceRepository(AppDbContext context)
         context.AttendanceChecks.Remove(attendanceCheckEntity);
         return await context.SaveChangesAsync() > 0;
     }
-    public async Task<int> GetStudentCountByAttendanceId(int attendanceIdentifier)
+    public async Task<int> GetStudentCountByAttendanceId(string attendanceIdentifier)
     {
         var attendanceCounts = await context.AttendanceChecks.Where(a => a.AttendanceIdentifier == attendanceIdentifier)
             .CountAsync();
@@ -110,7 +110,7 @@ public class AttendanceRepository(AppDbContext context)
         return attendance;
     }
     
-    public async Task<CourseAttendanceEntity?> GetAttendanceByIdentifier(int attendanceIdentifier)
+    public async Task<CourseAttendanceEntity?> GetAttendanceByIdentifier(string attendanceIdentifier)
     {
         var attendance = await context.CourseAttendances
             .Include(u => u.AttendanceType)
@@ -126,17 +126,17 @@ public class AttendanceRepository(AppDbContext context)
         return attendance;
     }
 
-    public async Task<bool> WorkplaceAvailabilityCheckById(int workplaceIdentifier)
+    public async Task<bool> WorkplaceAvailabilityCheckById(string workplaceIdentifier)
     {
         return await context.Workplaces.AnyAsync(w => w.Identifier == workplaceIdentifier);
     }
     
-    public async Task<bool> WorkplaceAvailabilityCheckByIdentifier(int workplaceIdentifier)
+    public async Task<bool> WorkplaceAvailabilityCheckByIdentifier(string workplaceIdentifier)
     {
         return await context.Workplaces.AnyAsync(w => w.Identifier == workplaceIdentifier);
     }
     
-    public async Task<WorkplaceEntity?> GetWorkplaceByIdentifier(int workplaceIdentifier)
+    public async Task<WorkplaceEntity?> GetWorkplaceByIdentifier(string workplaceIdentifier)
     {
         return await context.Workplaces.FirstOrDefaultAsync(w => w.Identifier == workplaceIdentifier);
     }
@@ -146,7 +146,7 @@ public class AttendanceRepository(AppDbContext context)
         return await context.CourseAttendances.AnyAsync(u => u.Id == attendanceId);
     }
     
-    public async Task<bool> AttendanceCheckAvailabilityCheck(string studentCode, int attendanceIdentifier)
+    public async Task<bool> AttendanceCheckAvailabilityCheck(string studentCode, string attendanceIdentifier)
     {
         return await context.AttendanceChecks.AnyAsync(u => u.StudentCode == studentCode 
                                                               && u.AttendanceIdentifier == attendanceIdentifier);
@@ -168,7 +168,7 @@ public class AttendanceRepository(AppDbContext context)
         return attendances;
     }
 
-    public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceIdentifier(int attendanceIdentifier)
+    public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceIdentifier(string attendanceIdentifier)
     {
         return await context.AttendanceChecks
             .Where(c => c.AttendanceIdentifier == attendanceIdentifier).ToListAsync();

@@ -25,7 +25,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(u => u.UserTypeId);
         modelBuilder.Entity<UserEntity>()
-            .HasIndex(u => u.UniId)
+            .HasIndex(u => u.Email)
             .IsUnique();
         modelBuilder.Entity<UserEntity>()
             .HasIndex(u => u.StudentCode)

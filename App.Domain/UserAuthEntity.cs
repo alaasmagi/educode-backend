@@ -7,7 +7,6 @@ namespace App.Domain;
 public class UserAuthEntity : BaseEntity
 {
     [Required]
-    [ForeignKey("User")]
     public Guid UserId { get; set; }
     public UserEntity? User { get; set; }
     [Required]

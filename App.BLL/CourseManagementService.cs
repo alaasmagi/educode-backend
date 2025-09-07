@@ -47,7 +47,7 @@ public class CourseManagementService : ICourseManagementService
         return course;
     }
 
-    public async Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string uniId)
+    public async Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string email)
     {
         var result = await _courseRepository.GetCourseById(courseId);
 
@@ -57,7 +57,7 @@ public class CourseManagementService : ICourseManagementService
             return null;
         }
         
-        var accessible = await IsCourseAccessibleToUser(result, uniId);
+        var accessible = await IsCourseAccessibleToUser(result, email);
         if (!accessible)
         {
             _logger.LogError($"Course with ID {result.Id} cannot be fetched");
@@ -67,7 +67,7 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<CourseEntity?> GetCourseByNameAsync(string courseName, string uniId)
+    public async Task<CourseEntity?> GetCourseByNameAsync(string courseName, string email)
     {
         var result = await _courseRepository.GetCourseByName(courseName);
         
@@ -77,7 +77,7 @@ public class CourseManagementService : ICourseManagementService
             return null;
         }
         
-        var accessible = await IsCourseAccessibleToUser(result, uniId);
+        var accessible = await IsCourseAccessibleToUser(result, email);
         if (!accessible)
         {
             _logger.LogError($"Course with ID {result.Id} cannot be fetched");
@@ -87,7 +87,7 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string uniId)
+    public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email)
     {
         var result = await _courseRepository.GetCourseByCode(courseCode);
         
@@ -97,7 +97,7 @@ public class CourseManagementService : ICourseManagementService
             return null;
         }
         
-        var accessible = await IsCourseAccessibleToUser(result, uniId);
+        var accessible = await IsCourseAccessibleToUser(result, email);
         if (!accessible)
         {
             _logger.LogError($"Course with ID {result.Id} cannot be fetched");
@@ -152,9 +152,9 @@ public class CourseManagementService : ICourseManagementService
         
         return true;
     }
-    public async Task<bool> DeleteCourse(Guid courseId, string uniId)
+    public async Task<bool> DeleteCourse(Guid courseId, string email)
     {
-        var course = await GetCourseByIdAsync(courseId, uniId);
+        var course = await GetCourseByIdAsync(courseId, email);
         
         if (course == null)
         {
@@ -212,20 +212,20 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string uniId)
+    public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string email)
     {
-        var user = await _userRepository.GetUserByUniIdAsync(uniId);
+        var user = await _userRepository.GetUserByEmailAsync(email);
         
         if (user == null)
         {
-            _logger.LogError($"User with uniId {uniId} was not found");
+            _logger.LogError($"User with email {email} was not found");
             return false;
         }
 
         var result = await _courseRepository.CourseAccessibilityCheck(courseEntity.Id, user.Id);
         if (result <= 0)
         {
-            _logger.LogError($"Course with with ID {courseEntity.Id} is not accessible by user with UNI-ID {uniId}");
+            _logger.LogError($"Course with with ID {courseEntity.Id} is not accessible by user with email {email}");
             return false;
         }
         

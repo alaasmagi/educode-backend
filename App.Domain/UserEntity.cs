@@ -7,12 +7,14 @@ namespace App.Domain;
 public class UserEntity : BaseEntity
 {
     [Required]
-    [ForeignKey("UserType")]
     public Guid UserTypeId { get; set; }
     public UserTypeEntity? UserType { get; set; }
     [Required]
+    public Guid SchoolId { get; set; }
+    public SchoolEntity? School { get; set; }
+    [Required]
     [MaxLength(128)]
-    public string UniId { get; set; } = default!;
+    public string Email { get; set; } = default!;
     [MaxLength(128)]
     public string? StudentCode { get; set; }
     [Required]

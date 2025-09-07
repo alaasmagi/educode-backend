@@ -11,8 +11,8 @@ public class AttendanceCheckEntity : BaseEntity
     [MaxLength(255)]
     public string FullName { get; set; } = default!;
     [Required]
-    public int AttendanceIdentifier { get; set; }
+    public string AttendanceIdentifier { get; set; } = default!;
     public CourseAttendanceEntity? CourseAttendance { get; set; }
-    public int? WorkplaceIdentifier { get; set; }
+    public string? WorkplaceIdentifier { get; set; }
     public WorkplaceEntity? Workplace { get; set; }
 }

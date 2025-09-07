@@ -47,9 +47,9 @@ public class UserManagementService : IUserManagementService
 
     public async Task<bool> CreateAccountAsync(UserEntity user, UserAuthEntity userAuthData)
     {
-        if (await DoesUserExistAsync(user.UniId))
+        if (await DoesUserExistAsync(user.Email))
         {
-            _logger.LogError($"Failed to create account for user with ID {user.UniId}");
+            _logger.LogError($"Failed to create account for user with email {user.Email}");
             return false;
         }
 
@@ -60,14 +60,14 @@ public class UserManagementService : IUserManagementService
         
         if (!await _userRepository.AddUserEntityToDb(user))
         {
-            _logger.LogError($"Failed to create account for user with ID {user.UniId}");
+            _logger.LogError($"Failed to create account for user with email {user.Email}");
             return false;
         }
         
         userAuthData.UserId = user.Id;
         if (!await _userRepository.AddUserAuthEntityToDb(userAuthData))
         {
-            _logger.LogError($"Failed to create account for user with ID {user.UniId}");
+            _logger.LogError($"Failed to create account for user with email {user.Email}");
             return false;
         }
 
@@ -92,17 +92,17 @@ public class UserManagementService : IUserManagementService
         return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
     }
 
-    public async Task<bool> DoesUserExistAsync(string uniId)
+    public async Task<bool> DoesUserExistAsync(string email)
     {
-        var status = await _userRepository.UserAvailabilityCheckByUniId(uniId);
+        var status = await _userRepository.UserAvailabilityCheckByEmail(email);
         
         if (!status)
         {
-            _logger.LogError($"User with UNI-ID {uniId} was not found");
+            _logger.LogError($"User with email {email} was not found");
             return false;
         }
         
-        _logger.LogInformation($"User with UNI-ID {uniId} was found");
+        _logger.LogInformation($"User with email {email} was found");
         return true;
     }
     
@@ -132,13 +132,13 @@ public class UserManagementService : IUserManagementService
         return result;
     }
     
-    public async Task<UserEntity?> GetUserByUniIdAsync(string uniId)
+    public async Task<UserEntity?> GetUserByEmailAsync(string email)
     {
-        var result = await _userRepository.GetUserByUniIdAsync(uniId);
+        var result = await _userRepository.GetUserByEmailAsync(email);
         
         if (result == null)
         {
-            _logger.LogError($"User with UNI-ID {uniId} not found");
+            _logger.LogError($"User with email {email} not found");
             return null;
         }
 

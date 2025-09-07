@@ -22,7 +22,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         _courseRepository = new CourseRepository(_context); 
         _userRepository = new UserRepository(_context); 
     }
-    public async Task<bool> DoesWorkplaceExist(int workplaceIdentifier)
+    public async Task<bool> DoesWorkplaceExist(string workplaceIdentifier)
     {
         var result = await _attendanceRepository.WorkplaceAvailabilityCheckById(workplaceIdentifier);
 
@@ -49,7 +49,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceIdentifier)
+    public async Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, string attendanceIdentifier)
     {
         var result = await _attendanceRepository.AttendanceCheckAvailabilityCheck(studentCode, attendanceIdentifier);
 
@@ -76,7 +76,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return currentAttendance;
     }
     
-    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string uniId)
+    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string email)
     {
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
@@ -86,7 +86,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
         
-        var accessible = await IsAttendanceAccessibleByUser(courseAttendance, uniId);
+        var accessible = await IsAttendanceAccessibleByUser(courseAttendance, email);
         if (!accessible)
         {
             _logger.LogError($"AttendanceCheck with ID {attendanceId} cannot be fetched");
@@ -95,7 +95,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return courseAttendance;
     }
 
-    public async Task<int> GetStudentsCountByAttendanceIdAsync(int attendanceIdentifier)
+    public async Task<int> GetStudentsCountByAttendanceIdAsync(string attendanceIdentifier)
     {
         var result = await _attendanceRepository.GetStudentCountByAttendanceId(attendanceIdentifier);
         if (result <= 0)
@@ -119,7 +119,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendances;
     }
 
-    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceIdentifer)
+    public async Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, string? workplaceIdentifer)
     {
         var attendanceCheckExist = await DoesAttendanceCheckExist(attendanceCheck.StudentCode, attendanceCheck.FullName, attendanceCheck.AttendanceIdentifier);
 
@@ -133,7 +133,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         attendanceCheck.StudentCode = attendanceCheck.StudentCode.ToUpper();
         if (workplaceIdentifer != null)
         {
-            var workplace = await _attendanceRepository.GetWorkplaceByIdentifier(workplaceIdentifer.Value);
+            var workplace = await _attendanceRepository.GetWorkplaceByIdentifier(workplaceIdentifer);
             status = await _attendanceRepository.AddAttendanceCheck(attendanceCheck, creator, workplace);
         }
         else
@@ -150,7 +150,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceIdentifier)
+    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(string attendanceIdentifier)
     {
         var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceIdentifier(attendanceIdentifier);
         
@@ -176,7 +176,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         return attendance;
     }
 
-    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid attendanceCheckId, string uniId)
+    public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid attendanceCheckId, string email)
     {
         var result = await _attendanceRepository.GetAttendanceCheckById(attendanceCheckId);
         if (result == null)
@@ -185,7 +185,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
         
-        var accessible = await IsAttendanceCheckAccessibleByUser(result, uniId);
+        var accessible = await IsAttendanceCheckAccessibleByUser(result, email);
         if (!accessible)
         {
             _logger.LogError($"AttendanceCheck with ID {attendanceCheckId} cannot be fetched");
@@ -272,9 +272,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<bool> DeleteAttendance(Guid attendanceId, string uniId)
+    public async Task<bool> DeleteAttendance(Guid attendanceId, string email)
     {
-        var attendance = await GetCourseAttendanceByIdAsync(attendanceId, uniId);
+        var attendance = await GetCourseAttendanceByIdAsync(attendanceId, email);
         if (attendance == null)
         {
             _logger.LogError($"Deleting attendance with ID {attendanceId} failed");
@@ -292,9 +292,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
     
-    public async Task<bool> DeleteAttendanceCheck(Guid attendanceCheckId, string uniId)
+    public async Task<bool> DeleteAttendanceCheck(Guid attendanceCheckId, string email)
     {
-        var attendanceCheck = await GetAttendanceCheckByIdAsync(attendanceCheckId, uniId);
+        var attendanceCheck = await GetAttendanceCheckByIdAsync(attendanceCheckId, email);
         if (attendanceCheck == null)
         {
             _logger.LogError($"Deleting attendance check with ID {attendanceCheckId} failed");
@@ -311,12 +311,12 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId)
+    public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string email)
     {
-        var user =  await _userRepository.GetUserByUniIdAsync(uniId);
+        var user =  await _userRepository.GetUserByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError($"User UNI-ID {uniId} was not found");
+            _logger.LogError($"User email {email} was not found");
             return false;
         }
         
@@ -324,19 +324,19 @@ public class AttendanceManagementService : IAttendanceManagementService
 
         if (result <= 0)
         {
-            _logger.LogError($"Attendance with ID {attendance.Id} is not accessible by user with UNI-ID {uniId}");
+            _logger.LogError($"Attendance with ID {attendance.Id} is not accessible by user with email {email}");
             return false;
         }
         
         return true;
     }
     
-    public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId)
+    public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string email)
     {
-        var user = await _userRepository.GetUserByUniIdAsync(uniId);
+        var user = await _userRepository.GetUserByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError($"User UNI-ID {uniId} was not found");
+            _logger.LogError($"User email {email} was not found");
             return false;
         }
         
@@ -351,7 +351,7 @@ public class AttendanceManagementService : IAttendanceManagementService
         
         if (result <= 0)
         {
-            _logger.LogError($"Attendance check with ID {attendanceCheck.Id} is not accessible by user with UNI-ID {uniId}");
+            _logger.LogError($"Attendance check with ID {attendanceCheck.Id} is not accessible by user with email {email}");
             return false;
         }
         

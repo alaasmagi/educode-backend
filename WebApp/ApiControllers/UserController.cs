@@ -82,25 +82,25 @@ namespace WebApp.ApiControllers
         }
 
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-        [HttpDelete("Delete/UniId/{uniId}")]
-        public async Task<IActionResult> DeleteUserEntity(string uniId)
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> DeleteUserEntity(Guid Id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-            var userEntity = await userManagementService.GetUserByUniIdAsync(uniId);
+            var userEntity = await userManagementService.GetUserByIdAsync(Id);
             if (userEntity == null)
             {
                 return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
             
-            var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-            if (userEntity.UniId != tokenUniId)
+            var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+            if (userEntity.Id != Guid.Parse(tokenUserId))
             {
                 return Unauthorized(new {message = "User not accessible", messageCode = "user-not-accessible"});
             }
             
             if (await userManagementService.DeleteUserAsync(userEntity))
             {
-                logger.LogInformation($"User with UNI-ID {uniId} deleted successfully");
+                logger.LogInformation($"User with ID {Id} deleted successfully");
                 return Ok(new { message = "User deleted successfully" });
             }
             

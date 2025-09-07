@@ -5,23 +5,22 @@ namespace Contracts;
 public interface IAttendanceManagementService
 {
     Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(Guid userId);
-    Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string uniId);
-    Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, int? workplaceIdentifier);
-    Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, int attendanceIdentifier);
-    Task<bool> DoesWorkplaceExist(int workplaceIdentifier);
+    Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string email);
+    Task<bool> AddAttendanceCheckAsync(AttendanceCheckEntity attendanceCheck, string creator, string? workplaceIdentifier);
+    Task<bool> DoesAttendanceCheckExist(string studentCode, string fullName, string attendanceIdentifier);
+    Task<bool> DoesWorkplaceExist(string workplaceIdentifier);
     Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(Guid courseId);
-    Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(int attendanceIdentifier);
-    Task<int> GetStudentsCountByAttendanceIdAsync(int attendanceIdentifier);
+    Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(string attendanceIdentifier);
+    Task<int> GetStudentsCountByAttendanceIdAsync(string attendanceIdentifier);
     Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(Guid userId);
     Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync();
     Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(Guid attendanceTypeId);
     Task<bool> AddAttendanceAsync(CourseAttendanceEntity newAttendance, List<DateOnly> attendanceDates,
         TimeOnly startTime, TimeOnly endTime);
-
-    Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid id, string uniId);
-    Task<bool> DeleteAttendance(Guid attendanceId, string uniId);
+    Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid id, string email);
+    Task<bool> DeleteAttendance(Guid attendanceId, string email);
     Task<bool> EditAttendanceAsync(Guid attendanceId, CourseAttendanceEntity updatedAttendance);
-    Task<bool> DeleteAttendanceCheck(Guid attendanceCheckId, string uniId);
-    Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string uniId);
-    Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string uniId);
+    Task<bool> DeleteAttendanceCheck(Guid attendanceCheckId, string email);
+    Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string email);
+    Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string email);
 }

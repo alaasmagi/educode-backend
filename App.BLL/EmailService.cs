@@ -14,17 +14,15 @@ public class EmailService : IEmailService
         _logger = logger;
     }
 
-    public async Task<bool> SendEmailAsync(string uniId, string fullName, int oneTimeKey)
+    public async Task<bool> SendEmailAsync(string email, string fullName, int oneTimeKey)
     {
         var mail = Environment.GetEnvironmentVariable("MAILSENDER_EMAIL") ?? "EMAIL";
         var key = Environment.GetEnvironmentVariable("MAILSENDER_KEY") ?? "KEY";
         var host = Environment.GetEnvironmentVariable("MAILSENDER_HOST") ?? "HOST";
         var port = int.Parse(Environment.GetEnvironmentVariable("MAILSENDER_PORT") ?? "0");
-        var emailDomain = Environment.GetEnvironmentVariable("EMAILDOMAIN") ?? "EMAILDOMAIN";
 
-        var email = $"{uniId + emailDomain}";
-        var subject = $"{uniId} account verification";
-        var messageBody = $"Hello, {uniId}! \n\nHere is a one-time key to verify ownership of " +
+        var subject = $"{email} account verification";
+        var messageBody = $"Hello, {fullName}! \n\nHere is a one-time key to verify ownership of " +
                           $"Your EduCode account: {oneTimeKey}";
         
         var smtpClient = new SmtpClient(host)

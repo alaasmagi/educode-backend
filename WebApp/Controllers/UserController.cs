@@ -107,6 +107,8 @@ namespace WebApp.Controllers
                 return NotFound();
             }
             ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType");
+            ViewData["CreatedAt"] = userEntity.CreatedAt;
+            ViewData["CreatedBy"] = userEntity.CreatedBy;
             return View(userEntity);
         }
 
@@ -132,6 +134,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    userEntity.CreatedAt = DateTime.SpecifyKind(userEntity.CreatedAt, DateTimeKind.Utc);
                     userEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(userEntity);
                     await context.SaveChangesAsync();

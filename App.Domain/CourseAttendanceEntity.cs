@@ -7,13 +7,11 @@ namespace App.Domain;
 public class CourseAttendanceEntity : BaseEntity
 {
     [Required]
-    public int Identifier  { get; set; }
+    public string Identifier  { get; set; } = default!;
     [Required]
-    [ForeignKey("Course")]
     public Guid CourseId { get; set; }
     public CourseEntity? Course { get; set; }
     [Required]
-    [ForeignKey("AttendanceType")]
     public Guid AttendanceTypeId { get; set; }
     public AttendanceTypeEntity? AttendanceType { get; set; }
     [Required]

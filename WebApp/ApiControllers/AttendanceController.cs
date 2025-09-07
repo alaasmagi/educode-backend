@@ -23,8 +23,8 @@ public class AttendanceController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
-        var attendanceEntity = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, tokenUniId);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var attendanceEntity = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, tokenUserId);
 
         if (attendanceEntity == null)
         {
@@ -38,11 +38,12 @@ public class AttendanceController(
     }
 
     [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    [HttpGet("CurrentAttendance/UniId/{uniId}")]
-    public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance(string uniId)
+    [HttpGet("CurrentAttendance")]
+    public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var user = await userManagementService.GetUserByUniIdAsync(uniId);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var user = await userManagementService.GetUserByIdAsync(Guid.Parse(tokenUserId));
 
         if (user == null)
         {
@@ -58,7 +59,7 @@ public class AttendanceController(
         
         var result = new CourseAttendanceDto(courseAttendanceEntity);
         
-        logger.LogInformation($"Current attendance for UNI-ID {uniId} successfully fetched");
+        logger.LogInformation($"Current attendance for ID {tokenUserId} successfully fetched");
         return Ok(result);
     }
     
@@ -68,8 +69,8 @@ public class AttendanceController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var attendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, tokenUniId!);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var attendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, tokenUserId);
 
         if (attendance == null)
         {
@@ -89,8 +90,8 @@ public class AttendanceController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var course = await courseManagementService.GetCourseByCodeAsync(courseCode, tokenUniId!);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var course = await courseManagementService.GetCourseByCodeAsync(courseCode, tokenUserId);
 
         if (course == null)
         {
@@ -116,9 +117,9 @@ public class AttendanceController(
     public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseName(string courseName)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
 
-        var course = await courseManagementService.GetCourseByNameAsync(courseName, tokenUniId!);
+        var course = await courseManagementService.GetCourseByNameAsync(courseName, tokenUserId);
 
         if (course == null)
         {
@@ -140,11 +141,12 @@ public class AttendanceController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("RecentAttendance/UniId/{uniId}")]
-    public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance(string uniId)
+    [HttpGet("RecentAttendance")]
+    public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance()
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var user= await userManagementService.GetUserByUniIdAsync(uniId);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var user= await userManagementService.GetUserByIdAsync(Guid.Parse(tokenUserId));
 
         if (user == null)
         {
@@ -160,7 +162,7 @@ public class AttendanceController(
 
         var result = new CourseAttendanceDto(attendance);
         
-        logger.LogInformation($"Most recent attendance for user with UNI-ID {uniId} successfully fetched");
+        logger.LogInformation($"Most recent attendance for user with ID {tokenUserId} successfully fetched");
         return Ok(result);
     }
     
@@ -169,8 +171,8 @@ public class AttendanceController(
     public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid attendanceId)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(attendanceId, tokenUniId!);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(attendanceId, tokenUserId);
 
         if (courseAttendance == null)
         {
@@ -230,7 +232,7 @@ public class AttendanceController(
 
         if (model.WorkplaceIdentifier != null)
         {
-            int workplaceIdentifier = model.WorkplaceIdentifier.Value;
+            string workplaceIdentifier = model.WorkplaceIdentifier;
             if(!await attendanceManagementService.DoesWorkplaceExist(workplaceIdentifier))
             {
                 return NotFound(new {message = "Workplace was not found ", messageCode = "workplace-not-found"});
@@ -256,8 +258,8 @@ public class AttendanceController(
         {
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUniId!);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUserId);
         if (course == null)
         {
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
@@ -298,8 +300,8 @@ public class AttendanceController(
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUniId!);
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        var course = await courseManagementService.GetCourseByIdAsync(model.CourseId, tokenUserId);
         if (course == null)
         {
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
@@ -342,8 +344,8 @@ public class AttendanceController(
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
         
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        if (!await attendanceManagementService.DeleteAttendance(id, tokenUniId!))
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        if (!await attendanceManagementService.DeleteAttendance(id, tokenUserId))
         {
             return BadRequest(new { message = "Attendance does not exist", messageCode = "attendance-does-not-exist" });
         }
@@ -363,8 +365,8 @@ public class AttendanceController(
             return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
         }
 
-        var tokenUniId = User.FindFirst(ClaimTypes.UserData)?.Value;
-        if (!await attendanceManagementService.DeleteAttendanceCheck(id, tokenUniId!))
+        var tokenUserId = User.FindFirst(ClaimTypes.UserData)?.Value ?? string.Empty;
+        if (!await attendanceManagementService.DeleteAttendanceCheck(id, tokenUserId))
         {
             return BadRequest(new { message = "AttendanceCheck does not exist", 
                 messageCode = "attendance-check-does-not-exist" });

@@ -119,7 +119,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseEntity courseEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
