@@ -17,15 +17,15 @@ public class CourseRepository(AppDbContext context)
     
     public async Task<bool> AddCourseEntity(CourseTeacherEntity teacher, CourseEntity newCourse)
     {
-        newCourse.CreatedAt = DateTime.Now.ToUniversalTime();
-        newCourse.UpdatedAt = DateTime.Now.ToUniversalTime();
+        newCourse.CreatedAt = DateTime.UtcNow;
+        newCourse.UpdatedAt = DateTime.UtcNow;
         
         await context.Courses.AddAsync(newCourse);
         
         teacher.CourseId = newCourse.Id;
         teacher.Course = newCourse;
-        teacher.CreatedAt = DateTime.Now.ToUniversalTime();
-        teacher.UpdatedAt = DateTime.Now.ToUniversalTime();
+        teacher.CreatedAt = DateTime.UtcNow;
+        teacher.UpdatedAt = DateTime.UtcNow;
         
         await context.CourseTeachers.AddAsync(teacher);
         return await context.SaveChangesAsync() > 0;
@@ -42,7 +42,7 @@ public class CourseRepository(AppDbContext context)
         course.CourseName = updatedCourse.CourseName;
         course.CourseCode = updatedCourse.CourseCode;
         course.CourseStatusId = updatedCourse.CourseStatusId;
-        course.UpdatedAt = DateTime.Now.ToUniversalTime();
+        course.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
         return true;
@@ -167,7 +167,7 @@ public class CourseRepository(AppDbContext context)
     {
         if (!context.CourseStatuses.Any())
         {
-            var now = DateTime.Now.ToUniversalTime();
+            var now = DateTime.UtcNow;
 
             var courseStatuses = new List<CourseStatusEntity>
             {

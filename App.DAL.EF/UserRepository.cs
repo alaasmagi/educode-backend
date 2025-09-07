@@ -7,8 +7,8 @@ public class UserRepository (AppDbContext context)
 {
     public async Task<bool> AddUserEntityToDb(UserEntity newUser)
     {
-        newUser.CreatedAt = DateTime.Now.ToUniversalTime();
-        newUser.UpdatedAt = DateTime.Now.ToUniversalTime();
+        newUser.CreatedAt = DateTime.UtcNow;
+        newUser.UpdatedAt = DateTime.UtcNow;
         
         await context.Users.AddAsync(newUser);
         return await context.SaveChangesAsync() > 0;
@@ -16,8 +16,8 @@ public class UserRepository (AppDbContext context)
 
     public async Task<bool> AddUserAuthEntityToDb(UserAuthEntity newUserAuth)
     {
-        newUserAuth.CreatedAt = DateTime.Now.ToUniversalTime();
-        newUserAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
+        newUserAuth.CreatedAt = DateTime.UtcNow;
+        newUserAuth.UpdatedAt = DateTime.UtcNow;
         
         await context.UserAuthData.AddAsync(newUserAuth);
         return await context.SaveChangesAsync() > 0;
@@ -39,7 +39,7 @@ public class UserRepository (AppDbContext context)
             return false;
         }
         
-        userAuth.UpdatedAt = DateTime.Now.ToUniversalTime();
+        userAuth.UpdatedAt = DateTime.UtcNow;
         userAuth.PasswordHash = newPasswordHash;
         
         return await context.SaveChangesAsync() > 0;
@@ -115,7 +115,7 @@ public class UserRepository (AppDbContext context)
     {
         if (!context.UserTypes.Any())
         {
-            var now = DateTime.Now.ToUniversalTime();
+            var now = DateTime.UtcNow;
 
             var userTypes = new List<UserTypeEntity>
             {

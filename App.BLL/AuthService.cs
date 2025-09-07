@@ -36,7 +36,7 @@ public class AuthService : IAuthService
         var audience = _envInitializer.JwtAudience;
         
         var jwtExpirationMinutes = 15; // TODO: ENV!
-        var now = DateTime.Now.ToUniversalTime();
+        var now = DateTime.UtcNow;
 
         if (string.IsNullOrWhiteSpace(jwtKey))
         {

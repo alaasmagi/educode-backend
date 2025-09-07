@@ -24,12 +24,12 @@ public class CleanupService : ICleanupService
         _attendanceRepository = new AttendanceRepository(dbContext);
         _userRepository = new UserRepository(dbContext);
         _courseRepository = new CourseRepository(dbContext);
-        _datePeriod = DateTime.Now.AddMonths(-6);
+        _datePeriod = DateTime.UtcNow.AddMonths(-6);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var timeToRun = DateTime.Today.AddDays(1).AddHours(3) - DateTime.Now;
+        var timeToRun = DateTime.Today.AddDays(1).AddHours(3) - DateTime.UtcNow;
         _timer = new Timer(ExecuteTask!, null, timeToRun, TimeSpan.FromDays(1));
         _logger.LogInformation("Attendance cleanup service started.");
         return Task.CompletedTask;

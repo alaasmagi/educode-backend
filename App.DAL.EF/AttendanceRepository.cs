@@ -10,8 +10,8 @@ public class AttendanceRepository(AppDbContext context)
     {
         attendance.CreatedBy = creator;
         attendance.UpdatedBy = creator;
-        attendance.CreatedAt = DateTime.Now.ToUniversalTime();
-        attendance.UpdatedAt= DateTime.Now.ToUniversalTime();
+        attendance.CreatedAt = DateTime.UtcNow;
+        attendance.UpdatedAt = DateTime.UtcNow;
 
         if (workplace != null)
         {
@@ -26,7 +26,7 @@ public class AttendanceRepository(AppDbContext context)
     public async Task<CourseAttendanceEntity?> GetCurrentAttendance(Guid userId)
     {
         var ongoingAttendance= await context.CourseAttendances
-            .Where(ca => ca.StartTime <= DateTime.Now && ca.EndTime >= DateTime.Now &&
+            .Where(ca => ca.StartTime <= DateTime.UtcNow && ca.EndTime >= DateTime.UtcNow &&
                          ca.Course!.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId)).
             Include(ca => ca.Course).Include(ca => ca.AttendanceType)
             .FirstOrDefaultAsync();
@@ -48,10 +48,10 @@ public class AttendanceRepository(AppDbContext context)
         if (attendance.StartTime > attendance.EndTime)
         {
             return false;
-        }   
-        
-        attendance.CreatedAt = DateTime.Now.ToUniversalTime();
-        attendance.UpdatedAt = DateTime.Now.ToUniversalTime();
+        }
+
+        attendance.CreatedAt = DateTime.UtcNow;
+        attendance.UpdatedAt = DateTime.UtcNow;
         
         await context.CourseAttendances.AddAsync(attendance);
        
@@ -184,7 +184,7 @@ public class AttendanceRepository(AppDbContext context)
     {
         return await context.CourseAttendances
             .Where(ca => ca.Course!.CourseTeacherEntities!
-                .Any(ct => ct.TeacherId == userId) && ca.StartTime <= DateTime.Now) 
+                .Any(ct => ct.TeacherId == userId) && ca.StartTime <= DateTime.UtcNow) 
             .Include(ca => ca.Course)
             .Include(ca => ca.AttendanceType) 
             .OrderByDescending(ca => ca.EndTime)
@@ -240,7 +240,7 @@ public class AttendanceRepository(AppDbContext context)
     {
         if (!context.AttendanceTypes.Any())
         {
-            var now = DateTime.Now.ToUniversalTime();
+            var now = DateTime.UtcNow;
 
             var attendanceTypes = new List<AttendanceTypeEntity>
             {

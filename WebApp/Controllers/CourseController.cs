@@ -55,7 +55,15 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            ViewBag.StatusList = await context.CourseStatuses.IgnoreQueryFilters().ToListAsync();
+            var statuses = await context.CourseStatuses
+                .IgnoreQueryFilters()
+                .ToListAsync();
+
+            ViewBag.StatusList = statuses.Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.CourseStatus
+            }).ToList();
             return View();
         }
 
@@ -64,7 +72,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -74,8 +82,8 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                courseEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
-                courseEntity.CreatedAt = DateTime.Now.ToUniversalTime();
+                courseEntity.UpdatedAt = DateTime.UtcNow;
+                courseEntity.CreatedAt = DateTime.UtcNow;
                 context.Add(courseEntity);
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -111,7 +119,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,CourseValidStatus,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseEntity courseEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseEntity courseEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -128,7 +136,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    courseEntity.UpdatedAt = DateTime.Now.ToUniversalTime();
+                    courseEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(courseEntity);
                     await context.SaveChangesAsync();
                 }
