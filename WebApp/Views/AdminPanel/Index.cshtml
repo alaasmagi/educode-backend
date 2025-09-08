@@ -3,21 +3,23 @@
     ViewData["Title"] = "Login Page";
 }
 
-<div class="text-center">
-    <img src="~/img/main-logo-darktext.png" class="homepage-img"/>
-    <h1 class="mb-2">Backend admin panel</h1>
-    
-    @if (Model.Message != string.Empty)
-    {
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <div class="alert alert-danger" role="alert"><b>@Model.Message</b></div>
+<div>
+    <div class="text-center">
+        <img src="~/img/main-logo-darktext.png" class="homepage-img"/>
+        <h1 class="mb-lg-5">Backend admin panel</h1>
+
+        @if (Model.Message != string.Empty)
+        {
+            <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="alert alert-danger" role="alert"><b>@Model.Message</b></div>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
     
-    <div class="row justify-content-center">
+    <div class="mt-4 row text-center justify-content-center">
         <div class="col-md-4">
             <form class="form-group" method="post" asp-action="Index">
                 <input type="text" class="form-control" name="Username" id="username-input" placeholder="Enter username" required>

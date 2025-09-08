@@ -31,6 +31,22 @@ body {
 }
 
 .homepage-img {
-  margin-bottom: 5%;
+  margin-bottom: 1%;
   width: 400px;
+}
+
+.card-crystal {
+    background-color: #ACDDDE;
+}
+
+.card-nyanza {
+    background-color: #E1F8DC;
+}
+
+.card-cornsilk {
+    background-color: #FEF8DD;
+}
+
+.card-sandytan {
+    background-color: #F7D8BA;
 }
