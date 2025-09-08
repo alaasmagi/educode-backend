@@ -65,4 +65,9 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Views\RefreshToken\" />
+      <Folder Include="Views\School\" />
+    </ItemGroup>
+
 </Project>
