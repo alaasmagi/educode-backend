@@ -68,7 +68,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,TeacherId,Id,CreatedBy,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
+        public async Task<IActionResult> Create([Bind("CourseId,TeacherId,CreatedBy,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -135,6 +135,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    courseTeacherEntity.CreatedAt = DateTime.SpecifyKind(courseTeacherEntity.CreatedAt, DateTimeKind.Utc);
                     courseTeacherEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(courseTeacherEntity);
                     await context.SaveChangesAsync();

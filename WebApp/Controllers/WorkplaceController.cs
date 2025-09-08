@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Controllers
 {
@@ -36,6 +37,7 @@ namespace WebApp.Controllers
             }
 
             var workplaceEntity = await context.Workplaces
+                .Include(m => m.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
             {
@@ -54,6 +56,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
         }
 
@@ -62,7 +65,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Identifier,ClassRoom,ComputerCode,Id,CreatedBy,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Create([Bind("Identifier,SchoolId,ClassRoom,ComputerCode,CreatedBy,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -78,6 +81,7 @@ namespace WebApp.Controllers
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(workplaceEntity);
         }
 
@@ -100,6 +104,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(workplaceEntity);
         }
 
@@ -108,7 +113,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Identifier,ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Identifier,SchoolId,ClassRoom,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -125,6 +130,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    workplaceEntity.CreatedAt = DateTime.SpecifyKind(workplaceEntity.CreatedAt, DateTimeKind.Utc);
                     workplaceEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(workplaceEntity);
                     await context.SaveChangesAsync();
@@ -160,12 +166,13 @@ namespace WebApp.Controllers
             }
 
             var workplaceEntity = await context.Workplaces
+                .Include(m => m.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
             {
                 return NotFound();
             }
-
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(workplaceEntity);
         }
 

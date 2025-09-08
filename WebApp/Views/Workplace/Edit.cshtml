@@ -18,6 +18,10 @@
                 <span asp-validation-for="Identifier" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="SchoolId" class="control-label">School</label>
+                <select asp-for="SchoolId" class="form-control" asp-items="ViewBag.School"></select>
+            </div>
+            <div class="form-group">
                 <label asp-for="ClassRoom" class="control-label">Classroom</label>
                 <input asp-for="ClassRoom" class="form-control" />
                 <span asp-validation-for="ClassRoom" class="text-danger"></span>

@@ -63,7 +63,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserType,Id,CreatedBy,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
+        public async Task<IActionResult> Create([Bind("UserType,CreatedBy,UpdatedBy,Deleted")] UserTypeEntity userTypeEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -126,6 +126,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    userTypeEntity.CreatedAt = DateTime.SpecifyKind(userTypeEntity.CreatedAt, DateTimeKind.Utc);
                     userTypeEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(userTypeEntity);
                     await context.SaveChangesAsync();

@@ -63,7 +63,7 @@ namespace WebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Name,ShortName,Domain,StudentCodePattern,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
+            [Bind("Name,ShortName,Domain,StudentCodePattern,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
             SchoolEntity schoolEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -132,6 +132,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
+                    schoolEntity.CreatedAt = DateTime.SpecifyKind(schoolEntity.CreatedAt, DateTimeKind.Utc);
                     schoolEntity.UpdatedAt = DateTime.UtcNow;
                     context.Update(schoolEntity);
                     await context.SaveChangesAsync();

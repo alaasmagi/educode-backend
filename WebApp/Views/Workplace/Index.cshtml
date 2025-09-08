@@ -15,6 +15,7 @@
     <thead>
     <tr>
         <th>Identifier</th>
+        <th>School</th>
         <th>Classroom</th>
         <th>Computer Code</th>
         <th>Created By</th>
@@ -30,6 +31,9 @@
     <tr>
         <td>
             @Html.DisplayFor(modelItem => item.Identifier)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.School!.Name)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.ClassRoom)
