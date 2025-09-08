@@ -38,6 +38,7 @@ namespace WebApp.Controllers
             }
 
             var userAuthEntity = await context.UserAuthData
+                .IgnoreQueryFilters()
                 .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userAuthEntity == null)
@@ -100,7 +101,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userAuthEntity = await context.UserAuthData.FindAsync(id);
+            var userAuthEntity = await context.UserAuthData
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (userAuthEntity == null)
             {
                 return NotFound();
@@ -168,6 +171,7 @@ namespace WebApp.Controllers
             }
 
             var userAuthEntity = await context.UserAuthData
+                .IgnoreQueryFilters()
                 .Include(u => u.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userAuthEntity == null)
@@ -189,7 +193,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userAuthEntity = await context.UserAuthData.FindAsync(id);
+            var userAuthEntity = await context.UserAuthData
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (userAuthEntity != null)
             {
                 context.UserAuthData.Remove(userAuthEntity);
@@ -201,7 +207,7 @@ namespace WebApp.Controllers
 
         private bool UserAuthEntityExists(Guid id)
         {
-            return context.UserAuthData.Any(e => e.Id == id);
+            return context.UserAuthData.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }

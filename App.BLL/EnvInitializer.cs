@@ -37,6 +37,9 @@ public class EnvInitializer
     public string MailSenderKey { get; private set; } = string.Empty;
     public string MailSenderHost { get; private set; } = string.Empty;
     public string MailSenderPort { get; private set; } = string.Empty;
+    
+    // Soft deletion
+    public int SoftDeleteExpirationDays { get; private set; }
 
     // Frontend
     public string FrontendUrl { get; private set; } = string.Empty;
@@ -73,6 +76,8 @@ public class EnvInitializer
         MailSenderHost = GetStringEnv("MAILSENDER_HOST");
         MailSenderPort = GetStringEnv("MAILSENDER_PORT");
 
+        SoftDeleteExpirationDays = GetIntEnv("SOFTDELETE_EXPIRATION_DAYS");
+        
         FrontendUrl = GetStringEnv("FRONTENDURL");
 
         _logger.LogInformation("Environment variables initialized.");

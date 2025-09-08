@@ -79,36 +79,42 @@ public class UserRepository (AppDbContext context)
     
     public async Task<bool> RemoveOldUsers(DateTime datePeriod)
     {
-        var oldUsers = await context.Users
-            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
-            .ToListAsync();
-
-        if (!oldUsers.Any())
-        {
-            return false;
-        }
-
-        context.Users.RemoveRange(oldUsers);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.Users
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldUserTypes(DateTime datePeriod)
+    {
+        return await context.UserTypes
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public async Task<bool> RemoveOldUserAuths(DateTime datePeriod)
     {
-        var oldUserAuths = await context.UserAuthData
-            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
-            .ToListAsync();
-
-        if (!oldUserAuths.Any())
-        {
-            return false;
-        }
-
-        context.UserAuthData.RemoveRange(oldUserAuths);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.UserAuthData
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldRefreshTokens(DateTime datePeriod)
+    {
+        return await context.RefreshTokens
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldSchools(DateTime datePeriod)
+    {
+        return await context.Schools
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public void SeedUserTypes()

@@ -36,6 +36,7 @@ namespace WebApp.Controllers
             }
 
             var refreshTokenEntity = await context.RefreshTokens
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (refreshTokenEntity == null)
             {
@@ -99,7 +100,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var refreshTokenEntity = await context.RefreshTokens.FindAsync(id);
+            var refreshTokenEntity = await context.RefreshTokens
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (refreshTokenEntity == null)
             {
                 return NotFound();
@@ -160,6 +163,7 @@ namespace WebApp.Controllers
             }
 
             var refreshTokenEntity = await context.RefreshTokens
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (refreshTokenEntity == null)
             {
@@ -180,7 +184,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
 
-            var refreshTokenEntity = await context.RefreshTokens.FindAsync(id);
+            var refreshTokenEntity = await context.RefreshTokens
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (refreshTokenEntity != null)
             {
                 context.RefreshTokens.Remove(refreshTokenEntity);

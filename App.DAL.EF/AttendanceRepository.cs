@@ -204,36 +204,34 @@ public class AttendanceRepository(AppDbContext context)
     
     public async Task<bool> RemoveOldAttendances(DateTime datePeriod)
     {
-        var oldAttendances = await context.CourseAttendances
-            .Where(u => u.EndTime < datePeriod)
-            .ToListAsync();
-
-        if (!oldAttendances.Any())
-        {
-            return false;
-        }
-
-        context.CourseAttendances.RemoveRange(oldAttendances);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.CourseAttendances
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldAttendanceTypes(DateTime datePeriod)
+    {
+        return await context.AttendanceTypes
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public async Task<bool> RemoveOldAttendanceChecks(DateTime datePeriod)
     {
-        var oldAttendanceChecks = await context.AttendanceChecks
-            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
-            .ToListAsync();
-
-        if (!oldAttendanceChecks.Any())
-        {
-            return false;
-        }
-
-        context.AttendanceChecks.RemoveRange(oldAttendanceChecks);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.AttendanceChecks
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldWorkplaces(DateTime datePeriod)
+    {
+        return await context.Workplaces
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public void SeedAttendanceTypes()

@@ -37,6 +37,7 @@ namespace WebApp.Controllers
             }
 
             var workplaceEntity = await context.Workplaces
+                .IgnoreQueryFilters()
                 .Include(m => m.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
@@ -99,7 +100,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await context.Workplaces.FindAsync(id);
+            var workplaceEntity = await context.Workplaces
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(w => w.Id == id);
             if (workplaceEntity == null)
             {
                 return NotFound();
@@ -166,6 +169,7 @@ namespace WebApp.Controllers
             }
 
             var workplaceEntity = await context.Workplaces
+                .IgnoreQueryFilters()
                 .Include(m => m.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (workplaceEntity == null)
@@ -187,7 +191,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var workplaceEntity = await context.Workplaces.FindAsync(id);
+            var workplaceEntity = await context.Workplaces
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(w => w.Id == id);
             if (workplaceEntity != null)
             {
                 context.Workplaces.Remove(workplaceEntity);
@@ -199,7 +205,7 @@ namespace WebApp.Controllers
 
         private bool WorkplaceEntityExists(Guid id)
         {
-            return context.Workplaces.Any(e => e.Id == id);
+            return context.Workplaces.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }

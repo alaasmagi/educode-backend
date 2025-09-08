@@ -38,6 +38,7 @@ namespace WebApp.Controllers
             }
 
             var userEntity = await context.Users
+                .IgnoreQueryFilters()
                 .Include(u => u.UserType)
                 .Include(u => u.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -76,7 +77,6 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
             if (ModelState.IsValid)
             {
                 userEntity.UpdatedAt = DateTime.UtcNow;
@@ -105,7 +105,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var userEntity = await context.Users.FindAsync(id);
+            var userEntity = await context.Users
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (userEntity == null)
             {
                 return NotFound();
@@ -177,6 +179,7 @@ namespace WebApp.Controllers
             }
 
             var userEntity = await context.Users
+                .IgnoreQueryFilters()
                 .Include(u => u.UserType)
                 .Include(u => u.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -199,7 +202,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var userEntity = await context.Users.FindAsync(id);
+            var userEntity = await context.Users
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Id == id);
             if (userEntity != null)
             {
                 context.Users.Remove(userEntity);
@@ -211,7 +216,7 @@ namespace WebApp.Controllers
 
         private bool UserEntityExists(Guid id)
         {
-            return context.Users.Any(e => e.Id == id);
+            return context.Users.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }

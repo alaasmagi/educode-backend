@@ -38,6 +38,7 @@ namespace WebApp.Controllers
             }
 
             var attendanceCheckEntity = await context.AttendanceChecks
+                .IgnoreQueryFilters()
                 .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceCheckEntity == null)
@@ -101,7 +102,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var attendanceCheckEntity = await context.AttendanceChecks.FindAsync(id);
+            var attendanceCheckEntity = await context.AttendanceChecks
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(a => a.Id == id);
             if (attendanceCheckEntity == null)
             {
                 return NotFound();
@@ -170,6 +173,7 @@ namespace WebApp.Controllers
             }
 
             var attendanceCheckEntity = await context.AttendanceChecks
+                .IgnoreQueryFilters()
                 .Include(a => a.Workplace)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (attendanceCheckEntity == null)
@@ -191,7 +195,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var attendanceCheckEntity = await context.AttendanceChecks.FindAsync(id);
+            var attendanceCheckEntity = await context.AttendanceChecks
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(a => a.Id == id);
             if (attendanceCheckEntity != null)
             {
                 context.AttendanceChecks.Remove(attendanceCheckEntity);
@@ -203,7 +209,7 @@ namespace WebApp.Controllers
 
         private bool AttendanceCheckEntityExists(Guid id)
         {
-            return context.AttendanceChecks.Any(e => e.Id == id);
+            return context.AttendanceChecks.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }

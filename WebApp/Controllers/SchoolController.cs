@@ -36,6 +36,7 @@ namespace WebApp.Controllers
             }
 
             var schoolEntity = await context.Schools
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schoolEntity == null)
             {
@@ -99,7 +100,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var schoolEntity = await context.Schools.FindAsync(id);
+            var schoolEntity = await context.Schools
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (schoolEntity == null)
             {
                 return NotFound();
@@ -160,6 +163,7 @@ namespace WebApp.Controllers
             }
 
             var schoolEntity = await context.Schools
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schoolEntity == null)
             {
@@ -180,7 +184,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
 
-            var schoolEntity = await context.Schools.FindAsync(id);
+            var schoolEntity = await context.Schools
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (schoolEntity != null)
             {
                 context.Schools.Remove(schoolEntity);

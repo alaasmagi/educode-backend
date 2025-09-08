@@ -4,10 +4,15 @@ namespace Contracts;
 
 public interface ICleanupService : IHostedService, IDisposable
 {
-    Task HardDeleteOldAttendanceEntitiesAsync();
     Task HardDeleteOldAttendanceCheckEntitiesAsync();
     Task HardDeleteOldUserAuthEntitiesAsync();
     Task HardDeleteOldUserEntitiesAsync();
     Task HardDeleteOldCourseTeacherEntitiesAsync();
-    Task HardDeleteOldCourseEntitiesAsync();
+    Task HardDeleteOldRefreshTokenEntitiesAsync();
+    Task HardDeleteOldAttendanceTypeEntitiesAsync();
+    Task HardDeleteOldWorkplaceEntitiesAsync();
+    Task HardDeleteOldCourseStatusEntitiesAsync();
+    Task HardDeleteOldUserTypeEntitiesAsync();
+    Task HardDeleteOldCourseAttendanceEntitiesAsync();
+    Task HardDeleteOldSchoolEntitiesAsync();
 }

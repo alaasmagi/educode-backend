@@ -116,7 +116,6 @@ public class CourseRepository(AppDbContext context)
         return await context.CourseStatuses.ToListAsync();
     }
     
-
     public async Task<bool> CourseOnlyTeacherCheck(Guid userId, Guid courseId)
     {
         var courseTeachers = await context.CourseTeachers.Where(c => c.CourseId == courseId).ToListAsync();
@@ -131,36 +130,26 @@ public class CourseRepository(AppDbContext context)
     
     public async Task<bool> RemoveOldCourses(DateTime datePeriod)
     {
-        var oldCourses = await context.Courses
-            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
-            .ToListAsync();
-
-        if (!oldCourses.Any())
-        {
-            return false;
-        }
-
-        context.Courses.RemoveRange(oldCourses);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.Courses
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
+    }
+    
+    public async Task<bool> RemoveOldCourseStatuses(DateTime datePeriod)
+    {
+        return await context.CourseStatuses
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public async Task<bool> RemoveOldCourseTeachers(DateTime datePeriod)
     {
-        var oldCourseTeachers = await context.CourseTeachers
-            .Where(u => u.UpdatedAt < datePeriod && u.Deleted == true)
-            .ToListAsync();
-
-        if (!oldCourseTeachers.Any())
-        {
-            return false;
-        }
-
-        context.CourseTeachers.RemoveRange(oldCourseTeachers);
-        await context.SaveChangesAsync();
-        
-        return true;
+        return await context.CourseTeachers
+            .IgnoreQueryFilters()
+            .Where(e => e.Deleted && e.UpdatedAt <= datePeriod)
+            .ExecuteDeleteAsync() > 0;
     }
     
     public void SeedCourseStatuses()

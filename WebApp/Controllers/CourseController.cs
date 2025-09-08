@@ -37,6 +37,7 @@ namespace WebApp.Controllers
             }
 
             var courseEntity = await context.Courses
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (courseEntity == null)
             {
@@ -100,7 +101,9 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var courseEntity = await context.Courses.FindAsync(id);
+            var courseEntity = await context.Courses
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (courseEntity == null)
             {
                 return NotFound();
@@ -171,6 +174,7 @@ namespace WebApp.Controllers
             }
 
             var courseEntity = await context.Courses
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (courseEntity == null)
             {
@@ -191,7 +195,9 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var courseEntity = await context.Courses.FindAsync(id);
+            var courseEntity = await context.Courses
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (courseEntity != null)
             {
                 context.Courses.Remove(courseEntity);
@@ -203,7 +209,7 @@ namespace WebApp.Controllers
 
         private bool CourseEntityExists(Guid id)
         {
-            return context.Courses.Any(e => e.Id == id);
+            return context.Courses.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }
