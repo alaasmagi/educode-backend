@@ -1,0 +1,65 @@
+@model IEnumerable<App.Domain.RefreshTokenEntity>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+<h4>RefreshTokenEntity</h4>
+
+<p>
+    <a asp-controller="AdminPanel" asp-action="Home">Go back</a>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Token</th>
+            <th>Created By IP</th>
+            <th>Expiration Time</th>
+            <th>Created At</th>
+            <th>Updated By</th>
+            <th>Updated At</th>
+            <th>Soft Deleted</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Token)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedByIp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpirationTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Deleted)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
