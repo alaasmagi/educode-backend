@@ -55,15 +55,8 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var statuses = await context.CourseStatuses
-                .IgnoreQueryFilters()
-                .ToListAsync();
-
-            ViewBag.StatusList = statuses.Select(s => new SelectListItem
-            {
-                Value = s.Id.ToString(),
-                Text = s.CourseStatus
-            }).ToList();
+            ViewData["CourseStatus"] = new SelectList(context.CourseStatuses, "Id", "CourseStatus");
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
         }
 
@@ -72,7 +65,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,SchoolId,CrossUniRegistration,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -88,6 +81,8 @@ namespace WebApp.Controllers
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CourseStatus"] = new SelectList(context.CourseStatuses, "Id", "CourseStatus", courseEntity.CourseStatusId);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name", courseEntity.SchoolId);
             return View(courseEntity);
         }
 
@@ -110,7 +105,9 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewBag.StatusList = await context.CourseStatuses.IgnoreQueryFilters().ToListAsync();
+            
+            ViewData["CourseStatus"] = new SelectList(context.CourseStatuses, "Id", "CourseStatus");
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(courseEntity);
         }
 
@@ -119,7 +116,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("CourseCode,CourseName,SchoolId,CrossUniRegistration,CourseStatusId,Id,CreatedBy,UpdatedBy,Deleted")] CourseEntity courseEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -153,6 +150,8 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CourseStatus"] = new SelectList(context.CourseStatuses, "Id", "CourseStatus", courseEntity.CourseStatusId);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name", courseEntity.SchoolId);
             return View(courseEntity);
         }
 

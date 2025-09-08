@@ -19,7 +19,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var users = context.Users.Include(u => u.UserType);
+            var users = context.Users.Include(u => u.UserType).Include(u=>u.School);
             return View(await users.IgnoreQueryFilters().ToListAsync());
         }
 
@@ -39,6 +39,7 @@ namespace WebApp.Controllers
 
             var userEntity = await context.Users
                 .Include(u => u.UserType)
+                .Include(u => u.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userEntity == null)
             {
@@ -58,6 +59,7 @@ namespace WebApp.Controllers
             }
             
             ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType");
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
         }
 
@@ -66,7 +68,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,UniId,StudentCode,FullName,Id,CreatedBy,UpdatedBy,Deleted")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,Id,CreatedBy,UpdatedBy,Deleted")] UserEntity userEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -74,6 +76,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
             if (ModelState.IsValid)
             {
                 userEntity.UpdatedAt = DateTime.UtcNow;
@@ -83,7 +86,8 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             
-            ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType", userEntity.UserType);
+            ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType", userEntity.UserTypeId);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(userEntity);
         }
 
@@ -106,7 +110,8 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType");
+            ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType", userEntity.UserTypeId);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             ViewData["CreatedAt"] = userEntity.CreatedAt;
             ViewData["CreatedBy"] = userEntity.CreatedBy;
             return View(userEntity);
@@ -117,7 +122,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,UniId,StudentCode,FullName,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -153,6 +158,7 @@ namespace WebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType", userEntity.UserType);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View(userEntity);
         }
 
@@ -172,6 +178,7 @@ namespace WebApp.Controllers
 
             var userEntity = await context.Users
                 .Include(u => u.UserType)
+                .Include(u => u.School)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (userEntity == null)
             {

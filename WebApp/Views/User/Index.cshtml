@@ -18,6 +18,9 @@
                 @Html.DisplayNameFor(model => model.UserType!.UserType)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.School)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
@@ -49,6 +52,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.UserType!.UserType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.School!.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
