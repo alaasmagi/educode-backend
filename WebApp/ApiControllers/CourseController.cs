@@ -12,6 +12,7 @@ namespace WebApp.ApiControllers;
 [Route("api/[controller]")]
 public class CourseController(
     ICourseManagementService courseManagementService,
+    IAttendanceManagementService attendanceManagementService,
     IUserManagementService userManagementService,
     ILogger<CourseController> logger)
     : ControllerBase
@@ -36,23 +37,34 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    [HttpGet("Attendance/{id}")]
-    public async Task<ActionResult<CourseDto>> GetCourseByAttendanceId(Guid id)
+    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+    [HttpGet("{id}/Attendances")]
+    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseCode(string courseCode)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
+        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+        var course = await courseManagementService.GetCourseByCodeAsync(courseCode, userId);
 
-        if (courseEntity == null)
+        if (course == null)
         {
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
-        var result = new CourseDto(courseEntity);
+        var attendances = 
+            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+
+        if (attendances == null)
+        {
+            return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
+        }
         
-        logger.LogInformation($"Successfully fetched course by attendance with ID {id}");
+        var result = CourseAttendanceDto.ToDtoList(attendances);
+        
+        logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
         return Ok(result);
     }
+    
+    
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Statuses")]
@@ -72,33 +84,10 @@ public class CourseController(
         return Ok(result);
     }
     
-    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("User/{Id}")]
-    public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id)
-    {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var user = await userManagementService.GetUserByIdAsync(id);
-        if(user == null)
-        {
-            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
-        }
-        
-        var courses = await courseManagementService.GetCoursesByUserAsync(user.Id);
-        
-        if (courses == null)
-        {
-            return Ok(new {message = "No courses found", messageCode = "courses-not-found"});
-        }
-        
-        var result = CourseDto.ToDtoList(courses);
-        
-        logger.LogInformation($"All courses for user with ID {id}");
-        return Ok(result);
-    }
+    
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("StudentCounts/{id}")]
+    [HttpGet("{id}/StudentCounts")]
     public async Task<ActionResult<IEnumerable<AttendanceStudentCountDto>>> GetAllStudentCountsByCourse(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");

@@ -36,110 +36,27 @@ public class AttendanceController(
         return result;
     }
 
+    
+    
     [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    [HttpGet("Current")]
-    public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance()
+    [HttpGet("{id}/Course")]
+    public async Task<ActionResult<CourseDto>> GetCourseByAttendanceId(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var user = await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
+        var courseEntity = await courseManagementService.GetCourseByAttendanceIdAsync(id);
 
-        if (user == null)
-        {
-            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
-        }
-        
-        var courseAttendanceEntity = await attendanceManagementService.GetCurrentAttendanceAsync(user.Id);
-
-        if (courseAttendanceEntity?.Course == null)
-        {
-            return Ok(new {message = "Current attendance not found", messageCode = "current-attendance-not-found"});
-        }
-        
-        var result = new CourseAttendanceDto(courseAttendanceEntity);
-        
-        logger.LogInformation($"Current attendance for user with ID {userId} successfully fetched");
-        return Ok(result);
-    }
-    
-    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("Recent")]
-    public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance()
-    {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var user= await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
-
-        if (user == null)
-        {
-            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
-        }
-        
-        var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
-
-        if (attendance == null)
-        {
-            return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
-        }
-
-        var result = new CourseAttendanceDto(attendance);
-        
-        logger.LogInformation($"Most recent attendance for user with ID {userId} successfully fetched");
-        return Ok(result);
-    }
-    
-    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("Course/{id}")]
-    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseCode(string courseCode)
-    {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var course = await courseManagementService.GetCourseByCodeAsync(courseCode, userId);
-
-        if (course == null)
+        if (courseEntity == null)
         {
             return NotFound(new {message = "Course not found", messageCode = "course-not-found"});
         }
         
-        var attendances = 
-            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
-
-        if (attendances == null)
-        {
-            return Ok(new {message = "Course has no attendances", messageCode = "no-course-attendances-found"});
-        }
+        var result = new CourseDto(courseEntity);
         
-        var result = CourseAttendanceDto.ToDtoList(attendances);
-        
-        logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
+        logger.LogInformation($"Successfully fetched course by attendance with ID {id}");
         return Ok(result);
     }
     
-    [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpGet("Checks/{id}")]
-    public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid id)
-    {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, userId);
-
-        if (courseAttendance == null)
-        {
-            return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
-        }
-        
-        var attendanceChecks = 
-            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier);
-        if (attendanceChecks == null)
-        {
-            return Ok(new {message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks"});
-        }
-        
-        var result = AttendanceCheckDto.ToDtoList(attendanceChecks);
-        
-        logger.LogInformation($"Attendance checks for attendance with ID {id} successfully fetched");
-        return Ok(result);
-    }
+    
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Types")]
@@ -157,45 +74,6 @@ public class AttendanceController(
         
         logger.LogInformation($"All attendance types successfully fetched");
         return Ok(result);
-    }
-    
-    [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    [HttpPost("Check")]
-    public async Task<IActionResult> AddAttendanceCheck([FromBody] AttendanceCheckModel model)
-    {
-        logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        if (!ModelState.IsValid)
-        {
-            logger.LogWarning($"Form data is invalid");
-            return BadRequest(new {message = "Invalid credentials", messageCode = "invalid-credentials"});
-        }
-        
-        var newAttendanceCheck = new AttendanceCheckEntity
-        {
-            StudentCode = model.StudentCode,
-            FullName = model.FullName,
-            AttendanceIdentifier = model.CourseAttendanceIdentifier,
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator,
-        };
-
-        if (model.WorkplaceIdentifier != null)
-        {
-            string workplaceIdentifier = model.WorkplaceIdentifier;
-            if(!await attendanceManagementService.DoesWorkplaceExist(workplaceIdentifier))
-            {
-                return NotFound(new {message = "Workplace was not found ", messageCode = "workplace-not-found"});
-            }
-        }
-
-        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceIdentifier ?? null))
-        {
-            return BadRequest(new {message = "Attendance check already exists", 
-                messageCode = "attendance-check-already-exists" });
-        }
-
-        logger.LogInformation($"Attendance check added successfully");
-        return Ok();
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
@@ -302,26 +180,31 @@ public class AttendanceController(
         logger.LogInformation($"Attendance with ID {id} deleted successfully");
         return Ok();
     }
-    
+
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpDelete("Check/{id}")]
-    public async Task<ActionResult> DeleteAttendanceCheck(Guid id)
+    [HttpGet("{id}/Checks")]
+    public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid id)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        if (!ModelState.IsValid)
+        var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, userId);
+
+        if (courseAttendance == null)
         {
-            logger.LogWarning($"Form data is invalid");
-            return BadRequest(new { message = "Invalid credentials", messageCode = "invalid-credentials" });
+            return NotFound(new { message = "Attendance not found", messageCode = "attendance-not-found" });
         }
 
-        if (!await attendanceManagementService.DeleteAttendanceCheck(id, userId))
+        var attendanceChecks =
+            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier);
+        if (attendanceChecks == null)
         {
-            return BadRequest(new { message = "AttendanceCheck does not exist", 
-                messageCode = "attendance-check-does-not-exist" });
+            return Ok(new
+                { message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks" });
         }
-        
-        logger.LogInformation($"Attendance check with ID {id} deleted successfully");
-        return Ok();
+
+        var result = AttendanceCheckDto.ToDtoList(attendanceChecks);
+
+        logger.LogInformation($"Attendance checks for attendance with ID {id} successfully fetched");
+        return Ok(result);
     }
 }

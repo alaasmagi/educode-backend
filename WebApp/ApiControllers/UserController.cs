@@ -11,16 +11,11 @@ namespace WebApp.ApiControllers
     [Route("api/[controller]")]
     public class UserController(
         IUserManagementService userManagementService,
+        ICourseManagementService courseManagementService,
+        IAttendanceManagementService attendanceManagementService,
         ILogger<UserController> logger)
         : ControllerBase
     {
-
-        [HttpGet("TestConnection")]
-        public ActionResult TestConnection()
-        {
-            return Ok();
-        }
-        
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -115,6 +110,84 @@ namespace WebApp.ApiControllers
             }
             
             return BadRequest(new {message = "User delete failed", messageCode = "user-delete-failed"});
+        }
+        
+        [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+        [HttpGet("{Id}/Courses")]
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id)
+        {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+            var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+            var user = await userManagementService.GetUserByIdAsync(id);
+            if(user == null)
+            {
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
+            }
+        
+            var courses = await courseManagementService.GetCoursesByUserAsync(user.Id);
+        
+            if (courses == null)
+            {
+                return Ok(new {message = "No courses found", messageCode = "courses-not-found"});
+            }
+        
+            var result = CourseDto.ToDtoList(courses);
+        
+            logger.LogInformation($"All courses for user with ID {id}");
+            return Ok(result);
+        }
+        
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
+    
+        [HttpGet("{id}/CurrentAttendance")]
+        public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance()
+        {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+            var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+            var user = await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
+            }
+            
+            var courseAttendanceEntity = await attendanceManagementService.GetCurrentAttendanceAsync(user.Id);
+
+            if (courseAttendanceEntity?.Course == null)
+            {
+                return Ok(new {message = "Current attendance not found", messageCode = "current-attendance-not-found"});
+            }
+            
+            var result = new CourseAttendanceDto(courseAttendanceEntity);
+            
+            logger.LogInformation($"Current attendance for user with ID {userId} successfully fetched");
+            return Ok(result);
+        }
+        
+        [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+        [HttpGet("{Id}/RecentAttendance")]
+        public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance()
+        {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+            var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+            var user= await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
+            }
+            
+            var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
+
+            if (attendance == null)
+            {
+                return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
+            }
+
+            var result = new CourseAttendanceDto(attendance);
+            
+            logger.LogInformation($"Most recent attendance for user with ID {userId} successfully fetched");
+            return Ok(result);
         }
     }
 }
