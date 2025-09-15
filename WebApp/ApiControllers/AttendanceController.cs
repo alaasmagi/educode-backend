@@ -199,7 +199,7 @@ public class AttendanceController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpPost("Add")]
+    [HttpPost]
     public async Task<ActionResult> AddCourseAttendance([FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
