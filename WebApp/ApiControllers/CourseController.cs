@@ -64,8 +64,6 @@ public class CourseController(
         return Ok(result);
     }
     
-    
-    
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Statuses")]
     public async Task<IActionResult> GetAllCourseStatuses()
