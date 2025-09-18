@@ -35,8 +35,6 @@ public class AttendanceController(
         logger.LogInformation($"Attendance with ID {id} successfully fetched");
         return result;
     }
-
-    
     
     [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
     [HttpGet("{id}/Course")]
@@ -117,8 +115,8 @@ public class AttendanceController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpPatch]
-    public async Task<ActionResult> EditAttendance([FromBody] AttendanceModel model)
+    [HttpPatch("{id}")]
+    public async Task<ActionResult> EditAttendance(Guid id, [FromBody] AttendanceModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;

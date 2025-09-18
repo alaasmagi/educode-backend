@@ -59,7 +59,7 @@ namespace WebApp.ApiControllers
         }
 
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-        [HttpPatch("{Id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateUserEntity(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -86,7 +86,7 @@ namespace WebApp.ApiControllers
         }
         
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-        [HttpDelete("{Id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserEntity(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -113,7 +113,7 @@ namespace WebApp.ApiControllers
         }
         
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-        [HttpGet("{Id}/Courses")]
+        [HttpGet("{id}/Courses")]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
@@ -165,7 +165,7 @@ namespace WebApp.ApiControllers
         }
         
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-        [HttpGet("{Id}/RecentAttendance")]
+        [HttpGet("{id}/RecentAttendance")]
         public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance()
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");

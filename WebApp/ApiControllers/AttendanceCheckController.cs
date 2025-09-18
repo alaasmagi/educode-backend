@@ -102,6 +102,4 @@ public class AttendanceCheckController(
         logger.LogInformation($"Attendance check with ID {id} deleted successfully");
         return Ok();
     }
-    
-    
 }

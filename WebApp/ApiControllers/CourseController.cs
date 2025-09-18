@@ -144,8 +144,8 @@ public class CourseController(
     }
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
-    [HttpPatch]
-    public async Task<ActionResult> EditCourse([FromBody] CourseModel model)
+    [HttpPatch("{id}")]
+    public async Task<ActionResult> EditCourse(Guid id, [FromBody] CourseModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         if (!ModelState.IsValid || model.Id == null)
