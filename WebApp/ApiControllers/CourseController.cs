@@ -39,11 +39,11 @@ public class CourseController(
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("{id}/Attendances")]
-    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseCode(string courseCode)
+    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseId(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var course = await courseManagementService.GetCourseByCodeAsync(courseCode, userId);
+        var course = await courseManagementService.GetCourseByIdAsync(id, userId);
 
         if (course == null)
         {
@@ -60,7 +60,7 @@ public class CourseController(
         
         var result = CourseAttendanceDto.ToDtoList(attendances);
         
-        logger.LogInformation($"Attendances for course {courseCode} successfully fetched");
+        logger.LogInformation($"Attendances for course {id} successfully fetched");
         return Ok(result);
     }
     
@@ -82,11 +82,9 @@ public class CourseController(
         return Ok(result);
     }
     
-    
-    
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("{id}/StudentCounts")]
-    public async Task<ActionResult<IEnumerable<AttendanceStudentCountDto>>> GetAllStudentCountsByCourse(Guid id)
+    public async Task<ActionResult<IEnumerable<AttendanceStudentCountDto>>> GetAllStudentCountsByCourse(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var validity = await courseManagementService.DoesCourseExistByIdAsync(id);

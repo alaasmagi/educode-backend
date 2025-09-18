@@ -54,8 +54,6 @@ public class AttendanceController(
         return Ok(result);
     }
     
-    
-    
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("Types")]
     public async Task<ActionResult<IEnumerable<AttendanceTypeDto>>> GetAllAttendanceTypes()
@@ -181,7 +179,8 @@ public class AttendanceController(
 
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("{id}/Checks")]
-    public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(Guid id)
+    public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(
+        Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;

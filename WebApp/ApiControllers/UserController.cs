@@ -18,7 +18,7 @@ namespace WebApp.ApiControllers
     {
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 25)
         {
            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
            var users = await userManagementService.GetAllUsersAsync();
@@ -114,7 +114,7 @@ namespace WebApp.ApiControllers
         
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
         [HttpGet("{id}/Courses")]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id)
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;

@@ -6,7 +6,7 @@ public class Constants
     public const string AccessLevelClaim = "AccessLevel";
     public const string RefreshTokenPrefix = "RefreshToken:";
     public const string OtpPrefix = "OTP:";
-    public const string UserPrefix = "User::";
+    public const string UserPrefix = "User:";
     public const string CoursePrefix = "Course:";
     public const string AttendancePrefix = "Attendance:";
     public const string AttendanceCheckPrefix = "AttendanceCheck:";
