@@ -1,3 +1,4 @@
+@using App.BLL
 @model IEnumerable<App.Domain.SchoolEntity>
 
 @{
@@ -17,6 +18,7 @@
             <th>School Name</th>
             <th>Short Name</th>
             <th>Domain</th>
+            <th>Photo Path</th>
             <th>Student Code Regex</th>
             <th>Created At</th>
             <th>Updated By</th>
@@ -36,6 +38,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Domain)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhotoPath)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.StudentCodePattern)

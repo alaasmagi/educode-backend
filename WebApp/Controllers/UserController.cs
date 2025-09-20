@@ -1,3 +1,4 @@
+using App.BLL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class UserController(AppDbContext context, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
         : BaseController(adminAccessService)
     {
         // GET: User
@@ -47,6 +48,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
+            ViewData["PhotoLink"] = envInitializer.BucketUrl + userEntity.PhotoPath;
             return View(userEntity);
         }
 
@@ -69,7 +71,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,CreatedBy,UpdatedBy,Deleted")] UserEntity userEntity)
+        public async Task<IActionResult> Create([Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,PhotoPath,CreatedBy,UpdatedBy,Deleted")] UserEntity userEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -124,7 +126,7 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,Id,PhotoPath,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)

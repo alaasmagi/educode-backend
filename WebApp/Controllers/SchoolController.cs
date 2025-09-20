@@ -1,4 +1,5 @@
-﻿using App.DAL.EF;
+﻿using App.BLL;
+using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers
 {
-    public class SchoolController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class SchoolController(AppDbContext context, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
         : BaseController(adminAccessService)
     {
         // GET: CourseStatus
@@ -43,6 +44,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
+            ViewData["PhotoLink"] = envInitializer.BucketUrl + schoolEntity.PhotoPath;
             return View(schoolEntity);
         }
 
@@ -64,7 +66,7 @@ namespace WebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Name,ShortName,Domain,StudentCodePattern,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
+            [Bind("Name,ShortName,Domain,PhotoPath,StudentCodePattern,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
             SchoolEntity schoolEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -117,7 +119,7 @@ namespace WebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id,
-            [Bind("Name,ShortName,Domain,StudentCodePattern,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
+            [Bind("Name,ShortName,Domain,PhotoPath,StudentCodePattern,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
             SchoolEntity schoolEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);

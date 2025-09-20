@@ -56,9 +56,10 @@ namespace App.DAL.EF.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     ShortName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Domain = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Domain = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PhotoPath = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     StudentCodePattern = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -166,6 +167,7 @@ namespace App.DAL.EF.Migrations
                     Email = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     StudentCode = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     FullName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PhotoPath = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
@@ -268,8 +270,8 @@ namespace App.DAL.EF.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
-                    CreatedByIp = table.Column<string>(type: "text", nullable: false),
+                    Token = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedByIp = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),

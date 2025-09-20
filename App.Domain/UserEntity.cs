@@ -20,5 +20,7 @@ public class UserEntity : BaseEntity
     [Required]
     [MaxLength(255)]
     public string FullName { get; set; } = default!;
+    [MaxLength(255)]
+    public string PhotoPath { get; set; } = default!;
     public List<RefreshTokenEntity>? RefreshTokens { get; set; } = default!;
 }

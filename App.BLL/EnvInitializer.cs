@@ -11,6 +11,9 @@ public class EnvInitializer
     // DB
     public string PgDbConnection { get; private set; } = string.Empty;
     public string RedisConnection { get; private set; } = string.Empty;
+    
+    // Bucket
+    public string BucketUrl { get; private set; } = string.Empty;
 
     // JWT
     public string JwtKey { get; private set; } = string.Empty;
@@ -54,6 +57,8 @@ public class EnvInitializer
     {
         PgDbConnection = GetStringEnv("PG_DB_CONNECTION");
         RedisConnection = GetStringEnv("REDIS_CONNECTION");
+        
+        BucketUrl = GetStringEnv("BUCKET_URL");
 
         OtpKey = GetStringEnv("OTPKEY");
         OtpExpirationMinutes = GetIntEnv("OTP_MINUTES");

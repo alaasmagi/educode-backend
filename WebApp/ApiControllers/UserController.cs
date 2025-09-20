@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using App.BLL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using App.Domain;
@@ -13,6 +14,7 @@ namespace WebApp.ApiControllers
         IUserManagementService userManagementService,
         ICourseManagementService courseManagementService,
         IAttendanceManagementService attendanceManagementService,
+        EnvInitializer envInitializer,
         ILogger<UserController> logger)
         : ControllerBase
     {
@@ -28,7 +30,7 @@ namespace WebApp.ApiControllers
                return NotFound(new {message = "Users not found", messageCode = "users-not-found"});
            }
            
-           var result = UserDto.ToDtoList(users);
+           var result = UserDto.ToDtoList(users, envInitializer.BucketUrl);
            
            logger.LogInformation($"All users fetched successfully");
            return Ok(result);
@@ -52,7 +54,7 @@ namespace WebApp.ApiControllers
                 return Unauthorized(new {message = "User not accessible", messageCode = "user-not-accessible"});
             }
             
-            var result = new UserDto(userEntity);
+            var result = new UserDto(userEntity, envInitializer.BucketUrl);
 
             logger.LogInformation($"User with ID {id} fetched successfully");
             return Ok(result);
@@ -138,7 +140,6 @@ namespace WebApp.ApiControllers
         }
         
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
-    
         [HttpGet("{id}/CurrentAttendance")]
         public async Task<ActionResult<CourseAttendanceDto>> GetCurrenAttendance()
         {
@@ -167,6 +168,58 @@ namespace WebApp.ApiControllers
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
         [HttpGet("{id}/RecentAttendance")]
         public async Task<ActionResult<CourseAttendanceDto>> GetMostRecentAttendance()
+        {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+            var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+            var user= await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
+            }
+            
+            var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
+
+            if (attendance == null)
+            {
+                return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
+            }
+
+            var result = new CourseAttendanceDto(attendance);
+            
+            logger.LogInformation($"Most recent attendance for user with ID {userId} successfully fetched");
+            return Ok(result);
+        }
+        
+        [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+        [HttpPost("{id}/UploadPhoto")]
+        public async Task<ActionResult<CourseAttendanceDto>> UploadUserPhoto()
+        {
+            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
+            var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+            var user= await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
+
+            if (user == null)
+            {
+                return NotFound(new {message = "User not found", messageCode = "user-not-found"});
+            }
+            
+            var attendance = await attendanceManagementService.GetMostRecentAttendanceByUserAsync(user.Id);
+
+            if (attendance == null)
+            {
+                return Ok(new {message = "User has no recent attendances", messageCode = "no-user-recent-attendances-found"});
+            }
+
+            var result = new CourseAttendanceDto(attendance);
+            
+            logger.LogInformation($"Most recent attendance for user with ID {userId} successfully fetched");
+            return Ok(result);
+        }
+        
+        [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+        [HttpDelete("{id}/RemovePhoto")]
+        public async Task<ActionResult<CourseAttendanceDto>> RemoveUserPhoto(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;

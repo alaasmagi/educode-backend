@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250908081151_DbMigration-v1")]
+    [Migration("20250918134200_DbMigration-v1")]
     partial class DbMigrationv1
     {
         /// <inheritdoc />
@@ -320,7 +320,8 @@ namespace App.DAL.EF.Migrations
 
                     b.Property<string>("CreatedByIp")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
@@ -330,7 +331,8 @@ namespace App.DAL.EF.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -372,13 +374,18 @@ namespace App.DAL.EF.Migrations
 
                     b.Property<string>("Domain")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("ShortName")
                         .IsRequired()
@@ -470,6 +477,11 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PhotoPath")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
