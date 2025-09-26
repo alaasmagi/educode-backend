@@ -52,6 +52,11 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
 });
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policyBuilder =>

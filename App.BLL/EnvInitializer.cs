@@ -41,6 +41,14 @@ public class EnvInitializer
     public string MailSenderHost { get; private set; } = string.Empty;
     public string MailSenderPort { get; private set; } = string.Empty;
     
+    // OCI (Oracle Cloud Infrastructure)
+    public string OciKey { get; private set; } = string.Empty;
+    public string OciTenancyId { get; private set; } = string.Empty;
+    public string OciUserId { get; private set; } = string.Empty;
+    public string OciFingerprint { get; private set; } = string.Empty;
+    public string OciRegion { get; private set; } = string.Empty;
+    public string OciBucketName { get; private set; } = string.Empty;
+    
     // Soft deletion
     public int SoftDeleteExpirationDays { get; private set; }
 
@@ -80,6 +88,13 @@ public class EnvInitializer
         MailSenderKey = GetStringEnv("MAILSENDER_KEY");
         MailSenderHost = GetStringEnv("MAILSENDER_HOST");
         MailSenderPort = GetStringEnv("MAILSENDER_PORT");
+        
+        OciKey = GetStringEnv("OCI_KEY");
+        OciTenancyId = GetStringEnv("OCI_TENANCY_ID");
+        OciUserId = GetStringEnv("OCI_USER_ID");
+        OciFingerprint = GetStringEnv("OCI_FINGERPRINT");
+        OciRegion = GetStringEnv("OCI_REGION");
+        OciBucketName = GetStringEnv("OCI_BUCKET_NAME");
 
         SoftDeleteExpirationDays = GetIntEnv("SOFTDELETE_EXPIRATION_DAYS");
         

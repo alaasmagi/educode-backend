@@ -14,4 +14,6 @@ public class Constants
     public const string CourseStatusPrefix = "CourseStatus:";
     public const string UserTypePrefix = "UserType:";
     public const string WorkplacePrefix = "Workplace:";
+    public const string UserFolder = "user";
+    public const string SchoolFolder = "school";
 }
