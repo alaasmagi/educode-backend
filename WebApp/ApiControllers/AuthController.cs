@@ -1,4 +1,5 @@
-﻿using App.Domain;
+﻿using App.BLL;
+using App.Domain;
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace WebApp.ApiControllers;
 public class AuthController(
     IUserManagementService userManagementService,
     IAuthService authService,
+    EnvInitializer envInitializer,
     IOtpService otpService,
     IEmailService emailService,
     ILogger<AuthController> logger)
@@ -50,7 +52,7 @@ public class AuthController(
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            MaxAge = TimeSpan.FromMinutes(15) // TODO: ENV!
+            MaxAge = TimeSpan.FromMinutes(envInitializer.JwtCookieExpirationMinutes)
         });
         
         Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
@@ -58,7 +60,7 @@ public class AuthController(
             HttpOnly = true,                
             Secure = true,                 
             SameSite = SameSiteMode.None,   
-            MaxAge = TimeSpan.FromDays(15) // TODO: ENV!
+            MaxAge = TimeSpan.FromDays(envInitializer.RefreshTokenCookieExpirationDays)
         });
         
         logger.LogInformation($"User with ID {user.Id} was logged in successfully");
