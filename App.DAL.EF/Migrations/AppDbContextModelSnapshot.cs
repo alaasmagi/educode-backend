@@ -114,6 +114,41 @@ namespace App.DAL.EF.Migrations
                     b.ToTable("AttendanceTypes", "educode");
                 });
 
+            modelBuilder.Entity("App.Domain.ClassroomEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ClassRoom")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Classrooms", "educode");
+                });
+
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -121,6 +156,9 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AttendanceTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClassroomId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CourseId")
@@ -158,6 +196,8 @@ namespace App.DAL.EF.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AttendanceTypeId");
+
+                    b.HasIndex("ClassroomId");
 
                     b.HasIndex("CourseId");
 
@@ -562,10 +602,8 @@ namespace App.DAL.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ClassRoom")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                    b.Property<Guid>("ClassRoomId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ComputerCode")
                         .IsRequired()
@@ -599,6 +637,8 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClassRoomId");
 
                     b.HasIndex("Identifier")
                         .IsUnique();
@@ -635,6 +675,12 @@ namespace App.DAL.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("App.Domain.ClassroomEntity", "Classroom")
+                        .WithMany("CourseAttendances")
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("App.Domain.CourseEntity", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
@@ -642,6 +688,8 @@ namespace App.DAL.EF.Migrations
                         .IsRequired();
 
                     b.Navigation("AttendanceType");
+
+                    b.Navigation("Classroom");
 
                     b.Navigation("Course");
                 });
@@ -725,13 +773,26 @@ namespace App.DAL.EF.Migrations
 
             modelBuilder.Entity("App.Domain.WorkplaceEntity", b =>
                 {
+                    b.HasOne("App.Domain.ClassroomEntity", "ClassRoom")
+                        .WithMany()
+                        .HasForeignKey("ClassRoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("App.Domain.SchoolEntity", "School")
                         .WithMany()
                         .HasForeignKey("SchoolId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ClassRoom");
+
                     b.Navigation("School");
+                });
+
+            modelBuilder.Entity("App.Domain.ClassroomEntity", b =>
+                {
+                    b.Navigation("CourseAttendances");
                 });
 
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>

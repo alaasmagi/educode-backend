@@ -12,6 +12,9 @@ public class CourseAttendanceEntity : BaseEntity
     public Guid CourseId { get; set; }
     public CourseEntity? Course { get; set; }
     [Required]
+    public Guid ClassroomId { get; set; }
+    public ClassroomEntity? Classroom { get; set; }
+    [Required]
     public Guid AttendanceTypeId { get; set; }
     public AttendanceTypeEntity? AttendanceType { get; set; }
     [Required]

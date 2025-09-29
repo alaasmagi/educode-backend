@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<WorkplaceEntity> Workplaces { get; set; }
     public DbSet<UserAuthEntity> UserAuthData { get; set; }
     public DbSet<SchoolEntity> Schools { get; set; }
+    public DbSet<ClassroomEntity> Classrooms { get; set; }
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,6 +68,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(c => c.Course)
             .WithMany()
             .HasForeignKey(c => c.CourseId);
+        modelBuilder.Entity<CourseAttendanceEntity>()
+            .HasOne(c => c.Classroom)
+            .WithMany(c => c.CourseAttendances)
+            .HasForeignKey(c => c.ClassroomId);
         modelBuilder.Entity<CourseAttendanceEntity>()
             .HasOne(c => c.AttendanceType)
             .WithMany()
@@ -160,6 +165,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(w => w.Identifier)
             .IsUnique();
         modelBuilder.Entity<WorkplaceEntity>()
+            .HasOne(w => w.ClassRoom)
+            .WithMany()
+            .HasForeignKey(w => w.ClassRoomId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<WorkplaceEntity>()
             .HasAlternateKey(w => w.Identifier);
         modelBuilder.Entity<WorkplaceEntity>()
             .HasOne(w => w.School)
@@ -184,5 +194,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .IsUnique();
         modelBuilder.Entity<RefreshTokenEntity>()
             .HasIndex(r => r.UserId);
+
+        // ClassroomEntity relationship
+        modelBuilder.Entity<ClassroomEntity>()
+            .ToTable("Classrooms")
+            .HasQueryFilter(c => c.Deleted == false);
     }
 }

@@ -8,8 +8,8 @@ public class WorkplaceEntity : BaseEntity
     [Required] 
     public string Identifier { get; set; } = default!;
     [Required]
-    [MaxLength(128)]
-    public string ClassRoom { get; set; } = default!;
+    public Guid ClassRoomId { get; set; }
+    public ClassroomEntity? ClassRoom { get; set; }
     [Required]
     [MaxLength(128)]
     public string ComputerCode { get; set; } = default!;
