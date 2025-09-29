@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace App.DAL.EF.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250929121830_DbMigration-v1")]
+    [Migration("20250929131233_DbMigration-v1")]
     partial class DbMigrationv1
     {
         /// <inheritdoc />
@@ -123,7 +123,7 @@ namespace App.DAL.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ClassRoom")
+                    b.Property<string>("Classroom")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
@@ -139,6 +139,12 @@ namespace App.DAL.EF.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("SchoolEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SchoolId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -148,6 +154,10 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SchoolEntityId");
+
+                    b.HasIndex("SchoolId");
 
                     b.ToTable("Classrooms", "educode");
                 });
@@ -605,7 +615,7 @@ namespace App.DAL.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ClassRoomId")
+                    b.Property<Guid>("ClassroomId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ComputerCode")
@@ -628,9 +638,6 @@ namespace App.DAL.EF.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("SchoolId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -641,12 +648,10 @@ namespace App.DAL.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassRoomId");
+                    b.HasIndex("ClassroomId");
 
                     b.HasIndex("Identifier")
                         .IsUnique();
-
-                    b.HasIndex("SchoolId");
 
                     b.ToTable("Workplaces", "educode");
                 });
@@ -668,6 +673,21 @@ namespace App.DAL.EF.Migrations
                     b.Navigation("CourseAttendance");
 
                     b.Navigation("Workplace");
+                });
+
+            modelBuilder.Entity("App.Domain.ClassroomEntity", b =>
+                {
+                    b.HasOne("App.Domain.SchoolEntity", null)
+                        .WithMany("Classrooms")
+                        .HasForeignKey("SchoolEntityId");
+
+                    b.HasOne("App.Domain.SchoolEntity", "School")
+                        .WithMany()
+                        .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("School");
                 });
 
             modelBuilder.Entity("App.Domain.CourseAttendanceEntity", b =>
@@ -776,21 +796,13 @@ namespace App.DAL.EF.Migrations
 
             modelBuilder.Entity("App.Domain.WorkplaceEntity", b =>
                 {
-                    b.HasOne("App.Domain.ClassroomEntity", "ClassRoom")
+                    b.HasOne("App.Domain.ClassroomEntity", "Classroom")
                         .WithMany()
-                        .HasForeignKey("ClassRoomId")
+                        .HasForeignKey("ClassroomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Domain.SchoolEntity", "School")
-                        .WithMany()
-                        .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClassRoom");
-
-                    b.Navigation("School");
+                    b.Navigation("Classroom");
                 });
 
             modelBuilder.Entity("App.Domain.ClassroomEntity", b =>
@@ -806,6 +818,11 @@ namespace App.DAL.EF.Migrations
             modelBuilder.Entity("App.Domain.CourseEntity", b =>
                 {
                     b.Navigation("CourseTeacherEntities");
+                });
+
+            modelBuilder.Entity("App.Domain.SchoolEntity", b =>
+                {
+                    b.Navigation("Classrooms");
                 });
 
             modelBuilder.Entity("App.Domain.UserEntity", b =>

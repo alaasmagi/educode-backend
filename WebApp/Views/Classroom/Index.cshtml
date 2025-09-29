@@ -1,11 +1,12 @@
-@model IEnumerable<App.Domain.AttendanceCheckEntity>
+@model IEnumerable<App.Domain.ClassroomEntity>
 
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
-<h4>AttendanceCheckEntity</h4>
+<h4>ClassroomEntity</h4>
+
 <p>
     <a asp-controller="AdminPanel" asp-action="Home">Go back</a>
     <a asp-action="Create">Create New</a>
@@ -13,9 +14,8 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Student Code</th>
-            <th>Full Name</th>
-            <th>Workplace</th>
+            <th>Classroom</th>
+            <th>School</th>
             <th>Created By</th>
             <th>Created At</th>
             <th>Updated By</th>
@@ -28,13 +28,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.StudentCode)
+                @Html.DisplayFor(modelItem => item.Classroom)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Workplace!.ComputerCode)
+                @Html.DisplayFor(modelItem => item.School!.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedBy)

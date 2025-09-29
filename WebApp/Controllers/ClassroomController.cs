@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Controllers
 {
-    public class WorkplaceController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class ClassroomController(AppDbContext context, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
-        // GET: Workplace
+        // GET: Classroom
         public async Task<IActionResult> Index()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -19,10 +19,10 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            return View(await context.Workplaces.Include(w => w.Classroom).IgnoreQueryFilters().ToListAsync());
+            return View(await context.Classrooms.Include(c => c.School).IgnoreQueryFilters().ToListAsync());
         }
 
-        // GET: Workplace/Details/5
+        // GET: Classroom/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -36,19 +36,19 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await context.Workplaces
+            var classroomEntity = await context.Classrooms
+                .Include(c => c.School)
                 .IgnoreQueryFilters()
-                .Include(m => m.Classroom)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (workplaceEntity == null)
+            if (classroomEntity == null)
             {
                 return NotFound();
             }
 
-            return View(workplaceEntity);
+            return View(classroomEntity);
         }
 
-        // GET: Workplace/Create
+        // GET: Classroom/Create
         public async Task<IActionResult> Create()
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -56,17 +56,16 @@ namespace WebApp.Controllers
             {
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
-            
-            ViewData["Classroom"] = new SelectList(context.Classrooms, "Id", "Classroom");
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
         }
 
-        // POST: Workplace/Create
+        // POST: Classroom/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Identifier,ClassroomId,ClassRoom,ComputerCode,CreatedBy,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Create([Bind("Classroom,SchoolId,CreatedBy,UpdatedBy,Deleted")] ClassroomEntity classroomEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -76,17 +75,17 @@ namespace WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                workplaceEntity.UpdatedAt = DateTime.UtcNow;
-                workplaceEntity.CreatedAt = DateTime.UtcNow;
-                context.Add(workplaceEntity);
+                classroomEntity.UpdatedAt = DateTime.UtcNow;
+                classroomEntity.CreatedAt = DateTime.UtcNow;
+                context.Add(classroomEntity);
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Classroom"] = new SelectList(context.Classrooms, "Id", "Classroom");
-            return View(workplaceEntity);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
+            return View(classroomEntity);
         }
 
-        // GET: Workplace/Edit/5
+        // GET: Classroom/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -100,24 +99,25 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await context.Workplaces
-                .Include(w => w.Classroom)
+            var classroomEntity = await context.Classrooms
+                .Include(c => c.School)
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(w => w.Id == id);
-            if (workplaceEntity == null)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (classroomEntity == null)
             {
                 return NotFound();
             }
-            ViewData["Classroom"] = new SelectList(context.Classrooms, "Id", "Classroom");
-            return View(workplaceEntity);
+            
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
+            return View(classroomEntity);
         }
 
-        // POST: Workplace/Edit/5
+        // POST: Classroom/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Identifier,ClassroomId,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Classroom,SchoolId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] ClassroomEntity classroomEntity)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
             if (!tokenValidity)
@@ -125,7 +125,7 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            if (id != workplaceEntity.Id)
+            if (id != classroomEntity.Id)
             {
                 return NotFound();
             }
@@ -134,14 +134,14 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    workplaceEntity.CreatedAt = DateTime.SpecifyKind(workplaceEntity.CreatedAt, DateTimeKind.Utc);
-                    workplaceEntity.UpdatedAt = DateTime.UtcNow;
-                    context.Update(workplaceEntity);
+                    classroomEntity.CreatedAt = DateTime.SpecifyKind(classroomEntity.CreatedAt, DateTimeKind.Utc);
+                    classroomEntity.UpdatedAt = DateTime.UtcNow;
+                    context.Update(classroomEntity);
                     await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!WorkplaceEntityExists(workplaceEntity.Id))
+                    if (!ClassroomEntityExists(classroomEntity.Id))
                     {
                         return NotFound();
                     }
@@ -152,11 +152,11 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Classroom"] = new SelectList(context.Classrooms, "Id", "Classroom");
-            return View(workplaceEntity);
+            ViewData["School"] = new SelectList(context.Schools, "Id", "Name", classroomEntity.SchoolId);
+            return View(classroomEntity);
         }
 
-        // GET: Workplace/Delete/5
+        // GET: Classroom/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             var tokenValidity = await IsTokenValidAsync(HttpContext);
@@ -170,19 +170,19 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var workplaceEntity = await context.Workplaces
+            var classroomEntity = await context.Classrooms
+                .Include(c => c.School)
                 .IgnoreQueryFilters()
-                .Include(m => m.Classroom)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (workplaceEntity == null)
+            if (classroomEntity == null)
             {
                 return NotFound();
             }
-            ViewData["Classroom"] = new SelectList(context.Classrooms, "Id", "Classroom");
-            return View(workplaceEntity);
+
+            return View(classroomEntity);
         }
 
-        // POST: Workplace/Delete/5
+        // POST: Classroom/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -193,21 +193,22 @@ namespace WebApp.Controllers
                 return Unauthorized("You cannot access admin panel without logging in!");
             }
             
-            var workplaceEntity = await context.Workplaces
+            var classroomEntity = await context.Classrooms
+                .Include(c => c.School)
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(w => w.Id == id);
-            if (workplaceEntity != null)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (classroomEntity != null)
             {
-                context.Workplaces.Remove(workplaceEntity);
+                context.Classrooms.Remove(classroomEntity);
             }
 
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool WorkplaceEntityExists(Guid id)
+        private bool ClassroomEntityExists(Guid id)
         {
-            return context.Workplaces.IgnoreQueryFilters().Any(e => e.Id == id);
+            return context.Classrooms.IgnoreQueryFilters().Any(e => e.Id == id);
         }
     }
 }

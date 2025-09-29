@@ -20,4 +20,6 @@ public class SchoolEntity : BaseEntity
     [Required]
     [MaxLength(128)]
     public string StudentCodePattern { get; set; } = default!;
+    
+    public ICollection<ClassroomEntity>? Classrooms { get; set; }
 }

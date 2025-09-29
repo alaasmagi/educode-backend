@@ -165,17 +165,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(w => w.Identifier)
             .IsUnique();
         modelBuilder.Entity<WorkplaceEntity>()
-            .HasOne(w => w.ClassRoom)
+            .HasOne(w => w.Classroom)
             .WithMany()
-            .HasForeignKey(w => w.ClassRoomId)
+            .HasForeignKey(w => w.ClassroomId)
             .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<WorkplaceEntity>()
             .HasAlternateKey(w => w.Identifier);
-        modelBuilder.Entity<WorkplaceEntity>()
-            .HasOne(w => w.School)
-            .WithMany()
-            .HasForeignKey(w => w.SchoolId)
-            .OnDelete(DeleteBehavior.Cascade);
         
         // School relationship
         modelBuilder.Entity<SchoolEntity>()
@@ -184,6 +179,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<SchoolEntity>()
             .HasIndex(s => new {s.Name, s.ShortName, s.Domain})
             .IsUnique();
+        modelBuilder.Entity<SchoolEntity>()
+            .HasMany(s => s.Classrooms)
+            .WithOne(s => s.School)
+            .HasForeignKey(s => s.SchoolId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         // RefreshToken relationship
         modelBuilder.Entity<RefreshTokenEntity>()
@@ -199,5 +199,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<ClassroomEntity>()
             .ToTable("Classrooms")
             .HasQueryFilter(c => c.Deleted == false);
+        modelBuilder.Entity<ClassroomEntity>()
+            .HasOne(w => w.School)
+            .WithMany()
+            .HasForeignKey(w => w.SchoolId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

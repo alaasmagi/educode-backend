@@ -8,12 +8,9 @@ public class WorkplaceEntity : BaseEntity
     [Required] 
     public string Identifier { get; set; } = default!;
     [Required]
-    public Guid ClassRoomId { get; set; }
-    public ClassroomEntity? ClassRoom { get; set; }
+    public Guid ClassroomId { get; set; }
+    public ClassroomEntity? Classroom { get; set; }
     [Required]
     [MaxLength(128)]
     public string ComputerCode { get; set; } = default!;
-    [Required]
-    public Guid SchoolId { get; set; }
-    public SchoolEntity? School { get; set; }
 }

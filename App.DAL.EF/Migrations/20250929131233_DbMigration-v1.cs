@@ -33,24 +33,6 @@ namespace App.DAL.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Classrooms",
-                schema: "educode",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ClassRoom = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Classrooms", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CourseStatuses",
                 schema: "educode",
                 columns: table => new
@@ -110,6 +92,39 @@ namespace App.DAL.EF.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Classrooms",
+                schema: "educode",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Classroom = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    SchoolId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SchoolEntityId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Classrooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Classrooms_Schools_SchoolEntityId",
+                        column: x => x.SchoolEntityId,
+                        principalSchema: "educode",
+                        principalTable: "Schools",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Classrooms_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalSchema: "educode",
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Courses",
                 schema: "educode",
                 columns: table => new
@@ -138,42 +153,6 @@ namespace App.DAL.EF.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Courses_Schools_SchoolId",
-                        column: x => x.SchoolId,
-                        principalSchema: "educode",
-                        principalTable: "Schools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Workplaces",
-                schema: "educode",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
-                    ClassRoomId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ComputerCode = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    SchoolId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Workplaces", x => x.Id);
-                    table.UniqueConstraint("AK_Workplaces_Identifier", x => x.Identifier);
-                    table.ForeignKey(
-                        name: "FK_Workplaces_Classrooms_ClassRoomId",
-                        column: x => x.ClassRoomId,
-                        principalSchema: "educode",
-                        principalTable: "Classrooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Workplaces_Schools_SchoolId",
                         column: x => x.SchoolId,
                         principalSchema: "educode",
                         principalTable: "Schools",
@@ -216,6 +195,34 @@ namespace App.DAL.EF.Migrations
                         principalTable: "UserTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Workplaces",
+                schema: "educode",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Identifier = table.Column<string>(type: "text", nullable: false),
+                    ClassroomId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ComputerCode = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Workplaces", x => x.Id);
+                    table.UniqueConstraint("AK_Workplaces_Identifier", x => x.Identifier);
+                    table.ForeignKey(
+                        name: "FK_Workplaces_Classrooms_ClassroomId",
+                        column: x => x.ClassroomId,
+                        principalSchema: "educode",
+                        principalTable: "Classrooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -411,6 +418,18 @@ namespace App.DAL.EF.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Classrooms_SchoolEntityId",
+                schema: "educode",
+                table: "Classrooms",
+                column: "SchoolEntityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Classrooms_SchoolId",
+                schema: "educode",
+                table: "Classrooms",
+                column: "SchoolId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CourseAttendances_AttendanceTypeId",
                 schema: "educode",
                 table: "CourseAttendances",
@@ -533,10 +552,10 @@ namespace App.DAL.EF.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Workplaces_ClassRoomId",
+                name: "IX_Workplaces_ClassroomId",
                 schema: "educode",
                 table: "Workplaces",
-                column: "ClassRoomId");
+                column: "ClassroomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Workplaces_Identifier",
@@ -544,12 +563,6 @@ namespace App.DAL.EF.Migrations
                 table: "Workplaces",
                 column: "Identifier",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Workplaces_SchoolId",
-                schema: "educode",
-                table: "Workplaces",
-                column: "SchoolId");
         }
 
         /// <inheritdoc />

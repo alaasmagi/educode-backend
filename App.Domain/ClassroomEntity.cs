@@ -7,6 +7,9 @@ public class ClassroomEntity : BaseEntity
 {
     [Required]
     [MaxLength(128)]
-    public string ClassRoom { get; set; } = default!;
+    public string Classroom { get; set; } = default!;
+    [Required]
+    public Guid SchoolId { get; set; }
+    public SchoolEntity? School { get; set; }
     public ICollection<CourseAttendanceEntity>? CourseAttendances { get; set; }
 }
