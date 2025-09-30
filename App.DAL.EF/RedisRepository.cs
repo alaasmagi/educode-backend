@@ -10,7 +10,7 @@ public class RedisRepository(IConnectionMultiplexer connection, ILogger<RedisRep
     private readonly IDatabase _database = connection.GetDatabase();
     private readonly ILogger _logger = logger;
 
-    public async Task<bool> SetDataAsync(string key, string serializedValue, TimeSpan expiry)
+    public async Task<bool> SetDataAsync(string key, string serializedValue, TimeSpan? expiry)
     {
         if (!await _database.StringSetAsync(key, serializedValue, expiry))
         {

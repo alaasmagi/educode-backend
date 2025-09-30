@@ -1,10 +1,12 @@
-﻿using App.DAL.EF;
+﻿using System.Text.Json;
+using App.DAL.EF;
 using App.Domain;
 using App.DTO;
 using Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 
 namespace App.BLL;
@@ -14,20 +16,31 @@ public class CourseManagementService : ICourseManagementService
     private readonly AppDbContext _context;
     public readonly CourseRepository _courseRepository;
     public readonly AttendanceRepository _attendanceRepository;
+    private readonly RedisRepository _redisRepository;
     private readonly UserRepository _userRepository;
     private readonly ILogger<CourseManagementService> _logger;
 
-    public CourseManagementService(AppDbContext context, ILogger<CourseManagementService> logger)
+    public CourseManagementService(AppDbContext context, ILogger<CourseManagementService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
         _context = context;
         _courseRepository = new CourseRepository(_context);
         _attendanceRepository = new AttendanceRepository(_context);
+        _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger); 
         _userRepository = new UserRepository(_context);
     }
 
     public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(Guid attendanceId)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + 
+                                                        Constants.AttendancePrefix + attendanceId);
+
+        if (cache != null)
+        {
+            var cachedCourse = JsonSerializer.Deserialize<CourseEntity>(cache);
+            return cachedCourse;
+        }
+        
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
         if (courseAttendance == null)
@@ -44,47 +57,43 @@ public class CourseManagementService : ICourseManagementService
             return null;
         }
         
+        var serializedCourse = JsonSerializer.Serialize(course);
+        await _redisRepository.SetDataAsync(Constants.CoursePrefix + Constants.AttendancePrefix + attendanceId, 
+                                                                                    serializedCourse, null);
         return course;
     }
 
     public async Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string email)
     {
-        var result = await _courseRepository.GetCourseById(courseId);
-
-        if (result == null)
+        var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + courseId);
+        CourseEntity? course;
+        
+        if (cache != null)
+        {
+            course = JsonSerializer.Deserialize<CourseEntity>(cache);
+        }
+        else
+        {
+            course = await _courseRepository.GetCourseById(courseId);
+            var serializedCourse = JsonSerializer.Serialize(course);
+            await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseId, 
+                serializedCourse, null);
+        }
+        
+        if (course == null)
         {
             _logger.LogError($"Course with ID {courseId} was not found");
             return null;
         }
         
-        var accessible = await IsCourseAccessibleToUser(result, email);
+        var accessible = await IsCourseAccessibleToUser(course, email);
         if (!accessible)
         {
-            _logger.LogError($"Course with ID {result.Id} cannot be fetched");
+            _logger.LogError($"Course with ID {course.Id} cannot be fetched");
             return null;
         }
         
-        return result;
-    }
-    
-    public async Task<CourseEntity?> GetCourseByNameAsync(string courseName, string email)
-    {
-        var result = await _courseRepository.GetCourseByName(courseName);
-        
-        if (result == null)
-        {
-             _logger.LogError($"Course with name {courseName} was not found");
-            return null;
-        }
-        
-        var accessible = await IsCourseAccessibleToUser(result, email);
-        if (!accessible)
-        {
-            _logger.LogError($"Course with ID {result.Id} cannot be fetched");
-            return null;
-        }
-        
-        return result;
+        return course;
     }
     
     public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email)

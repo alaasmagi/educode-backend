@@ -22,11 +22,13 @@ public class SchoolManagementService : ISchoolManagementService
     {
         var schools = await _schoolRepository.GetAllSchools();
 
-        if (schools.Count > 0)
-        {
-            return schools;
-        }
-        
-        return null;
+        return schools.Count > 0 ? schools : null;
+    }
+
+    public async Task<SchoolEntity?> GetSchoolById(Guid id)
+    {
+        var school = await _schoolRepository.GetSchoolById(id);
+
+        return school;
     }
 }

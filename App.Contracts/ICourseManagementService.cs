@@ -12,7 +12,6 @@ public interface ICourseManagementService
     Task<List<CourseStatusEntity>?> GetAllCourseStatuses();
     Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId);
     Task<List<AttendanceStudentCountDto>?> GetAttendancesUserCountsByCourseAsync(Guid courseId);
-    Task<CourseEntity?> GetCourseByNameAsync(string courseName, string email);
     Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email);
     Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string email);
     Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string email);
