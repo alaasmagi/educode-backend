@@ -13,7 +13,8 @@ public class UserManagementService : IUserManagementService
     private readonly RedisRepository _redisRepository;
     private readonly ILogger<UserManagementService> _logger;
 
-    public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
+    public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger, 
+                                    IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _userRepository = new UserRepository(context); 
         _courseRepository = new CourseRepository(context); 
@@ -172,4 +173,12 @@ public class UserManagementService : IUserManagementService
 
         return true;
     }
+    
+    /* TODO: Implement soft deletion that cascade-soft-deletes UserAuthData, CourseTeachers, Courses, AttendanceChecks
+                and HARD-deletes all User's RefreshTokens */
+
+    
+    // TODO: Implement an authentication method that can authenticate soft deleted users (IgnoreQueryFilers)
+    
+    // TODO: Implement restoration method that cascade-restores UserAuthData, CourseTeachers, Courses, AttendanceChecks
 }

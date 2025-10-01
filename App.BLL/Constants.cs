@@ -9,8 +9,10 @@ public class Constants
     public const string RefreshTokenPrefix = "RefreshToken:";
     public const string OtpPrefix = "OTP:";
     public const string UserPrefix = "User:";
+    public const string UserAuthPrefix = "UserAuth:";
     public const string CoursePrefix = "Course:";
     public const string AttendancePrefix = "Attendance:";
+    public const string SchoolPrefix = "School:";
     public const string AttendanceCheckPrefix = "AttendanceCheck:";
     public const string AttendanceTypePrefix = "AttendanceType:";
     public const string CourseStatusPrefix = "CourseStatus:";

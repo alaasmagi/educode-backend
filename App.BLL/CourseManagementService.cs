@@ -316,6 +316,16 @@ public class CourseManagementService : ICourseManagementService
         _logger.LogInformation($"Course with code {id} was found");
         return true;        
     }
+    
+    // TODO: Implement soft deletion that cascade-soft-deletes CourseTeachers, CourseAttendances
+
+    // TODO: Implement a method which can search and authenticate Courses that are soft deleted (IgnoreQueryFilters())
+    
+    // TODO: Implement restoration method that cascade-restores CourseTeachers, CourseAttendances
+    
+    // TODO: Implement an approach that can add multiple Teachers to one course
+    
+    // TODO: Implement an approach that can remove teachers
 }
    
     

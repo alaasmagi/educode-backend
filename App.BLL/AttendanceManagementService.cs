@@ -1,26 +1,27 @@
 ﻿using App.DAL.EF;
 using App.Domain;
 using Contracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 
 namespace App.BLL;
 
 public class AttendanceManagementService : IAttendanceManagementService
 {
     private readonly ILogger<AttendanceManagementService> _logger;
-    private readonly AppDbContext _context;
     private readonly AttendanceRepository _attendanceRepository;
     private readonly CourseRepository _courseRepository;
     private readonly UserRepository _userRepository;
+    private readonly RedisRepository _redisRepository;
 
-    public AttendanceManagementService(AppDbContext context, ILogger<AttendanceManagementService> logger)
+    public AttendanceManagementService(AppDbContext context, ILogger<AttendanceManagementService> logger,
+                                    IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
-        _context = context;
-        _attendanceRepository = new AttendanceRepository(_context); 
-        _courseRepository = new CourseRepository(_context); 
-        _userRepository = new UserRepository(_context); 
+        _attendanceRepository = new AttendanceRepository(context);
+        _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger); 
+        _courseRepository = new CourseRepository(context); 
+        _userRepository = new UserRepository(context); 
     }
     public async Task<bool> DoesWorkplaceExist(string workplaceIdentifier)
     {
