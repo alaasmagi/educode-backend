@@ -21,10 +21,10 @@ namespace WebApp.ApiControllers
     {
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers([FromQuery] int pageNr = 1, [FromQuery] int pageSize = 25)
         {
            logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-           var users = await userManagementService.GetAllUsersAsync();
+           var users = await userManagementService.GetAllUsersAsync(pageNr, pageSize);
            
            if (users == null)
            {
@@ -117,7 +117,7 @@ namespace WebApp.ApiControllers
         
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
         [HttpGet("{id}/Courses")]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCoursesByUser(Guid id, [FromQuery] int pageNr = 1, [FromQuery] int pageSize = 25)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
@@ -127,7 +127,7 @@ namespace WebApp.ApiControllers
                 return NotFound(new {message = "User not found", messageCode = "user-not-found"});
             }
         
-            var courses = await courseManagementService.GetCoursesByUserAsync(user.Id);
+            var courses = await courseManagementService.GetCoursesByUserAsync(user.Id, pageNr, pageSize);
         
             if (courses == null)
             {

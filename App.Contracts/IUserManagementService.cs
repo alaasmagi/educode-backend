@@ -9,7 +9,7 @@ public interface IUserManagementService
     Task<bool> ChangeUserPasswordAsync(UserEntity user, string newPasswordHash);
     Task<UserEntity?> GetUserByEmailAsync(string email);
     Task<UserTypeEntity?> GetUserTypeAsync(string userType);
-    Task<List<UserEntity>?> GetAllUsersAsync();
+    Task<List<UserEntity>?> GetAllUsersAsync(int pageNr, int pageSize);
     Task<bool> DoesUserExistAsync(string email);
     Task<UserEntity?> GetUserByIdAsync(Guid id);
     string GetPasswordHash(string password);

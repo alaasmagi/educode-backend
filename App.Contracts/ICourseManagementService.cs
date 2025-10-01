@@ -10,12 +10,12 @@ public interface ICourseManagementService
     Task<bool> EditCourse(Guid courseId, CourseEntity newCourse);
     Task<bool> DeleteCourse(Guid courseId, string email);
     Task<List<CourseStatusEntity>?> GetAllCourseStatuses();
-    Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId);
+    Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId, int pageNr, int pageSize);
     Task<List<AttendanceStudentCountDto>?> GetAttendancesUserCountsByCourseAsync(Guid courseId);
     Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email);
     Task<CourseEntity?> GetCourseByIdAsync(Guid courseId, string email);
     Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string email);
-    Task<bool> DoesCourseExistAsync(string courseCode);
+    Task<bool> DoesCourseExistByCodeAsync(string courseCode);
     Task<bool> DoesCourseExistByIdAsync(Guid id);
 
 }

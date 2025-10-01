@@ -75,9 +75,6 @@ public class CourseManagementService : ICourseManagementService
         else
         {
             course = await _courseRepository.GetCourseById(courseId);
-            var serializedCourse = JsonSerializer.Serialize(course);
-            await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseId, 
-                serializedCourse, null);
         }
         
         if (course == null)
@@ -85,6 +82,10 @@ public class CourseManagementService : ICourseManagementService
             _logger.LogError($"Course with ID {courseId} was not found");
             return null;
         }
+        
+        var serializedCourse = JsonSerializer.Serialize(course);
+        await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseId, 
+            serializedCourse, null);
         
         var accessible = await IsCourseAccessibleToUser(course, email);
         if (!accessible)
@@ -98,27 +99,41 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email)
     {
-        var result = await _courseRepository.GetCourseByCode(courseCode);
+        var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + courseCode);
+        CourseEntity? course;
         
-        if (result == null)
+        if (cache != null)
+        {
+            course = JsonSerializer.Deserialize<CourseEntity>(cache);
+        }
+        else
+        {
+            course = await _courseRepository.GetCourseByCode(courseCode);
+        }
+        
+        if (course == null)
         {
             _logger.LogError($"Course with code {courseCode} was not found");
             return null;
         }
         
-        var accessible = await IsCourseAccessibleToUser(result, email);
+        var serializedCourse = JsonSerializer.Serialize(course);
+        await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseCode, 
+            serializedCourse, null);
+        
+        var accessible = await IsCourseAccessibleToUser(course, email);
         if (!accessible)
         {
-            _logger.LogError($"Course with ID {result.Id} cannot be fetched");
+            _logger.LogError($"Course with ID {course.Id} cannot be fetched");
             return null;
         }
         
-        return result;
+        return course;
     }
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
-        var courseExists = await DoesCourseExistAsync(course.CourseCode);
+        var courseExists = await DoesCourseExistByCodeAsync(course.CourseCode);
 
         if (courseExists)
         {
@@ -146,11 +161,14 @@ public class CourseManagementService : ICourseManagementService
     public async Task<bool> EditCourse(Guid courseId, CourseEntity newCourse)
     {
         var courseExistence = await DoesCourseExistByIdAsync(courseId);
+        
         if (!courseExistence)
         {
             _logger.LogError($"Failed to update course with id {courseId}");
             return false;
         }
+        
+        await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
         
         var status = await _courseRepository.UpdateCourseEntity(courseId, newCourse);
         if (!status)
@@ -171,6 +189,8 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
+        await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
+
         var status = await _courseRepository.DeleteCourseEntity(course);
         
         if (!status)
@@ -195,7 +215,7 @@ public class CourseManagementService : ICourseManagementService
         return result;
     }
     
-    public async Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId)
+    public async Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId, int pageNr, int pageSize)
     {
         var result = await _courseRepository.GetCoursesByUser(userId);
 
@@ -241,7 +261,7 @@ public class CourseManagementService : ICourseManagementService
         return true;
     }
     
-    public async Task<bool> DoesCourseExistAsync(string courseCode)
+    public async Task<bool> DoesCourseExistByCodeAsync(string courseCode)
     {
         var status = await _courseRepository.CourseAvailabilityCheckByCourseCode(courseCode);
 

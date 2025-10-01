@@ -119,7 +119,7 @@ public class UserManagementService : IUserManagementService
         return  result;
     }
 
-    public async Task<List<UserEntity>?> GetAllUsersAsync()
+    public async Task<List<UserEntity>?> GetAllUsersAsync(int pageNr, int pageSize)
     {
         var result = await _userRepository.GetAllUsersAsList();
 
