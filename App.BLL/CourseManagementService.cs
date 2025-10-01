@@ -204,7 +204,7 @@ public class CourseManagementService : ICourseManagementService
             return JsonSerializer.Deserialize<List<CourseEntity>?>(cache);
         }
         
-        var coursesByUser = await _courseRepository.GetCoursesByUser(userId);
+        var coursesByUser = await _courseRepository.GetCoursesByUser(userId, pageNr, pageSize);
         if (coursesByUser == null)
         {
             _logger.LogError($"Failed to get courses by user with ID {userId}");

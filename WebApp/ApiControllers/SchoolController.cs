@@ -18,11 +18,12 @@ public class SchoolController(
     : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<SchoolDto>>> GetAllSchools()
+    public async Task<ActionResult<List<SchoolDto>>> GetAllSchools([FromQuery] int pageNr = 1, 
+                                                            [FromQuery] int pageSize = Constants.DefaultQueryPageSize)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         
-        var schools = await schoolManagementService.GetAllSchools(); 
+        var schools = await schoolManagementService.GetAllSchools(pageNr, pageSize); 
         if (schools == null)
         {
             return NotFound(new { message = "Schools not found", messageCode = "schools-not-found" });

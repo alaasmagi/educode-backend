@@ -18,9 +18,9 @@ public class SchoolManagementService : ISchoolManagementService
         _schoolRepository = new SchoolRepository(_context);
     }
 
-    public async Task<List<SchoolEntity>?> GetAllSchools()
+    public async Task<List<SchoolEntity>?> GetAllSchools(int pageNr, int pageSize)
     {
-        var schools = await _schoolRepository.GetAllSchools();
+        var schools = await _schoolRepository.GetAllSchools(pageNr, pageSize);
 
         return schools.Count > 0 ? schools : null;
     }

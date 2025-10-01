@@ -39,7 +39,7 @@ public class AuthController(
 
         var jwtToken = authService.GenerateJwtToken(user);
         var creatorIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp);
+        var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp, requestModel.Client);
 
         if (refreshToken == null)
         {
@@ -79,7 +79,7 @@ public class AuthController(
         }
 
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, model.JwtToken, ipAddress);
+        var (newJwt,  newRefreshToken) = await authService.RefreshJwtToken(model.RefreshToken, model.JwtToken, ipAddress, model.Client);
 
         if (newJwt == null || newRefreshToken == null)
         {

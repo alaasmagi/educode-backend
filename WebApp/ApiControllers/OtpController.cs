@@ -1,4 +1,5 @@
-﻿using App.Domain;
+﻿using App.BLL;
+using App.Domain;
 using App.DTO;
 using Contracts;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +15,7 @@ public class OtpController(
     IEmailService emailService,
     IUserManagementService userManagementService,
     IAuthService authService,
+    EnvInitializer envInitializer,
     ILogger<OtpController> logger)
     : ControllerBase
 {
@@ -75,17 +77,17 @@ public class OtpController(
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                MaxAge = TimeSpan.FromMinutes(15) // TODO: ENV!
+                MaxAge = TimeSpan.FromMinutes(envInitializer.JwtCookieExpirationMinutes)
             });
             
             var creatorIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp);
+            var refreshToken = await authService.GenerateRefreshToken(user.Id, creatorIp, model.Client);
             Response.Cookies.Append("refreshToken", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                MaxAge = TimeSpan.FromDays(15) // TODO: ENV!
+                MaxAge = TimeSpan.FromDays(envInitializer.RefreshTokenCookieExpirationDays)
             });
                 
             logger.LogInformation($"OTP verified successfully for user with email {user.Email}");

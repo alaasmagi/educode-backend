@@ -1,7 +1,6 @@
 ﻿using App.DAL.EF;
 using App.Domain;
 using Contracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -9,7 +8,6 @@ namespace App.BLL;
 
 public class UserManagementService : IUserManagementService
 {
-    private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
     private readonly CourseRepository _courseRepository;
     private readonly RedisRepository _redisRepository;
@@ -17,9 +15,8 @@ public class UserManagementService : IUserManagementService
 
     public UserManagementService(AppDbContext context, ILogger<UserManagementService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
-        _context = context;
-        _userRepository = new UserRepository(_context); 
-        _courseRepository = new CourseRepository(_context); 
+        _userRepository = new UserRepository(context); 
+        _courseRepository = new CourseRepository(context); 
         _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger); 
         _logger = logger;
     }
@@ -121,7 +118,7 @@ public class UserManagementService : IUserManagementService
 
     public async Task<List<UserEntity>?> GetAllUsersAsync(int pageNr, int pageSize)
     {
-        var result = await _userRepository.GetAllUsersAsList();
+        var result = await _userRepository.GetAllUsersAsync(pageNr, pageSize);
 
         if (result.Count <= 0)
         {
@@ -165,26 +162,7 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> DeleteUserAsync(UserEntity user)
     {
-        var courses = await _courseRepository.GetCoursesByUser(user.Id);
-        if (courses == null || !courses.Any())
-            return await FinalizeUserDeletion(user);
-
-        foreach (var course in courses)
-        {
-            bool isOnlyTeacher = await _courseRepository.CourseOnlyTeacherCheck(user.Id, course.Id);
-            if (!isOnlyTeacher)
-                continue;
-
-            bool courseDeleted = await _courseRepository.DeleteCourseEntity(course);
-            if (!courseDeleted)
-                _logger.LogWarning($"Failed to delete course {course.Id} while deleting user {user.Id}");
-        }
-
-        return await FinalizeUserDeletion(user);
-    }
-
-    private async Task<bool> FinalizeUserDeletion(UserEntity user)
-    {
+        await _courseRepository.DeleteCoursesByUserAsync(user.Id);
         bool status = await _userRepository.DeleteUserEntity(user);
         if (!status)
         {

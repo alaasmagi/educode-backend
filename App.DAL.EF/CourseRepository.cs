@@ -6,11 +6,15 @@ namespace App.DAL.EF;
 
 public class CourseRepository(AppDbContext context)
 {
-   public async Task<List<CourseEntity>?> GetCoursesByUser(Guid userId)
+   public async Task<List<CourseEntity>?> GetCoursesByUser(Guid userId, int pageNr, int pageSize)
     {
         var result = await context.Courses
             .Where(ca => ca.CourseTeacherEntities!
-                .Any(ct => ct.TeacherId == userId)).ToListAsync();
+                .Any(ct => ct.TeacherId == userId))
+            .OrderBy(c => c.Id)
+            .Skip((pageNr - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         
         return result.Count > 0 ? result : null; 
     }
@@ -189,5 +193,12 @@ public class CourseRepository(AppDbContext context)
             context.CourseStatuses.AddRange(courseStatuses);
             context.SaveChanges();
         }
+    }
+    
+    public async Task DeleteCoursesByUserAsync(Guid userId)
+    {
+        await context.Courses
+            .Where(ca => ca.CourseTeacherEntities!.Any(ct => ct.TeacherId == userId))
+            .ExecuteDeleteAsync();
     }
 }

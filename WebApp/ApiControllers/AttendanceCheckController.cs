@@ -23,21 +23,21 @@ public class AttendanceCheckController(
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-        var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, userId);
+        var user = await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
 
-        if (courseAttendance == null)
+        if (user == null)
         {
-            return NotFound(new {message = "Attendance not found", messageCode = "attendance-not-found"});
+            return NotFound(new {message = "User not found", messageCode = "user-not-found"});
         }
         
-        var attendanceChecks = 
-            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier);
-        if (attendanceChecks == null)
+        var attendanceCheck = 
+            await attendanceManagementService.GetAttendanceCheckByIdAsync(id, user.Email);
+        if (attendanceCheck == null)
         {
             return Ok(new {message = "Attendance has no attendance checks", messageCode = "attendance-has-no-checks"});
         }
         
-        var result = AttendanceCheckDto.ToDtoList(attendanceChecks);
+        var result = new AttendanceCheckDto(attendanceCheck);
         
         logger.LogInformation($"Attendance checks for attendance with ID {id} successfully fetched");
         return Ok(result);

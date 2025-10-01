@@ -4,4 +4,5 @@ public class RefreshTokenRequestModel
 {
     public required string JwtToken { get; set; }
     public required string RefreshToken { get; set; }
+    public required string Client { get; set; }
 }

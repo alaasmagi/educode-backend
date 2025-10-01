@@ -2,6 +2,8 @@
 
 public class Constants
 {
+    public const int DefaultQueryPageSize = 20;
+    
     public const string UserIdClaim = "UserId";
     public const string AccessLevelClaim = "AccessLevel";
     public const string RefreshTokenPrefix = "RefreshToken:";
@@ -18,6 +20,7 @@ public class Constants
     public const string WorkplacePrefix = "Workplace:";
     public const string UserFolder = "user";
     public const string SchoolFolder = "school";
+    public const string BackendPrefix = "EDUCODE-ASPNET";
     
     public static readonly TimeSpan DefaultCachePeriod = TimeSpan.FromMinutes(10);
     public static readonly TimeSpan ShortCachePeriod = TimeSpan.FromMinutes(2);

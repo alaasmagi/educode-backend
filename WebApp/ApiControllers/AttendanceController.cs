@@ -181,10 +181,11 @@ public class AttendanceController(
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("{id}/Checks")]
     public async Task<ActionResult<IEnumerable<AttendanceCheckDto>>> GetAttendanceChecksByAttendanceId(
-        Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+        Guid id, [FromQuery] int pageNr = 1, [FromQuery] int pageSize = Constants.DefaultQueryPageSize)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
+       
         var courseAttendance = await attendanceManagementService.GetCourseAttendanceByIdAsync(id, userId);
 
         if (courseAttendance == null)
@@ -193,7 +194,7 @@ public class AttendanceController(
         }
 
         var attendanceChecks =
-            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier);
+            await attendanceManagementService.GetAttendanceChecksByAttendanceIdAsync(courseAttendance.Identifier, pageNr, pageSize);
         if (attendanceChecks == null)
         {
             return Ok(new

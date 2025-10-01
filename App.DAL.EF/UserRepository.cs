@@ -72,9 +72,13 @@ public class UserRepository (AppDbContext context)
         return await context.UserTypes.FirstOrDefaultAsync(u => u.UserType == userType);
     }
 
-    public async Task<List<UserEntity>> GetAllUsersAsList()
+    public async Task<List<UserEntity>> GetAllUsersAsync(int pageNr, int pageSize)
     {
-        return await context.Users.ToListAsync();
+        return await context.Users
+            .OrderBy(c => c.Id)
+            .Skip((pageNr - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
     
     public async Task<bool> RemoveOldUsers(DateTime datePeriod)

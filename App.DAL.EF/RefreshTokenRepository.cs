@@ -1,51 +1,28 @@
 using App.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.DAL.EF;
 
-public class RefreshTokenRepository
+public class RefreshTokenRepository (AppDbContext context)
 {
-    public async Task<RefreshTokenEntity?> GetRefreshToken(Guid schoolId)
+    public async Task<RefreshTokenEntity?> GetRefreshToken(string refreshToken)
     {
-        return await context.Schools
-            .FirstOrDefaultAsync(ua => ua.Id == schoolId);
+        return await context.RefreshTokens
+            .FirstOrDefaultAsync(r => r.Token == refreshToken);
     }
     
-    public async Task<List<SchoolEntity>> GetAllSchools()
+    public async Task<bool> AddRefreshTokenEntityToDb(RefreshTokenEntity refreshToken)
     {
-        return await context.Schools.ToListAsync();
-    }
-    
-    public async Task<bool> AddRefreshTokenEntityToDb(RefreshTokenEntity newSchool)
-    {
-        newSchool.CreatedAt = DateTime.UtcNow;
-        newSchool.UpdatedAt = DateTime.UtcNow;
+        refreshToken.CreatedAt = DateTime.UtcNow;
+        refreshToken.UpdatedAt = DateTime.UtcNow;
         
-        await context.Schools.AddAsync(newSchool);
+        await context.RefreshTokens.AddAsync(refreshToken);
         return await context.SaveChangesAsync() > 0;
     }
     
-    public async Task<bool> UpdateSchoolEntity(Guid schoolId, SchoolEntity updatedSchool)
+    public async Task<bool> DeleteRefreshTokenEntity(RefreshTokenEntity refreshToken)
     {
-        var existingSchool = await context.Schools.FindAsync(schoolId);
-        if (existingSchool == null)
-            return false;
-        
-        existingSchool.Name = updatedSchool.Name;
-        existingSchool.ShortName = updatedSchool.ShortName;
-        existingSchool.Domain = updatedSchool.Domain;
-        existingSchool.PhotoPath = updatedSchool.PhotoPath;
-        existingSchool.StudentCodePattern = updatedSchool.PhotoPath;
-        existingSchool.UpdatedAt = DateTime.UtcNow;
-        existingSchool.UpdatedBy = updatedSchool.UpdatedBy;
-
-        context.Schools.Update(existingSchool);
-
-        return await context.SaveChangesAsync() > 0;
-    }
-    
-    public async Task<bool> DeleteSchoolEntity(SchoolEntity school)
-    {
-        context.Schools.Remove(school);
+        context.RefreshTokens.Remove(refreshToken);
         return await context.SaveChangesAsync() > 0;
     }
 }

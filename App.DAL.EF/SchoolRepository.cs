@@ -11,9 +11,13 @@ public class SchoolRepository(AppDbContext context)
             .FirstOrDefaultAsync(ua => ua.Id == schoolId);
     }
     
-    public async Task<List<SchoolEntity>> GetAllSchools()
+    public async Task<List<SchoolEntity>> GetAllSchools(int pageNr, int pageSize)
     {
-        return await context.Schools.ToListAsync();
+        return await context.Schools
+            .OrderBy(c => c.Id)
+            .Skip((pageNr - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
     
     public async Task<bool> AddSchoolEntityToDb(SchoolEntity newSchool)

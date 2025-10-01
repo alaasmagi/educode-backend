@@ -40,7 +40,8 @@ public class CourseController(
     
     [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
     [HttpGet("{id}/Attendances")]
-    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseId(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+    public async Task<ActionResult<IEnumerable<CourseAttendanceDto>>> GetAttendancesByCourseId(Guid id, [FromQuery] int pageNr = 1, 
+                                                                        [FromQuery] int pageSize = Constants.DefaultQueryPageSize)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
         var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
@@ -52,7 +53,7 @@ public class CourseController(
         }
         
         var attendances = 
-            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id);
+            await attendanceManagementService.GetAttendancesByCourseAsync(course.Id, pageNr, pageSize);
 
         if (attendances == null)
         {

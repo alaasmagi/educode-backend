@@ -106,9 +106,9 @@ public class AttendanceManagementService : IAttendanceManagementService
         return result;
     }
     
-    public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(Guid courseId)
+    public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(Guid courseId, int pageNr, int pageSize)
     {
-        var attendances = await _attendanceRepository.GetCourseAttendancesByCourseId(courseId);
+        var attendances = await _attendanceRepository.GetCourseAttendancesByCourseId(courseId, pageNr, pageSize);
 
         if (attendances.Count <= 0)
         {
@@ -150,9 +150,10 @@ public class AttendanceManagementService : IAttendanceManagementService
         return true;
     }
 
-    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(string attendanceIdentifier)
+    public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(string attendanceIdentifier, 
+                                                                                                int pageNr, int pageSize)
     {
-        var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceIdentifier(attendanceIdentifier);
+        var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceIdentifier(attendanceIdentifier, pageNr, pageSize);
         
         if (attendanceChecks.Count <= 0)
         {

@@ -152,11 +152,14 @@ public class AttendanceRepository(AppDbContext context)
                                                               && u.AttendanceIdentifier == attendanceIdentifier);
     }
     
-    public async Task<List<CourseAttendanceEntity>> GetCourseAttendancesByCourseId(Guid courseId)
+    public async Task<List<CourseAttendanceEntity>> GetCourseAttendancesByCourseId(Guid courseId, int pageNr, int pageSize)
     {
         var attendances = await context.CourseAttendances
             .Where(c => c.CourseId == courseId)
             .Include(c => c.Course)
+            .OrderBy(c => c.Id)
+            .Skip((pageNr - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         foreach (var attendance in attendances)
@@ -168,10 +171,15 @@ public class AttendanceRepository(AppDbContext context)
         return attendances;
     }
 
-    public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceIdentifier(string attendanceIdentifier)
+    public async Task<List<AttendanceCheckEntity>> GetAttendanceChecksByAttendanceIdentifier(string attendanceIdentifier, 
+                                                                                                int pageNr, int pageSize)
     {
         return await context.AttendanceChecks
-            .Where(c => c.AttendanceIdentifier == attendanceIdentifier).ToListAsync();
+            .Where(c => c.AttendanceIdentifier == attendanceIdentifier)
+            .OrderBy(c => c.Id)
+            .Skip((pageNr - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
     
     public async Task<AttendanceCheckEntity?> GetAttendanceCheckById(Guid attendanceCheckId)
