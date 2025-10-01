@@ -1,11 +1,10 @@
-﻿using App.Domain;
-using Microsoft.EntityFrameworkCore;
+using App.Domain;
 
 namespace App.DAL.EF;
 
-public class SchoolRepository(AppDbContext context)
+public class RefreshTokenRepository
 {
-    public async Task<SchoolEntity?> GetSchoolById(Guid schoolId)
+    public async Task<RefreshTokenEntity?> GetRefreshToken(Guid schoolId)
     {
         return await context.Schools
             .FirstOrDefaultAsync(ua => ua.Id == schoolId);
@@ -16,7 +15,7 @@ public class SchoolRepository(AppDbContext context)
         return await context.Schools.ToListAsync();
     }
     
-    public async Task<bool> AddSchoolEntityToDb(SchoolEntity newSchool)
+    public async Task<bool> AddRefreshTokenEntityToDb(RefreshTokenEntity newSchool)
     {
         newSchool.CreatedAt = DateTime.UtcNow;
         newSchool.UpdatedAt = DateTime.UtcNow;

@@ -3,8 +3,6 @@ using App.DAL.EF;
 using App.Domain;
 using App.DTO;
 using Contracts;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -13,9 +11,8 @@ namespace App.BLL;
 
 public class CourseManagementService : ICourseManagementService
 {
-    private readonly AppDbContext _context;
-    public readonly CourseRepository _courseRepository;
-    public readonly AttendanceRepository _attendanceRepository;
+    private readonly CourseRepository _courseRepository;
+    private readonly AttendanceRepository _attendanceRepository;
     private readonly RedisRepository _redisRepository;
     private readonly UserRepository _userRepository;
     private readonly ILogger<CourseManagementService> _logger;
@@ -23,11 +20,10 @@ public class CourseManagementService : ICourseManagementService
     public CourseManagementService(AppDbContext context, ILogger<CourseManagementService> logger, IConnectionMultiplexer connectionMultiplexer, ILogger<RedisRepository> redisLogger)
     {
         _logger = logger;
-        _context = context;
-        _courseRepository = new CourseRepository(_context);
-        _attendanceRepository = new AttendanceRepository(_context);
+        _courseRepository = new CourseRepository(context);
+        _attendanceRepository = new AttendanceRepository(context);
         _redisRepository = new RedisRepository(connectionMultiplexer, redisLogger); 
-        _userRepository = new UserRepository(_context);
+        _userRepository = new UserRepository(context);
     }
 
     public async Task<CourseEntity?> GetCourseByAttendanceIdAsync(Guid attendanceId)
@@ -139,6 +135,7 @@ public class CourseManagementService : ICourseManagementService
         }
         
         await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
+        await _redisRepository.DeleteKeysByPatternAsync(Constants.CoursePrefix + Constants.AttendancePrefix);
         
         var status = await _courseRepository.UpdateCourseEntity(courseId, newCourse);
         if (!status)
@@ -149,6 +146,7 @@ public class CourseManagementService : ICourseManagementService
         
         return true;
     }
+    
     public async Task<bool> DeleteCourse(Guid courseId, string email)
     {
         var course = await GetCourseByIdAsync(courseId, email);
@@ -160,6 +158,7 @@ public class CourseManagementService : ICourseManagementService
         }
         
         await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
+        await _redisRepository.DeleteKeysByPatternAsync(Constants.CoursePrefix + Constants.AttendancePrefix);
 
         var status = await _courseRepository.DeleteCourseEntity(course);
         

@@ -46,4 +46,19 @@ public class RedisRepository(IConnectionMultiplexer connection, ILogger<RedisRep
         _logger.LogInformation($"RedisRepository - deleting data successful");
         return true;
     }
+    
+    public async Task DeleteKeysByPatternAsync(string pattern)
+    {
+        var endpoints = _database.Multiplexer.GetEndPoints();
+        foreach (var endpoint in endpoints)
+        {
+            var server = _database.Multiplexer.GetServer(endpoint);
+            var keys = server.Keys(pattern: pattern);
+            foreach (var key in keys)
+            {
+                await _database.KeyDeleteAsync(key);
+                _logger.LogInformation($"Deleted Redis key: {key}");
+            }
+        }
+    }
 }

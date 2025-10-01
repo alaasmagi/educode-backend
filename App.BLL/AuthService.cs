@@ -6,7 +6,6 @@ using System.Text.Json;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
@@ -35,7 +34,7 @@ public class AuthService : IAuthService
         var issuer = _envInitializer.JwtIssuer;
         var audience = _envInitializer.JwtAudience;
         
-        var jwtExpirationMinutes = 15; // TODO: ENV!
+        var jwtExpirationMinutes = _envInitializer.JwtExpirationMinutes;
         var now = DateTime.UtcNow;
 
         if (string.IsNullOrWhiteSpace(jwtKey))
@@ -74,7 +73,7 @@ public class AuthService : IAuthService
     
     public async Task<string?> GenerateRefreshToken(Guid userId, string creatorIp)
     {
-        var refreshTokenExpirationDays = 15; // TODO: ENV!
+        var refreshTokenExpirationDays = _envInitializer.RefreshTokenExpirationDays;
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         
         var tokenData = new RefreshTokenEntity
