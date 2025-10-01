@@ -34,11 +34,9 @@ public class CourseManagementService : ICourseManagementService
     {
         var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + 
                                                         Constants.AttendancePrefix + attendanceId);
-
         if (cache != null)
         {
-            var cachedCourse = JsonSerializer.Deserialize<CourseEntity>(cache);
-            return cachedCourse;
+            return JsonSerializer.Deserialize<CourseEntity>(cache);
         }
         
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
@@ -59,7 +57,7 @@ public class CourseManagementService : ICourseManagementService
         
         var serializedCourse = JsonSerializer.Serialize(course);
         await _redisRepository.SetDataAsync(Constants.CoursePrefix + Constants.AttendancePrefix + attendanceId, 
-                                                                                    serializedCourse, null);
+                                                                                    serializedCourse, Constants.LongCachePeriod);
         return course;
     }
 
@@ -67,69 +65,41 @@ public class CourseManagementService : ICourseManagementService
     {
         var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + courseId);
         CourseEntity? course;
-        
+
         if (cache != null)
         {
             course = JsonSerializer.Deserialize<CourseEntity>(cache);
+            
+            if (course == null)
+            {
+                _logger.LogError($"Course with ID {courseId} was not found");
+                return null;
+            }
         }
         else
         {
             course = await _courseRepository.GetCourseById(courseId);
+
+            if (course == null)
+            {
+                _logger.LogError($"Course with ID {courseId} was not found");
+                return null;
+            }
+
+            var serializedCourse = JsonSerializer.Serialize(course);
+            await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseId, serializedCourse, Constants.MediumCachePeriod);
         }
-        
-        if (course == null)
-        {
-            _logger.LogError($"Course with ID {courseId} was not found");
-            return null;
-        }
-        
-        var serializedCourse = JsonSerializer.Serialize(course);
-        await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseId, 
-            serializedCourse, null);
-        
+
         var accessible = await IsCourseAccessibleToUser(course, email);
         if (!accessible)
         {
-            _logger.LogError($"Course with ID {course.Id} cannot be fetched");
+            _logger.LogError($"Course with ID {course.Id} cannot be fetched by user {email}");
             return null;
         }
-        
+
         return course;
     }
-    
-    public async Task<CourseEntity?> GetCourseByCodeAsync(string courseCode, string email)
-    {
-        var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + courseCode);
-        CourseEntity? course;
-        
-        if (cache != null)
-        {
-            course = JsonSerializer.Deserialize<CourseEntity>(cache);
-        }
-        else
-        {
-            course = await _courseRepository.GetCourseByCode(courseCode);
-        }
-        
-        if (course == null)
-        {
-            _logger.LogError($"Course with code {courseCode} was not found");
-            return null;
-        }
-        
-        var serializedCourse = JsonSerializer.Serialize(course);
-        await _redisRepository.SetDataAsync(Constants.CoursePrefix + courseCode, 
-            serializedCourse, null);
-        
-        var accessible = await IsCourseAccessibleToUser(course, email);
-        if (!accessible)
-        {
-            _logger.LogError($"Course with ID {course.Id} cannot be fetched");
-            return null;
-        }
-        
-        return course;
-    }
+
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
@@ -204,60 +174,119 @@ public class CourseManagementService : ICourseManagementService
     
     public async Task<List<CourseStatusEntity>?> GetAllCourseStatuses()
     {
-        var result = await _courseRepository.GetAllCourseStatuses();
-
-        if (result != null && result.Count <= 0)
+        var cache = await _redisRepository.GetDataAsync(Constants.CourseStatusPrefix);
+        
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<CourseStatusEntity>?>(cache);
+        }
+        
+        var courseStatuses = await _courseRepository.GetAllCourseStatuses();
+        
+        if (courseStatuses != null && courseStatuses.Count <= 0)
         {
             _logger.LogError($"Failed to get course statuses");
             return null;
         }
         
-        return result;
+        var serializedCourseStatuses = JsonSerializer.Serialize(courseStatuses);
+        await _redisRepository.SetDataAsync(Constants.CourseStatusPrefix, 
+            serializedCourseStatuses, Constants.ExtraLongCachePeriod);
+        
+        return courseStatuses;
     }
     
     public async Task<List<CourseEntity>?> GetCoursesByUserAsync(Guid userId, int pageNr, int pageSize)
     {
-        var result = await _courseRepository.GetCoursesByUser(userId);
-
-        if (result == null)
+        var cache = await _redisRepository.GetDataAsync(Constants.CoursePrefix + 
+                                                        Constants.UserPrefix + userId + pageNr + pageSize);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<CourseEntity>?>(cache);
+        }
+        
+        var coursesByUser = await _courseRepository.GetCoursesByUser(userId);
+        if (coursesByUser == null)
         {
             _logger.LogError($"Failed to get courses by user with ID {userId}");
             return null;
         }
 
-        return result;
+        var serializedCoursesByUser = JsonSerializer.Serialize(coursesByUser);
+        await _redisRepository.SetDataAsync(Constants.CoursePrefix + Constants.UserPrefix + userId + pageNr + pageSize, 
+            serializedCoursesByUser, Constants.ShortCachePeriod);
+        
+        return coursesByUser;
     }
     
     public async Task<List<AttendanceStudentCountDto>?> GetAttendancesUserCountsByCourseAsync(Guid courseId)
     {
-        var result = await _courseRepository.GetAllUserCountsByCourseId(courseId);
+        var cache = await _redisRepository.GetDataAsync(Constants.CourseStudentCountsPrefix + courseId);
 
-        if (result == null)
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<AttendanceStudentCountDto>>(cache);
+        }
+        
+        var studentCounts = await _courseRepository.GetAllUserCountsByCourseId(courseId);
+        if (studentCounts == null)
         {
             _logger.LogError($"Failed to get attendances user counts by course with ID {courseId}");
             return null;
         }
         
-        return result;
+        var serializedStudentCounts = JsonSerializer.Serialize(studentCounts);
+        await _redisRepository.SetDataAsync(Constants.CourseStudentCountsPrefix + courseId, 
+            serializedStudentCounts, Constants.ShortCachePeriod);
+        return studentCounts;
     }
     
     public async Task<bool> IsCourseAccessibleToUser(CourseEntity courseEntity, string email)
     {
-        var user = await _userRepository.GetUserByEmailAsync(email);
-        
+        var userCache = await _redisRepository.GetDataAsync(Constants.UserPrefix + email);
+        UserEntity? user;
+
+        if (userCache != null)
+        {
+            user = JsonSerializer.Deserialize<UserEntity?>(userCache);
+        }
+        else
+        {
+            user = await _userRepository.GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                var serializedUser = JsonSerializer.Serialize(user);
+                await _redisRepository.SetDataAsync(Constants.UserPrefix + email, serializedUser, 
+                    Constants.DefaultCachePeriod);
+            }
+        }
+
         if (user == null)
         {
             _logger.LogError($"User with email {email} was not found");
             return false;
         }
+        
+        var accessCache = await _redisRepository.GetDataAsync(Constants.CourseAccessPrefix + courseEntity.Id + user.Id);
+        int access;
 
-        var result = await _courseRepository.CourseAccessibilityCheck(courseEntity.Id, user.Id);
-        if (result <= 0)
+        if (accessCache != null)
         {
-            _logger.LogError($"Course with with ID {courseEntity.Id} is not accessible by user with email {email}");
+            access = int.Parse(accessCache);
+        }
+        else
+        {
+            access = await _courseRepository.CourseAccessibilityCheck(courseEntity.Id, user.Id);
+            await _redisRepository.SetDataAsync(Constants.CourseAccessPrefix + courseEntity.Id + user.Id, access.ToString(), 
+                Constants.ShortCachePeriod);
+        }
+
+        if (access <= 0)
+        {
+            _logger.LogError($"Course with ID {courseEntity.Id} is not accessible by user with email {email}");
             return false;
         }
-        
+
         return true;
     }
     

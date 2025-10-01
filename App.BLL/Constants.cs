@@ -1,4 +1,4 @@
-﻿namespace App.Domain;
+﻿namespace App.BLL;
 
 public class Constants
 {
@@ -12,8 +12,16 @@ public class Constants
     public const string AttendanceCheckPrefix = "AttendanceCheck:";
     public const string AttendanceTypePrefix = "AttendanceType:";
     public const string CourseStatusPrefix = "CourseStatus:";
+    public const string CourseStudentCountsPrefix = "StudentCounts:";
+    public const string CourseAccessPrefix = "CourseAccess:";
     public const string UserTypePrefix = "UserType:";
     public const string WorkplacePrefix = "Workplace:";
     public const string UserFolder = "user";
     public const string SchoolFolder = "school";
+    
+    public static readonly TimeSpan DefaultCachePeriod = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan ShortCachePeriod = TimeSpan.FromMinutes(2);
+    public static readonly TimeSpan MediumCachePeriod = TimeSpan.FromHours(1);
+    public static readonly TimeSpan LongCachePeriod = TimeSpan.FromHours(2);
+    public static readonly TimeSpan ExtraLongCachePeriod = TimeSpan.FromHours(12);
 }
