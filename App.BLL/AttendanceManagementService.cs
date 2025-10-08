@@ -1,4 +1,5 @@
-﻿using App.DAL.EF;
+﻿using System.Text.Json;
+using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,6 @@ public class AttendanceManagementService : IAttendanceManagementService
     public async Task<bool> DoesWorkplaceExist(string workplaceIdentifier)
     {
         var result = await _attendanceRepository.WorkplaceAvailabilityCheckById(workplaceIdentifier);
-
         if (!result)
         {
             _logger.LogError($"Workplace with id {workplaceIdentifier} was not found");
@@ -66,19 +66,35 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<CourseAttendanceEntity?> GetCurrentAttendanceAsync(Guid userId)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.CurrentAttendancePrefix + 
+                                                                                        Constants.UserPrefix + userId);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<CourseAttendanceEntity?>(cache);
+        }
+        
         var currentAttendance = await _attendanceRepository.GetCurrentAttendance(userId);
-
         if (currentAttendance == null)
         {
             _logger.LogError($"Current attendance for user with ID {userId} was not found");
             return null;
         }
         
+        var serializedAttendance = JsonSerializer.Serialize(currentAttendance);
+        await _redisRepository.SetDataAsync(Constants.CurrentAttendancePrefix + 
+                                            Constants.UserPrefix + userId, serializedAttendance,Constants.ExtraShortCachePeriod);
+        
         return currentAttendance;
     }
     
     public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdAsync(Guid attendanceId, string email)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendancePrefix + attendanceId);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<CourseAttendanceEntity?>(cache);
+        }
+        
         var courseAttendance = await _attendanceRepository.GetAttendanceById(attendanceId);
 
         if (courseAttendance == null)
@@ -86,6 +102,9 @@ public class AttendanceManagementService : IAttendanceManagementService
             _logger.LogError($"Attendance with ID {attendanceId} was not found");
             return null;
         }
+        
+        var serializedAttendance = JsonSerializer.Serialize(courseAttendance);
+        await _redisRepository.SetDataAsync(Constants.AttendancePrefix + attendanceId, serializedAttendance,Constants.MediumCachePeriod);
         
         var accessible = await IsAttendanceAccessibleByUser(courseAttendance, email);
         if (!accessible)
@@ -95,10 +114,42 @@ public class AttendanceManagementService : IAttendanceManagementService
         }
         return courseAttendance;
     }
+    
+    public async Task<CourseAttendanceEntity?> GetCourseAttendanceByIdentifier(string identifier)
+    {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendancePrefix + identifier);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<CourseAttendanceEntity?>(cache);
+        }
+        
+        var courseAttendance = await _attendanceRepository.GetAttendanceByIdentifier(identifier);
+
+        if (courseAttendance == null)
+        {
+            _logger.LogError($"Attendance with identifier {identifier} was not found");
+            return null;
+        }
+        
+        var serializedAttendance = JsonSerializer.Serialize(courseAttendance);
+        await _redisRepository.SetDataAsync(Constants.AttendancePrefix + identifier, serializedAttendance,Constants.MediumCachePeriod);
+        
+        return courseAttendance;
+    }
 
     public async Task<int> GetStudentsCountByAttendanceIdAsync(string attendanceIdentifier)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendancePrefix + Constants.StudentCountPrefix + attendanceIdentifier);
+        if (cache != null)
+        {
+            return int.Parse(cache);
+        }
+        
         var result = await _attendanceRepository.GetStudentCountByAttendanceId(attendanceIdentifier);
+        
+        await _redisRepository.SetDataAsync(Constants.AttendancePrefix + Constants.StudentCountPrefix + attendanceIdentifier, result.ToString(), 
+            Constants.ShortCachePeriod);
+        
         if (result <= 0)
         {
             _logger.LogError($"Attendance with identifier {attendanceIdentifier} has no attendance checks");
@@ -109,6 +160,12 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<List<CourseAttendanceEntity>?> GetAttendancesByCourseAsync(Guid courseId, int pageNr, int pageSize)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendancePrefix + Constants.CoursePrefix + courseId + pageNr + pageSize);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<CourseAttendanceEntity>?>(cache);
+        }
+        
         var attendances = await _attendanceRepository.GetCourseAttendancesByCourseId(courseId, pageNr, pageSize);
 
         if (attendances.Count <= 0)
@@ -117,6 +174,10 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
 
+        var serializedAttendancesByCourse = JsonSerializer.Serialize(attendances);
+        await _redisRepository.SetDataAsync(Constants.AttendancePrefix + Constants.CoursePrefix + courseId + pageNr + pageSize, 
+            serializedAttendancesByCourse, Constants.ShortCachePeriod);
+        
         return attendances;
     }
 
@@ -154,6 +215,12 @@ public class AttendanceManagementService : IAttendanceManagementService
     public async Task<List<AttendanceCheckEntity>?> GetAttendanceChecksByAttendanceIdAsync(string attendanceIdentifier, 
                                                                                                 int pageNr, int pageSize)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendanceCheckPrefix + Constants.AttendancePrefix + attendanceIdentifier + pageNr + pageSize);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<AttendanceCheckEntity>?>(cache);
+        }
+        
         var attendanceChecks = await _attendanceRepository.GetAttendanceChecksByAttendanceIdentifier(attendanceIdentifier, pageNr, pageSize);
         
         if (attendanceChecks.Count <= 0)
@@ -162,11 +229,22 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
         
+        var serializedAttendanceChecksByAttendance = JsonSerializer.Serialize(attendanceChecks);
+        await _redisRepository.SetDataAsync(Constants.AttendanceCheckPrefix + Constants.AttendancePrefix + attendanceIdentifier + pageNr + pageSize, 
+            serializedAttendanceChecksByAttendance, Constants.ShortCachePeriod);
+        
         return attendanceChecks;
     }
 
     public async Task<CourseAttendanceEntity?> GetMostRecentAttendanceByUserAsync(Guid userId)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.RecentAttendancePrefix + 
+                                                        Constants.UserPrefix + userId);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<CourseAttendanceEntity?>(cache);
+        }
+        
         var attendance = await _attendanceRepository.GetMostRecentAttendanceByUser(userId);
 
         if (attendance == null)
@@ -175,50 +253,89 @@ public class AttendanceManagementService : IAttendanceManagementService
             return null;
         }
         
+        var serializedAttendance = JsonSerializer.Serialize(attendance);
+        await _redisRepository.SetDataAsync(Constants.RecentAttendancePrefix + 
+                                            Constants.UserPrefix + userId, serializedAttendance,Constants.ShortCachePeriod);
+        
         return attendance;
     }
 
     public async Task<AttendanceCheckEntity?> GetAttendanceCheckByIdAsync(Guid attendanceCheckId, string email)
     {
-        var result = await _attendanceRepository.GetAttendanceCheckById(attendanceCheckId);
-        if (result == null)
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendanceCheckPrefix + attendanceCheckId);
+        AttendanceCheckEntity? attendanceCheck;
+
+        if (cache != null)
         {
-            _logger.LogError($"AttendanceCheck with ID {attendanceCheckId} was not found");
-            return null;
+            attendanceCheck = JsonSerializer.Deserialize<AttendanceCheckEntity>(cache);
+        }
+        else
+        {
+            attendanceCheck = await _attendanceRepository.GetAttendanceCheckById(attendanceCheckId);
+
+            if (attendanceCheck == null)
+            {
+                _logger.LogError($"AttendanceCheck with ID {attendanceCheck} was not found");
+                return null;
+            }
+
+            var serializedAttendance = JsonSerializer.Serialize(attendanceCheck);
+            await _redisRepository.SetDataAsync(Constants.AttendanceCheckPrefix + attendanceCheckId, serializedAttendance, Constants.MediumCachePeriod);
         }
         
-        var accessible = await IsAttendanceCheckAccessibleByUser(result, email);
+        var accessible = await IsAttendanceCheckAccessibleByUser(attendanceCheck, email);
         if (!accessible)
         {
             _logger.LogError($"AttendanceCheck with ID {attendanceCheckId} cannot be fetched");
             return null;
         }
         
-        return result;
+        return attendanceCheck;
     }
     
     public async Task<List<AttendanceTypeEntity>?> GetAttendanceTypesAsync()
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendanceTypePrefix);
+        
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<AttendanceTypeEntity>?>(cache);
+        }
+        
         var result = await _attendanceRepository.GetAttendanceTypes();
-
         if (result.Count <= 0)
         {
-            _logger.LogError($"Attendance types were not found");
+            _logger.LogError($"Failed to get course statuses");
             return null;
         }
+        
+        var serializedAttendanceTypes = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(Constants.AttendanceTypePrefix, 
+            serializedAttendanceTypes, Constants.ExtraLongCachePeriod);
         
         return result;
     }
 
     public async Task<AttendanceTypeEntity?> GetAttendanceTypeByIdAsync(Guid attendanceTypeId)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.AttendanceTypePrefix + attendanceTypeId);
+        
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<AttendanceTypeEntity?>(cache);
+        }
+        
         var result = await _attendanceRepository.GetAttendanceTypeById(attendanceTypeId);
-
+        
         if (result == null)
         {
             _logger.LogError($"Attendance type with ID {attendanceTypeId} was not found");
             return null;
         }
+        
+        var serializedAttendanceType = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(Constants.AttendanceTypePrefix + attendanceTypeId, 
+            serializedAttendanceType, Constants.ExtraLongCachePeriod);
         
         return result;
     }
@@ -263,6 +380,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
+        await _redisRepository.DeleteKeysByPatternAsync(attendanceId.ToString());
         var status = await _attendanceRepository.UpdateAttendance(attendanceId, updatedAttendance);
 
         if (!status)
@@ -283,6 +401,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
+        await _redisRepository.DeleteKeysByPatternAsync(attendanceId.ToString());
         var status = await _attendanceRepository.DeleteAttendanceEntity(attendance);
         
         if (!status)
@@ -303,6 +422,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
+        await _redisRepository.DeleteKeysByPatternAsync(attendanceCheckId.ToString());
         var status = await _attendanceRepository.DeleteAttendanceCheckEntity(attendanceCheck);
 
         if (!status)
@@ -315,16 +435,45 @@ public class AttendanceManagementService : IAttendanceManagementService
 
     public async Task<bool> IsAttendanceAccessibleByUser(CourseAttendanceEntity attendance, string email)
     {
-        var user =  await _userRepository.GetUserByEmailAsync(email);
+        var userCache = await _redisRepository.GetDataAsync(Constants.UserPrefix + email);
+        UserEntity? user;
+        
+        if (userCache != null)
+        {
+            user = JsonSerializer.Deserialize<UserEntity?>(userCache);
+        }
+        else
+        {
+            user = await _userRepository.GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                var serializedUser = JsonSerializer.Serialize(user);
+                await _redisRepository.SetDataAsync(Constants.UserPrefix + email, serializedUser, 
+                    Constants.DefaultCachePeriod);
+            }
+        }
+        
         if (user == null)
         {
-            _logger.LogError($"User email {email} was not found");
+            _logger.LogError($"User with email {email} was not found");
             return false;
         }
         
-        var result = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
+        var accessCache = await _redisRepository.GetDataAsync(Constants.AttendanceAccessPrefix + attendance.Id + user.Id);
+        int access;
 
-        if (result <= 0)
+        if (accessCache != null)
+        {
+            access = int.Parse(accessCache);
+        }
+        else
+        {
+            access = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
+            await _redisRepository.SetDataAsync(Constants.AttendanceAccessPrefix + attendance.Id + user.Id, access.ToString(), 
+                Constants.ShortCachePeriod);
+        }
+
+        if (access <= 0)
         {
             _logger.LogError($"Attendance with ID {attendance.Id} is not accessible by user with email {email}");
             return false;
@@ -335,23 +484,53 @@ public class AttendanceManagementService : IAttendanceManagementService
     
     public async Task<bool> IsAttendanceCheckAccessibleByUser(AttendanceCheckEntity attendanceCheck, string email)
     {
-        var user = await _userRepository.GetUserByEmailAsync(email);
+        
+        var userCache = await _redisRepository.GetDataAsync(Constants.UserPrefix + email);
+        UserEntity? user;
+        
+        if (userCache != null)
+        {
+            user = JsonSerializer.Deserialize<UserEntity?>(userCache);
+        }
+        else
+        {
+            user = await _userRepository.GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                var serializedUser = JsonSerializer.Serialize(user);
+                await _redisRepository.SetDataAsync(Constants.UserPrefix + email, serializedUser, 
+                    Constants.DefaultCachePeriod);
+            }
+        }
+        
         if (user == null)
         {
-            _logger.LogError($"User email {email} was not found");
+            _logger.LogError($"User with email {email} was not found");
             return false;
         }
         
-        var attendance = await _attendanceRepository.GetAttendanceByIdentifier(attendanceCheck.AttendanceIdentifier);
+        var attendance = await GetCourseAttendanceByIdentifier(attendanceCheck.AttendanceIdentifier);
         if (attendance == null)
         {
             _logger.LogError($"Attendance with identifier {attendanceCheck.AttendanceIdentifier} was not found");
             return false;
         }
         
-        var result = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
-        
-        if (result <= 0)
+        var accessCache = await _redisRepository.GetDataAsync(Constants.AttendanceAccessPrefix + attendance.Id + user.Id);
+        int access;
+
+        if (accessCache != null)
+        {
+            access = int.Parse(accessCache);
+        }
+        else
+        {
+            access = await _courseRepository.CourseAccessibilityCheck(attendance.CourseId, user.Id);
+            await _redisRepository.SetDataAsync(Constants.AttendanceAccessPrefix + attendance.Id + user.Id, access.ToString(), 
+                Constants.ShortCachePeriod);
+        }
+
+        if (access <= 0)
         {
             _logger.LogError($"Attendance check with ID {attendanceCheck.Id} is not accessible by user with email {email}");
             return false;

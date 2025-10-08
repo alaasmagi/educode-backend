@@ -65,12 +65,6 @@ public class CourseManagementService : ICourseManagementService
         if (cache != null)
         {
             course = JsonSerializer.Deserialize<CourseEntity>(cache);
-            
-            if (course == null)
-            {
-                _logger.LogError($"Course with ID {courseId} was not found");
-                return null;
-            }
         }
         else
         {
@@ -95,7 +89,6 @@ public class CourseManagementService : ICourseManagementService
 
         return course;
     }
-
     
     public async Task<bool> AddCourse(UserEntity user, CourseEntity course, string creator)
     {
@@ -124,6 +117,7 @@ public class CourseManagementService : ICourseManagementService
         
         return true;
     }
+    
     public async Task<bool> EditCourse(Guid courseId, CourseEntity newCourse)
     {
         var courseExistence = await DoesCourseExistByIdAsync(courseId);
@@ -134,9 +128,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
-        await _redisRepository.DeleteKeysByPatternAsync(Constants.CoursePrefix + Constants.AttendancePrefix);
-        
+        await _redisRepository.DeleteKeysByPatternAsync(courseId.ToString());
         var status = await _courseRepository.UpdateCourseEntity(courseId, newCourse);
         if (!status)
         {
@@ -157,9 +149,8 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await _redisRepository.DeleteDataAsync(Constants.CoursePrefix + courseId);
-        await _redisRepository.DeleteKeysByPatternAsync(Constants.CoursePrefix + Constants.AttendancePrefix);
-
+        await _redisRepository.DeleteKeysByPatternAsync(courseId.ToString());
+        
         var status = await _courseRepository.DeleteCourseEntity(course);
         
         if (!status)

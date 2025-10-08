@@ -11,8 +11,13 @@ public class Constants
     public const string UserPrefix = "User:";
     public const string UserAuthPrefix = "UserAuth:";
     public const string CoursePrefix = "Course:";
+    public const string CurrentAttendancePrefix = "CurrentAttendance:";
+    public const string RecentAttendancePrefix = "RecentAttendance:";
     public const string AttendancePrefix = "Attendance:";
+    public const string AttendanceAccessPrefix = "AttendanceAccess:";
+    public const string AttendanceCheckAccessPrefix = "AttendanceCheckAccess:";
     public const string SchoolPrefix = "School:";
+    public const string StudentCountPrefix = "StudentCount:";
     public const string AttendanceCheckPrefix = "AttendanceCheck:";
     public const string AttendanceTypePrefix = "AttendanceType:";
     public const string CourseStatusPrefix = "CourseStatus:";
@@ -25,6 +30,7 @@ public class Constants
     public const string BackendPrefix = "EDUCODE-ASPNET";
     
     public static readonly TimeSpan DefaultCachePeriod = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan ExtraShortCachePeriod = TimeSpan.FromMinutes(1);
     public static readonly TimeSpan ShortCachePeriod = TimeSpan.FromMinutes(2);
     public static readonly TimeSpan MediumCachePeriod = TimeSpan.FromHours(1);
     public static readonly TimeSpan LongCachePeriod = TimeSpan.FromHours(2);
