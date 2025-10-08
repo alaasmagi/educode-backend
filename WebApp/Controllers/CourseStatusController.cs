@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
@@ -11,7 +6,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class CourseStatusController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class CourseStatusController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: CourseStatus
@@ -136,6 +131,7 @@ namespace WebApp.Controllers
                 {
                     courseStatusEntity.CreatedAt = DateTime.SpecifyKind(courseStatusEntity.CreatedAt, DateTimeKind.Utc);
                     courseStatusEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(courseStatusEntity.Id.ToString());
                     context.Update(courseStatusEntity);
                     await context.SaveChangesAsync();
                 }
@@ -196,6 +192,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (courseStatusEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(courseStatusEntity.Id.ToString());
                 context.CourseStatuses.Remove(courseStatusEntity);
             }
 

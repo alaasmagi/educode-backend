@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Controllers
 {
-    public class WorkplaceController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class WorkplaceController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: Workplace
@@ -136,6 +136,7 @@ namespace WebApp.Controllers
                 {
                     workplaceEntity.CreatedAt = DateTime.SpecifyKind(workplaceEntity.CreatedAt, DateTimeKind.Utc);
                     workplaceEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(workplaceEntity.Id.ToString());
                     context.Update(workplaceEntity);
                     await context.SaveChangesAsync();
                 }
@@ -198,6 +199,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(w => w.Id == id);
             if (workplaceEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(workplaceEntity.Id.ToString());
                 context.Workplaces.Remove(workplaceEntity);
             }
 

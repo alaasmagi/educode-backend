@@ -7,7 +7,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class CourseController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class CourseController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: Course
@@ -138,6 +138,7 @@ namespace WebApp.Controllers
                 {
                     courseEntity.CreatedAt = DateTime.SpecifyKind(courseEntity.CreatedAt, DateTimeKind.Utc);
                     courseEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(courseEntity.Id.ToString());
                     context.Update(courseEntity);
                     await context.SaveChangesAsync();
                 }
@@ -200,6 +201,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (courseEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(courseEntity.Id.ToString());
                 context.Courses.Remove(courseEntity);
             }
 

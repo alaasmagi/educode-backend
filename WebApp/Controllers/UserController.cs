@@ -8,7 +8,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserController(AppDbContext context, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
+    public class UserController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
         : BaseController(adminAccessService)
     {
         // GET: User
@@ -145,6 +145,8 @@ namespace WebApp.Controllers
                 {
                     userEntity.CreatedAt = DateTime.SpecifyKind(userEntity.CreatedAt, DateTimeKind.Utc);
                     userEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(userEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync(userEntity.Email);
                     context.Update(userEntity);
                     await context.SaveChangesAsync();
                 }
@@ -209,6 +211,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(u => u.Id == id);
             if (userEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(userEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync(userEntity.Email);
                 context.Users.Remove(userEntity);
             }
 

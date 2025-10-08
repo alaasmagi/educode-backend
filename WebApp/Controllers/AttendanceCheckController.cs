@@ -7,7 +7,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class AttendanceCheckController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class AttendanceCheckController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: AttendanceCheck
@@ -138,6 +138,7 @@ namespace WebApp.Controllers
                 {
                     attendanceCheckEntity.CreatedAt = DateTime.SpecifyKind(attendanceCheckEntity.CreatedAt, DateTimeKind.Utc);
                     attendanceCheckEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(attendanceCheckEntity.Id.ToString());
                     context.Update(attendanceCheckEntity);
                     await context.SaveChangesAsync();
                 }
@@ -201,8 +202,8 @@ namespace WebApp.Controllers
             if (attendanceCheckEntity != null)
             {
                 context.AttendanceChecks.Remove(attendanceCheckEntity);
+                await redis.DeleteKeysByPatternAsync(attendanceCheckEntity.Id.ToString());
             }
-
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

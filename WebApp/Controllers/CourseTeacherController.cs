@@ -7,7 +7,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class CourseTeacherController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class CourseTeacherController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: CourseTeacher
@@ -140,6 +140,9 @@ namespace WebApp.Controllers
                 {
                     courseTeacherEntity.CreatedAt = DateTime.SpecifyKind(courseTeacherEntity.CreatedAt, DateTimeKind.Utc);
                     courseTeacherEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(courseTeacherEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync(courseTeacherEntity.CourseId.ToString());
+                    await redis.DeleteKeysByPatternAsync(courseTeacherEntity.TeacherId.ToString());
                     context.Update(courseTeacherEntity);
                     await context.SaveChangesAsync();
                 }
@@ -204,6 +207,9 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (courseTeacherEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(courseTeacherEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync(courseTeacherEntity.CourseId.ToString());
+                await redis.DeleteKeysByPatternAsync(courseTeacherEntity.TeacherId.ToString());
                 context.CourseTeachers.Remove(courseTeacherEntity);
             }
 

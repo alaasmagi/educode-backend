@@ -7,7 +7,7 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class ClassroomController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class ClassroomController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: Classroom
@@ -136,6 +136,7 @@ namespace WebApp.Controllers
                 {
                     classroomEntity.CreatedAt = DateTime.SpecifyKind(classroomEntity.CreatedAt, DateTimeKind.Utc);
                     classroomEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(classroomEntity.Id.ToString());
                     context.Update(classroomEntity);
                     await context.SaveChangesAsync();
                 }
@@ -199,6 +200,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (classroomEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(classroomEntity.Id.ToString());
                 context.Classrooms.Remove(classroomEntity);
             }
 

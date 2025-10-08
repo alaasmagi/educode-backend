@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers
 {
-    public class SchoolController(AppDbContext context, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
+    public class SchoolController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
         : BaseController(adminAccessService)
     {
         // GET: CourseStatus
@@ -139,6 +139,7 @@ namespace WebApp.Controllers
                 {
                     schoolEntity.CreatedAt = DateTime.SpecifyKind(schoolEntity.CreatedAt, DateTimeKind.Utc);
                     schoolEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(schoolEntity.Id.ToString());
                     context.Update(schoolEntity);
                     await context.SaveChangesAsync();
                 }
@@ -191,6 +192,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
             if (schoolEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(schoolEntity.Id.ToString());
                 context.Schools.Remove(schoolEntity);
             }
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers
 {
-    public class RefreshTokenController(AppDbContext context, IAdminAccessService adminAccessService)
+    public class RefreshTokenController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
         : BaseController(adminAccessService)
     {
         // GET: RefreshToken
@@ -137,6 +137,8 @@ namespace WebApp.Controllers
                 {
                     refreshTokenEntity.CreatedAt = DateTime.SpecifyKind(refreshTokenEntity.CreatedAt, DateTimeKind.Utc);
                     refreshTokenEntity.UpdatedAt = DateTime.UtcNow;
+                    await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Token);
                     context.Update(refreshTokenEntity);
                     await context.SaveChangesAsync();
                 }
@@ -189,6 +191,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
             if (refreshTokenEntity != null)
             {
+                await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Token);
                 context.RefreshTokens.Remove(refreshTokenEntity);
             }
 
