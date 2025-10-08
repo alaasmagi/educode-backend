@@ -1,4 +1,5 @@
-﻿using App.DAL.EF;
+﻿using System.Text.Json;
+using App.DAL.EF;
 using App.Domain;
 using Contracts;
 using Microsoft.Extensions.Logging;
@@ -106,19 +107,34 @@ public class UserManagementService : IUserManagementService
     
     public async Task<UserTypeEntity?> GetUserTypeAsync(string userType)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.UserTypePrefix + userType);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<UserTypeEntity?>(cache);
+        }
+        
         var result = await _userRepository.GetUserTypeEntity(userType);
-
         if (result == null)
         {
             _logger.LogError($"Failed to get user type {userType}");
             return null;
         }
         
+        var serializedUserType = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(Constants.UserTypePrefix + userType, 
+            serializedUserType, Constants.ExtraLongCachePeriod);
+        
         return  result;
     }
 
     public async Task<List<UserEntity>?> GetAllUsersAsync(int pageNr, int pageSize)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.UserPrefix + pageNr + pageSize);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<List<UserEntity>?>(cache);
+        }
+
         var result = await _userRepository.GetAllUsersAsync(pageNr, pageSize);
 
         if (result.Count <= 0)
@@ -127,11 +143,23 @@ public class UserManagementService : IUserManagementService
             return null;
         }
 
+        var serializedUsers = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(
+            Constants.UserPrefix + pageNr + pageSize,
+            serializedUsers, Constants.ShortCachePeriod);
+
         return result;
+        
     }
-    
+
     public async Task<UserEntity?> GetUserByEmailAsync(string email)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.UserPrefix + email);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<UserEntity?>(cache);
+        }
+        
         var result = await _userRepository.GetUserByEmailAsync(email);
         
         if (result == null)
@@ -139,12 +167,22 @@ public class UserManagementService : IUserManagementService
             _logger.LogError($"User with email {email} not found");
             return null;
         }
+        
+        var serializedUser = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(Constants.UserPrefix + email,
+            serializedUser, Constants.DefaultCachePeriod);
 
         return result;
     }
     
     public async Task<UserEntity?> GetUserByIdAsync(Guid id)
     {
+        var cache = await _redisRepository.GetDataAsync(Constants.UserPrefix + id);
+        if (cache != null)
+        {
+            return JsonSerializer.Deserialize<UserEntity?>(cache);
+        }
+        
         var result = await _userRepository.GetUserByIdAsync(id);
 
         if (result == null)
@@ -153,6 +191,10 @@ public class UserManagementService : IUserManagementService
             return null;
         }
         
+        var serializedUser = JsonSerializer.Serialize(result);
+        await _redisRepository.SetDataAsync(Constants.UserPrefix + id,
+            serializedUser, Constants.DefaultCachePeriod);
+
         return result;
     }
     
@@ -163,6 +205,8 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> DeleteUserAsync(UserEntity user)
     {
+        await _redisRepository.DeleteKeysByPatternAsync(user.Id.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync(user.Email);
         await _courseRepository.DeleteCoursesByUserAsync(user.Id);
         bool status = await _userRepository.DeleteUserEntity(user);
         if (!status)
@@ -174,6 +218,8 @@ public class UserManagementService : IUserManagementService
         return true;
     }
     
+    // TODO: Implement Edit User method
+    
     /* TODO: Implement soft deletion that cascade-soft-deletes UserAuthData, CourseTeachers, Courses, AttendanceChecks
                 and HARD-deletes all User's RefreshTokens */
 
@@ -181,4 +227,5 @@ public class UserManagementService : IUserManagementService
     // TODO: Implement an authentication method that can authenticate soft deleted users (IgnoreQueryFilers)
     
     // TODO: Implement restoration method that cascade-restores UserAuthData, CourseTeachers, Courses, AttendanceChecks
+
 }
