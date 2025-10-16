@@ -1,6 +1,7 @@
 using Contracts;
 using Oci.Common;
 using Oci.Common.Auth;
+using Oci.Common.Model;
 using Oci.ObjectstorageService;
 using Oci.ObjectstorageService.Requests;
 
@@ -64,14 +65,21 @@ public class OciPhotoService : IPhotoService
     
     public async Task<bool> RemovePhotoAsync(string photoPath)
     {
-        var request = new DeleteObjectRequest()
+        try
         {
-            NamespaceName = _namespace,
-            BucketName = _bucketName,
-            ObjectName = photoPath,
-        };
+            var request = new DeleteObjectRequest
+            {
+                NamespaceName = _namespace,
+                BucketName = _bucketName,
+                ObjectName = photoPath
+            };
 
-        await _client.DeleteObject(request);
-        return true;
+            await _client.DeleteObject(request);
+            return true;
+        }
+        catch (OciException ex)
+        {
+            return false;
+        }
     }
 }
