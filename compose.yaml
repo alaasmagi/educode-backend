@@ -1,14 +1,13 @@
-﻿version: '3.9'
+version: '3.9'
 
 services:
   webapp:
-    image: webapp
+    image: educode-webapp
     build:
       context: .
-      dockerfile: WebApp/Dockerfile
+      dockerfile: Dockerfile 
     ports:
       - "8080:8080"
     env_file:
       - .env
-    environment:
-      - ConnectionStrings__DefaultConnection=server=${HOST};port=${PORT};user=${USER};password=${DBKEY};database=${DB}
+
