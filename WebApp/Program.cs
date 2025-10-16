@@ -1,3 +1,4 @@
+using System.Net;
 using App.DAL.EF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -7,10 +8,12 @@ using System.Threading.RateLimiting;
 using App.BLL;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using StackExchange.Redis;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load("../.env");
@@ -39,6 +42,14 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddSingleton<IHostedService, CleanupService>();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    
+    // 10.0.0.0/24 is subnet in which load balancer and VMs are
+    options.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("10.0.0.0"), 24));
+});
 
 builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseNpgsql(envInitializer.PgDbConnection, npgsqlOptions =>
@@ -174,6 +185,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseForwardedHeaders();
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
 app.UseSession();

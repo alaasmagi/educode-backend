@@ -9,15 +9,17 @@ using BCrypt.Net;
 public class AdminAccessService : IAdminAccessService
 {
     private readonly ILogger<AdminAccessService> _logger;
-    public AdminAccessService(ILogger<AdminAccessService> logger)
+    private readonly EnvInitializer _envInitializer;
+    public AdminAccessService(ILogger<AdminAccessService> logger, EnvInitializer envInitializer)
     {
         _logger = logger;
+        _envInitializer = envInitializer;
     }
     
     public bool AdminAccessGrant(string enteredUsername, string enteredPassword)
     {
-        var storedUsernameEnc = Environment.GetEnvironmentVariable("ADMINUSER") ?? "";
-        var storedPasswordEnc = Environment.GetEnvironmentVariable("ADMINKEY") ?? "";
+        var storedUsernameEnc = _envInitializer.AdminUser;
+        var storedPasswordEnc = _envInitializer.AdminKey;
 
         if (storedUsernameEnc == "" && storedPasswordEnc == "")
         {
