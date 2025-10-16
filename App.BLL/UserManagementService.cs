@@ -215,6 +215,7 @@ public class UserManagementService : IUserManagementService
             return false;
         }
 
+        _logger.LogInformation($"Successfully deleted user with ID {user.Id}");
         return true;
     }
     
@@ -233,6 +234,7 @@ public class UserManagementService : IUserManagementService
             return false;
         }
 
+        _logger.LogInformation($"Successfully updated user with ID {user.Id}");
         return true;
     }
     
