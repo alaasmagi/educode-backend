@@ -21,7 +21,7 @@ public class AdminAccessService : IAdminAccessService
         var storedUsernameEnc = _envInitializer.AdminUser;
         var storedPasswordEnc = _envInitializer.AdminKey;
 
-        if (storedUsernameEnc == "" && storedPasswordEnc == "")
+        if (storedUsernameEnc == string.Empty && storedPasswordEnc == string.Empty)
         {
             _logger.LogError("Reading data from env failed (ADMINUSER or ADMINKEY)");
             return false;
@@ -50,9 +50,9 @@ public class AdminAccessService : IAdminAccessService
 
     public async Task<string> GetHashedAdminAccessTokenAsync(string input)
     {
-        var salt = Environment.GetEnvironmentVariable("ADMINTOKENSALT");
+        var salt = _envInitializer.AdminTokenSalt;
 
-        if (salt == null)
+        if (salt == string.Empty)
         {
             _logger.LogError("Reading data from env failed (ADMINTOKENSALT)");
             return string.Empty;
