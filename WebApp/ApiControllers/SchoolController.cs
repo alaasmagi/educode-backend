@@ -29,7 +29,7 @@ public class SchoolController(
             return NotFound(new { message = "Schools not found", messageCode = "schools-not-found" });
         }
 
-        var result = SchoolDto.ToDtoList(schools, envInitializer.BucketUrl);
+        var result = SchoolDto.ToDtoList(schools, envInitializer.OciPublicUrl);
 
         logger.LogInformation($"{schools.Count} schools successfully fetched");
         return result;
@@ -46,7 +46,7 @@ public class SchoolController(
             return NotFound(new { message = $"School with ID {id} not found", messageCode = "school-not-found" });
         }
 
-        var result = new SchoolDto(school, envInitializer.BucketUrl);
+        var result = new SchoolDto(school, envInitializer.OciPublicUrl);
 
         logger.LogInformation($"School with ID {id} successfully fetched");
         return result;

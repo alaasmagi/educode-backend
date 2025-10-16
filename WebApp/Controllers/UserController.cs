@@ -48,7 +48,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            ViewData["PhotoLink"] = envInitializer.BucketUrl + userEntity.PhotoPath;
+            ViewData["PhotoLink"] = envInitializer.OciPublicUrl + userEntity.PhotoPath;
             return View(userEntity);
         }
 

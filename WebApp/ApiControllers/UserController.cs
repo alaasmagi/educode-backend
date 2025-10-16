@@ -32,7 +32,7 @@ namespace WebApp.ApiControllers
                 return NotFound(new { message = "Users not found", messageCode = "users-not-found" });
             }
 
-            var result = UserDto.ToDtoList(users, envInitializer.BucketUrl);
+            var result = UserDto.ToDtoList(users, envInitializer.OciPublicUrl);
 
             logger.LogInformation($"All users fetched successfully");
             return Ok(result);
@@ -56,7 +56,7 @@ namespace WebApp.ApiControllers
                 return Unauthorized(new { message = "User not accessible", messageCode = "user-not-accessible" });
             }
 
-            var result = new UserDto(userEntity, envInitializer.BucketUrl);
+            var result = new UserDto(userEntity, envInitializer.OciPublicUrl);
 
             logger.LogInformation($"User with ID {id} fetched successfully");
             return Ok(result);

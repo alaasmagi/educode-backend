@@ -12,9 +12,6 @@ public class EnvInitializer
     public string PgDbConnection { get; private set; } = string.Empty;
     public string RedisConnection { get; private set; } = string.Empty;
     
-    // Bucket
-    public string BucketUrl { get; private set; } = string.Empty;
-
     // JWT
     public string JwtKey { get; private set; } = string.Empty;
     public string JwtAudience { get; private set; } = string.Empty;
@@ -48,6 +45,7 @@ public class EnvInitializer
     public string OciFingerprint { get; private set; } = string.Empty;
     public string OciRegion { get; private set; } = string.Empty;
     public string OciBucketName { get; private set; } = string.Empty;
+    public string OciPublicUrl { get; private set; } = string.Empty;
     
     // Soft deletion
     public int SoftDeleteExpirationDays { get; private set; }
@@ -66,8 +64,6 @@ public class EnvInitializer
         PgDbConnection = GetStringEnv("PG_DB_CONNECTION");
         RedisConnection = GetStringEnv("REDIS_CONNECTION");
         
-        BucketUrl = GetStringEnv("BUCKET_URL");
-
         OtpKey = GetStringEnv("OTPKEY");
         OtpExpirationMinutes = GetIntEnv("OTP_MINUTES");
 
@@ -95,6 +91,7 @@ public class EnvInitializer
         OciFingerprint = GetStringEnv("OCI_FINGERPRINT");
         OciRegion = GetStringEnv("OCI_REGION");
         OciBucketName = GetStringEnv("OCI_BUCKET_NAME");
+        OciPublicUrl = GetStringEnv("OCI_PUBLIC_URL");
 
         SoftDeleteExpirationDays = GetIntEnv("SOFTDELETE_EXPIRATION_DAYS");
         
