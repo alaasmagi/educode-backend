@@ -1,8 +1,7 @@
 ﻿namespace WebApp.Models;
 
-public class VerifyOtpModel
+public class VerifyOtpModel : BaseModel
 {
     public required string Email { get; set; }
     public required string Otp { get; set; }
-    public required string Client { get; set; }
 }

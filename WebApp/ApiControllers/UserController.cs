@@ -62,6 +62,7 @@ namespace WebApp.ApiControllers
             return Ok(result);
         }
 
+        // TODO: IMPLEMENT THE CORRECT UPDATE
         [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateUserEntity(Guid id)
@@ -80,7 +81,7 @@ namespace WebApp.ApiControllers
                 return Unauthorized(new { message = "User not accessible", messageCode = "user-not-accessible" });
             }
 
-            if (await userManagementService.DeleteUserAsync(userEntity))
+            if (await userManagementService.UpdateUserAsync(userEntity))
             {
                 logger.LogInformation($"User with ID {id} deleted successfully");
                 return Ok(new { message = "User deleted successfully" });
@@ -253,7 +254,7 @@ namespace WebApp.ApiControllers
 
         [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
         [HttpDelete("{id}/RemovePhoto")]
-        public async Task<ActionResult<CourseAttendanceDto>> RemoveUserPhoto(Guid id)
+        public async Task<ActionResult> RemoveUserPhoto(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
             var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;

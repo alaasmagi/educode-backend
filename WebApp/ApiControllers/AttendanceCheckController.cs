@@ -59,8 +59,8 @@ public class AttendanceCheckController(
             StudentCode = model.StudentCode,
             FullName = model.FullName,
             AttendanceIdentifier = model.CourseAttendanceIdentifier,
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator,
+            CreatedBy = model.Client,
+            UpdatedBy = model.Client,
         };
 
         if (model.WorkplaceIdentifier != null)
@@ -72,7 +72,7 @@ public class AttendanceCheckController(
             }
         }
 
-        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Creator, model.WorkplaceIdentifier ?? null))
+        if (!await attendanceManagementService.AddAttendanceCheckAsync(newAttendanceCheck, model.Client, model.WorkplaceIdentifier ?? null))
         {
             return BadRequest(new {message = "Attendance check already exists", 
                 messageCode = "attendance-check-already-exists" });

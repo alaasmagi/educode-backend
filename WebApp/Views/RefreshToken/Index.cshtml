@@ -15,9 +15,9 @@
     <thead>
         <tr>
             <th>User</th>
-            <th>Token</th>
             <th>Created By IP</th>
             <th>Expiration Time</th>
+            <th>Created By</th>
             <th>Created At</th>
             <th>Updated By</th>
             <th>Updated At</th>
@@ -30,9 +30,6 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Token)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedByIp)

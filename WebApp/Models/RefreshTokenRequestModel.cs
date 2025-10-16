@@ -1,8 +1,7 @@
 ﻿namespace WebApp.Models;
 
-public class RefreshTokenRequestModel
+public class RefreshTokenRequestModel : BaseModel
 {
     public required string JwtToken { get; set; }
     public required string RefreshToken { get; set; }
-    public required string Client { get; set; }
 }

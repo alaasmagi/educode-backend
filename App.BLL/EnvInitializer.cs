@@ -1,6 +1,3 @@
-using App.DAL.EF;
-using App.Domain;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace App.BLL;
@@ -8,6 +5,7 @@ namespace App.BLL;
 public class EnvInitializer
 {
     private readonly ILogger<EnvInitializer> _logger;
+    
     // DB
     public string PgDbConnection { get; private set; } = string.Empty;
     public string RedisConnection { get; private set; } = string.Empty;

@@ -129,11 +129,11 @@ public class CourseController(
             CourseName = model.CourseName,
             CourseCode = model.CourseCode,
             CourseStatusId = model.CourseStatusId,
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator,
+            CreatedBy = model.Client,
+            UpdatedBy = model.Client,
         };
 
-        if (!await courseManagementService.AddCourse(user, newCourse, model.Creator))
+        if (!await courseManagementService.AddCourse(user, newCourse, model.Client))
         {
             
             return BadRequest(new { message = "Course already exists", messageCode = "course-already-exists" });
@@ -159,8 +159,8 @@ public class CourseController(
             CourseName = model.CourseName,
             CourseCode = model.CourseCode,
             CourseStatusId = model.CourseStatusId,
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator,
+            CreatedBy = model.Client,
+            UpdatedBy = model.Client,
         };
 
         var courseId = model.Id.Value;

@@ -99,8 +99,8 @@ public class AttendanceController(
         {
             CourseId = model.CourseId,
             AttendanceTypeId = model.AttendanceTypeId,
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator
+            CreatedBy = model.Client,
+            UpdatedBy = model.Client
         };
         if (!await attendanceManagementService.AddAttendanceAsync(newAttendance, model.AttendanceDates, model.StartTime,
                 model.EndTime))
@@ -143,8 +143,8 @@ public class AttendanceController(
             AttendanceTypeId = model.AttendanceTypeId,
             StartTime = model.AttendanceDates[0].ToDateTime(model.StartTime).ToUniversalTime(),
             EndTime = model.AttendanceDates[0].ToDateTime(model.EndTime).ToUniversalTime(),
-            CreatedBy = model.Creator,
-            UpdatedBy = model.Creator
+            CreatedBy = model.Client,
+            UpdatedBy = model.Client
         };
 
         var attendanceId = model.Id.Value;

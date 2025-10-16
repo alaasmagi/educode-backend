@@ -1,19 +1,19 @@
 meta {
-  name: Auth/Login
+  name: Auth/Refresh
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
-  url: http://localhost:5139/api/Auth/Login
+  url: http://localhost:5139/api/Auth/Refresh
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "email": "EMAIL",
-    "password": "PASSWORD",
+    "jwtToken": "JWT",
+    "refreshToken": "REFRESHTOKEN",
     "client": "Bruno"
   }
 }

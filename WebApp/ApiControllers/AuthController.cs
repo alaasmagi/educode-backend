@@ -64,7 +64,7 @@ public class AuthController(
         });
         
         logger.LogInformation($"User with ID {user.Id} was logged in successfully");
-        return Ok(new { Token = jwtToken, RefreshToken = refreshToken});
+        return Ok(new { UserId = user.Id, Token = jwtToken, RefreshToken = refreshToken});
     }
     
     [HttpPost("Refresh")]
@@ -132,11 +132,11 @@ public class AuthController(
         newUser.FullName = requestModel.Fullname;
         newUser.StudentCode = requestModel.StudentCode;
         newUser.UserTypeId = userType.Id;
-        newUser.CreatedBy = requestModel.Creator;
-        newUser.UpdatedBy = requestModel.Creator;
+        newUser.CreatedBy = requestModel.Client;
+        newUser.UpdatedBy = requestModel.Client;
         
-        newUserAuth.CreatedBy = requestModel.Creator;
-        newUserAuth.UpdatedBy = requestModel.Creator;
+        newUserAuth.CreatedBy = requestModel.Client;
+        newUserAuth.UpdatedBy = requestModel.Client;
         newUserAuth.PasswordHash = userManagementService.GetPasswordHash(requestModel.Password);
 
         if (!await userManagementService.CreateAccountAsync(newUser, newUserAuth))
