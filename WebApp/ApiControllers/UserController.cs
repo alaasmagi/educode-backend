@@ -256,14 +256,9 @@ namespace WebApp.ApiControllers
         public async Task<ActionResult<CourseAttendanceDto>> RemoveUserPhoto(Guid id)
         {
             logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-
             var userId = User.FindFirst(Constants.UserIdClaim)?.Value ?? string.Empty;
-            if (!Guid.TryParse(userId, out var parsedUserId))
-            {
-                return Unauthorized(new { message = "Invalid user ID in token", messageCode = "invalid-user-id" });
-            }
+            var user = await userManagementService.GetUserByIdAsync(Guid.Parse(userId));
 
-            var user = await userManagementService.GetUserByIdAsync(parsedUserId);
             if (user == null)
             {
                 return NotFound(new { message = "User not found", messageCode = "user-not-found" });
@@ -285,7 +280,7 @@ namespace WebApp.ApiControllers
             user.PhotoPath = string.Empty;
             await userManagementService.UpdateUserAsync(user);
 
-            logger.LogInformation($"Photo removed for user {parsedUserId}. Path: {user.PhotoPath}");
+            logger.LogInformation($"Photo removed for user {user.Id}. Path: {user.PhotoPath}");
 
             return Ok(new { message = "Photo removed successfully" });
         }
