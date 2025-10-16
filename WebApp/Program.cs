@@ -52,10 +52,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+builder.Services.AddSingleton<RedisRepository>(sp =>
 {
-    return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
+    var mux = sp.GetRequiredService<IConnectionMultiplexer>();
+    var logger = sp.GetRequiredService<ILogger<RedisRepository>>();
+    return new RedisRepository(mux, logger);
 });
+
 
 builder.Services.AddCors(options =>
 {

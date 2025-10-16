@@ -50,6 +50,13 @@ public class UserRepository (AppDbContext context)
         context.Users.Remove(user);
         return await context.SaveChangesAsync() > 0;
     }
+    
+    public async Task<bool> UpdateUserEntity(UserEntity user)
+    {
+        context.Users.Update(user);
+        return await context.SaveChangesAsync() > 0;
+    }
+
 
     public async Task<bool> UserAvailabilityCheckByEmail(string email)
     {

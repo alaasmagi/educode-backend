@@ -219,8 +219,7 @@ namespace WebApp.ApiControllers
                 return BadRequest(new { message = "Invalid file type. Only images allowed.", messageCode = "invalid-file-type" });
             }
             
-            const int maxFileSizeInBytes = 5 * 1024 * 1024; 
-            if (file.Length > maxFileSizeInBytes)
+            if (file.Length > Constants.MaxPictureFileSize)
             {
                 return BadRequest(new { message = "File size exceeds 5MB limit.", messageCode = "file-too-large" });
             }
@@ -232,11 +231,14 @@ namespace WebApp.ApiControllers
                     id,
                     photoStream,
                     file.ContentType);
-
+                
                 if (objectPath == null)
                 {
                     return StatusCode(500, new { message = "Photo upload failed due to server error.", messageCode = "oci-upload-failed" });
                 }
+                
+                user.PhotoPath = objectPath;
+                await userManagementService.UpdateUserAsync(user);
                 logger.LogInformation($"Successfully uploaded photo for user {userId}. Path: {objectPath}");
                 return Ok(new { message = "Photo uploaded successfully", path = objectPath });
             }

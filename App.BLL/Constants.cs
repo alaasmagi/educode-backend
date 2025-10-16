@@ -28,6 +28,8 @@ public class Constants
     public const string UserFolder = "user";
     public const string SchoolFolder = "school";
     public const string BackendPrefix = "EDUCODE-ASPNET";
+    public const int MaxPictureFileSize = 5 * 1024 * 1024; 
+
     
     public static readonly TimeSpan DefaultCachePeriod = TimeSpan.FromMinutes(10);
     public static readonly TimeSpan ExtraShortCachePeriod = TimeSpan.FromMinutes(1);

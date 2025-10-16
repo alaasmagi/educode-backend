@@ -14,4 +14,6 @@ public interface IUserManagementService
     Task<UserEntity?> GetUserByIdAsync(Guid id);
     string GetPasswordHash(string password);
     Task<bool> DeleteUserAsync(UserEntity user);
+    Task<bool> UpdateUserAsync(UserEntity user);
+
 }

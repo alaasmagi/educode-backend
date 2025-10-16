@@ -220,6 +220,22 @@ public class UserManagementService : IUserManagementService
     
     // TODO: Implement Edit User method
     
+    public async Task<bool> UpdateUserAsync(UserEntity user)
+    {
+        await _redisRepository.DeleteKeysByPatternAsync(user.Id.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync(user.Email);
+        await _courseRepository.DeleteCoursesByUserAsync(user.Id);
+        
+        bool status = await _userRepository.UpdateUserEntity(user);
+        if (!status)
+        {
+            _logger.LogError($"Failed to update user with ID {user.Id}");
+            return false;
+        }
+
+        return true;
+    }
+    
     /* TODO: Implement soft deletion that cascade-soft-deletes UserAuthData, CourseTeachers, Courses, AttendanceChecks
                 and HARD-deletes all User's RefreshTokens */
 
