@@ -145,7 +145,7 @@ public class AuthService : IAuthService
             return (null, null);
         }
 
-        if (!await VerifyRefreshToken(jwtToken, userId.Value, ipAddress))
+        if (!await VerifyRefreshToken(refreshToken, userId.Value, ipAddress))
         {
             _logger.LogError($"Refresh token validation for user with ID {userId} failed");
             return (null, null);
@@ -165,7 +165,7 @@ public class AuthService : IAuthService
     {
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(jwtToken);
-        var userIdClaim = token.Claims.FirstOrDefault(c => c.Type == "userId");
+        var userIdClaim = token.Claims.FirstOrDefault(c => c.Type == Constants.UserIdClaim);
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
             return userId;

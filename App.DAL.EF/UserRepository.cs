@@ -71,7 +71,7 @@ public class UserRepository (AppDbContext context)
     
     public async Task<UserEntity?> GetUserByIdAsync(Guid userId)
     {
-        return await context.Users.FindAsync(userId);
+        return await context.Users.Include(u => u.UserType).FirstOrDefaultAsync(u => u.Id == userId);
     }
     
     public async Task<UserTypeEntity?> GetUserTypeEntity(string userType)
