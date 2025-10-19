@@ -198,6 +198,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+if (!builder.Environment.IsDevelopment())
+{
+    Microsoft.AspNetCore.Hosting.StaticWebAssets.StaticWebAssetsLoader
+        .UseStaticWebAssets(builder.Environment, builder.Configuration);
+}
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
