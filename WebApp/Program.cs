@@ -112,8 +112,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnChallenge = context =>
             {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    return Task.CompletedTask;
+                }
+
                 context.HandleResponse();
-                context.Response.Redirect("/AdminPanel/Index?message=Please+login+again");
+                context.Response.Redirect("/AdminPanel/Index?message=Please+login");
                 return Task.CompletedTask;
             },
             OnMessageReceived = context =>
