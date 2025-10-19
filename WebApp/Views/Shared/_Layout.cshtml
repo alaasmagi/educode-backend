@@ -27,13 +27,8 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-controller="AdminPanel" asp-action="Privacy">Privacy</a>
                     </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <form method="post" asp-controller="AdminPanel" asp-action="LogOut" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="nav-link text-dark btn btn-link border-0">Log out</button>
-                        </form>
+                        <a class="nav-link text-dark" asp-controller="AdminPanel" asp-action="LogOut">Log out</a>
                     </li>
                 </ul>
             </div>
