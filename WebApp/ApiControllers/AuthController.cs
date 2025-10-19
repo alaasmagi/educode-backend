@@ -47,7 +47,7 @@ public class AuthController(
             return BadRequest(new { message = "Refresh token generation failed", messageCode = "refresh-token-error" });
         }
         
-        Response.Cookies.Append("token", jwtToken, new CookieOptions
+        Response.Cookies.Append("jwt", jwtToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -85,6 +85,22 @@ public class AuthController(
         {
             return Unauthorized(new { message = "Invalid or expired refresh token", messageCode = "invalid-refresh-token" });
         }
+        
+        Response.Cookies.Append("jwt", newJwt, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            MaxAge = TimeSpan.FromMinutes(envInitializer.JwtCookieExpirationMinutes)
+        });
+        
+        Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+        {
+            HttpOnly = true,                
+            Secure = true,                 
+            SameSite = SameSiteMode.None,   
+            MaxAge = TimeSpan.FromDays(envInitializer.RefreshTokenCookieExpirationDays)
+        });
 
         return Ok(new { Token = newJwt, RefreshToken = newRefreshToken });
     }
@@ -108,7 +124,7 @@ public class AuthController(
             return BadRequest(new { message = "Logging out failed", messageCode = "logout-failed" });
         }
 
-        Response.Cookies.Delete("token");
+        Response.Cookies.Delete("jwt");
         Response.Cookies.Delete("refreshToken");
 
         return Ok(new { message = "Logged out successfully", messageCode = "logout-successful" });

@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
-using App.Domain;
+﻿using App.Domain;
 
 namespace Contracts;
 
 public interface IAuthService
 {
-    string GenerateJwtToken(UserEntity user);
+    string? AdminAccessGrant(string enteredUsername, string enteredPassword);
+    string GenerateJwtToken(UserEntity? user);
     Task<string?> GenerateRefreshToken(Guid userId, string creatorIp, string creator);
     Task<(string? JwtToken, string? RefreshToken)> RefreshJwtToken(string refreshToken, string jwtToken, string ipAddress, string creator);
     Guid? GetUserIdFromJwt(string jwtToken);

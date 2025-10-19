@@ -22,9 +22,8 @@ public class EnvInitializer
     public int RefreshTokenCookieExpirationDays { get; private set; }
     
     // Admin
-    public string AdminUser { get; private set; } = string.Empty;
-    public string AdminKey { get; private set; } = string.Empty;
-    public string AdminTokenSalt { get; private set; } = string.Empty;
+    public string AdminUserBcrypt { get; private set; } = string.Empty;
+    public string AdminKeyBcrypt { get; private set; } = string.Empty;
 
     // OTP
     public string OtpKey { get; private set; } = string.Empty;
@@ -65,9 +64,8 @@ public class EnvInitializer
         OtpKey = GetStringEnv("OTPKEY");
         OtpExpirationMinutes = GetIntEnv("OTP_MINUTES");
 
-        AdminUser = GetStringEnv("ADMINUSER");
-        AdminKey = GetStringEnv("ADMINKEY");
-        AdminTokenSalt = GetStringEnv("ADMINTOKENSALT");
+        AdminUserBcrypt = GetStringEnv("ADMIN_USER_BCRYPT");
+        AdminKeyBcrypt = GetStringEnv("ADMIN_KEY_BCRYPT");
 
         RefreshTokenExpirationDays = GetIntEnv("REFRESH_TOKEN_DAYS");
         RefreshTokenCookieExpirationDays = GetIntEnv("REFRESH_TOKEN_COOKIE_DAYS");

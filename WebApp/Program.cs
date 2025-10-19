@@ -28,13 +28,29 @@ var envInitializer = new EnvInitializer(loggerFactory.CreateLogger<EnvInitialize
 envInitializer.InitializeEnv();
 builder.Services.AddSingleton(envInitializer);
 
+builder.Services.AddDbContextPool<AppDbContext>(options =>
+    options.UseNpgsql(envInitializer.PgDbConnection, npgsqlOptions =>
+    {
+        npgsqlOptions.CommandTimeout(60);
+        npgsqlOptions.EnableRetryOnFailure(3);
+    }), poolSize: 500);
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(envInitializer.RedisConnection));
+
+builder.Services.AddSingleton<RedisRepository>(sp =>
+{
+    var mux = sp.GetRequiredService<IConnectionMultiplexer>();
+    var logger = sp.GetRequiredService<ILogger<RedisRepository>>();
+    return new RedisRepository(mux, logger);
+});
+
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(); 
 builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
 builder.Services.AddSingleton<DbInitializer>();
-builder.Services.AddScoped<IAdminAccessService, AdminAccessService>();
+builder.Services.AddScoped<IPhotoService, OciPhotoService>();
 builder.Services.AddScoped<IAttendanceManagementService, AttendanceManagementService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseManagementService, CourseManagementService>();
@@ -49,25 +65,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     
     // 10.0.0.0/24 is subnet in which load balancer and VMs are
     options.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("10.0.0.0"), 24));
-});
-
-builder.Services.AddDbContextPool<AppDbContext>(options =>
-    options.UseNpgsql(envInitializer.PgDbConnection, npgsqlOptions =>
-    {
-        npgsqlOptions.CommandTimeout(60);
-        npgsqlOptions.EnableRetryOnFailure(3);
-    }), poolSize: 500);
-
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    return ConnectionMultiplexer.Connect(envInitializer.RedisConnection);
-});
-
-builder.Services.AddSingleton<RedisRepository>(sp =>
-{
-    var mux = sp.GetRequiredService<IConnectionMultiplexer>();
-    var logger = sp.GetRequiredService<ILogger<RedisRepository>>();
-    return new RedisRepository(mux, logger);
 });
 
 
@@ -109,6 +106,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = envInitializer.JwtAudience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.Redirect("/AdminPanel/Index?message=Please+login+again");
+                return Task.CompletedTask;
+            },
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token) &&
+                    context.Request.Cookies.TryGetValue("jwt", out var jwtToken))
+                {
+                    context.Token = jwtToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -163,7 +179,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            []
         }
     });
 });

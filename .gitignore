@@ -443,3 +443,4 @@ Desktop.ini
 .DS_Store
 
 .env
+.pem

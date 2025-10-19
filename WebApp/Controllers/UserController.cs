@@ -8,18 +8,12 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class UserController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService, EnvInitializer envInitializer)
-        : BaseController(adminAccessService)
+    public class UserController(AppDbContext context, RedisRepository redis, EnvInitializer envInitializer)
+        : Controller
     {
         // GET: User
         public async Task<IActionResult> Index()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             var users = context.Users.Include(u => u.UserType).Include(u=>u.School);
             return View(await users.IgnoreQueryFilters().ToListAsync());
         }
@@ -27,12 +21,6 @@ namespace WebApp.Controllers
         // GET: User/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -53,14 +41,8 @@ namespace WebApp.Controllers
         }
 
         // GET: User/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             ViewData["UserType"] = new SelectList(context.UserTypes, "Id", "UserType");
             ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
@@ -73,12 +55,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,PhotoPath,CreatedBy,UpdatedBy,Deleted")] UserEntity userEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (ModelState.IsValid)
             {
                 userEntity.UpdatedAt = DateTime.UtcNow;
@@ -96,12 +72,6 @@ namespace WebApp.Controllers
         // GET: User/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -128,12 +98,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("UserTypeId,SchoolId,Email,StudentCode,FullName,Id,PhotoPath,CreatedBy,CreatedAt,UpdatedBy,Deleted")] UserEntity userEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id != userEntity.Id)
             {
                 return NotFound();
@@ -171,12 +135,6 @@ namespace WebApp.Controllers
         // GET: User/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -200,12 +158,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             var userEntity = await context.Users
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(u => u.Id == id);

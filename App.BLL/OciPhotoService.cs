@@ -21,7 +21,7 @@ public class OciPhotoService : IPhotoService
             UserId = env.OciUserId,
             Fingerprint = env.OciFingerprint,
             Region = Region.FromRegionCodeOrId(env.OciRegion),
-            PrivateKeySupplier = new PrivateKeySupplier(env.OciKey.Trim().Replace("\\n", "\n")) 
+            PrivateKeySupplier = new PrivateKeySupplier(env.OciKey.Trim().Replace("\\n", "\n"))
         };
         
         _client = new ObjectStorageClient(provider);

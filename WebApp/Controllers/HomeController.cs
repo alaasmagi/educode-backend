@@ -1,16 +1,17 @@
 using System.Diagnostics;
+using App.BLL;
 using App.DAL.EF;
+using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-public class AdminPanelController(IAdminAccessService adminAccessService, ILogger<AdminPanelController> logger)
-    : BaseController(adminAccessService)
+public class AdminPanelController(IAuthService authService, ILogger<AdminPanelController> logger, EnvInitializer envInitializer)
+    : Controller
 {
-    private readonly IAdminAccessService _adminAccessService = adminAccessService;
-
     [HttpGet]
     public IActionResult Index(string? message)
     {
@@ -26,22 +27,31 @@ public class AdminPanelController(IAdminAccessService adminAccessService, ILogge
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index([Bind("Username", "Password")] AdminLoginModel model)
+    public IActionResult Index([Bind("Username", "Password")] AdminLoginModel model)
     {
         logger.LogInformation($"{HttpContext.Request.Method.ToUpper()} - {HttpContext.Request.Path}");
-        if (!_adminAccessService.AdminAccessGrant(model.Username, model.Password))
+
+        var token = authService.AdminAccessGrant(model.Username, model.Password);
+        if (token == null)
         {
             return Index("Wrong username or password!");
         }
         
-        await SetTokensAsync();
+        Response.Cookies.Append("jwt", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            MaxAge = TimeSpan.FromMinutes(envInitializer.JwtCookieExpirationMinutes)
+        });
+        
         logger.LogInformation($"Admin access granted successfully");
         return  RedirectToAction("Home");
     }
 
     public IActionResult LogOut()
     {
-        HttpContext.Session.Clear();
+        Response.Cookies.Delete("jwt");
         return RedirectToAction("Index");
     }
 
@@ -50,14 +60,9 @@ public class AdminPanelController(IAdminAccessService adminAccessService, ILogge
         return View();
     }
 
-    public async Task<IActionResult> Home(string? message)
+    [Authorize(Policy = nameof(EAccessLevel.QuaternaryLevel))]
+    public IActionResult Home(string? message)
     {
-        var tokenValidity = await IsTokenValidAsync(HttpContext);
-        if (!tokenValidity)
-        {
-            return Unauthorized("You cannot access admin panel without logging in!");
-        }
-        
         var model = new AdminLoginModel
         {
             Username = string.Empty,

@@ -7,30 +7,17 @@ using Contracts;
 
 namespace WebApp.Controllers
 {
-    public class ClassroomController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
-        : BaseController(adminAccessService)
+    public class ClassroomController(AppDbContext context, RedisRepository redis) : Controller
     {
         // GET: Classroom
         public async Task<IActionResult> Index()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             return View(await context.Classrooms.Include(c => c.School).IgnoreQueryFilters().ToListAsync());
         }
 
         // GET: Classroom/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -49,13 +36,8 @@ namespace WebApp.Controllers
         }
 
         // GET: Classroom/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
             ViewData["School"] = new SelectList(context.Schools, "Id", "Name");
             return View();
         }
@@ -67,12 +49,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Classroom,SchoolId,CreatedBy,UpdatedBy,Deleted")] ClassroomEntity classroomEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (ModelState.IsValid)
             {
                 classroomEntity.UpdatedAt = DateTime.UtcNow;
@@ -88,12 +64,6 @@ namespace WebApp.Controllers
         // GET: Classroom/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -119,12 +89,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Classroom,SchoolId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] ClassroomEntity classroomEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id != classroomEntity.Id)
             {
                 return NotFound();
@@ -160,12 +124,6 @@ namespace WebApp.Controllers
         // GET: Classroom/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             if (id == null)
             {
                 return NotFound();
@@ -188,12 +146,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-            
             var classroomEntity = await context.Classrooms
                 .Include(c => c.School)
                 .IgnoreQueryFilters()

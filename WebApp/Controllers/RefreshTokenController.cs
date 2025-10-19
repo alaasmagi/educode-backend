@@ -6,30 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers
 {
-    public class RefreshTokenController(AppDbContext context, RedisRepository redis, IAdminAccessService adminAccessService)
-        : BaseController(adminAccessService)
+    public class RefreshTokenController(AppDbContext context, RedisRepository redis) : Controller
     {
         // GET: RefreshToken
         public async Task<IActionResult> Index()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             return View(await context.RefreshTokens.IgnoreQueryFilters().ToListAsync());
         }
 
         // GET: RefreshToken/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             if (id == null)
             {
                 return NotFound();
@@ -47,14 +34,8 @@ namespace WebApp.Controllers
         }
 
         // GET: RefreshToken/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             return View();
         }
 
@@ -67,12 +48,6 @@ namespace WebApp.Controllers
             [Bind("UserId,Token,CreatedByIp,ExpirationTime,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
             RefreshTokenEntity refreshTokenEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             if (ModelState.IsValid)
             {
                 refreshTokenEntity.Id = Guid.NewGuid();
@@ -89,12 +64,6 @@ namespace WebApp.Controllers
         // GET: RefreshToken/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             if (id == null)
             {
                 return NotFound();
@@ -120,12 +89,6 @@ namespace WebApp.Controllers
             [Bind("UserId,Token,CreatedByIp,ExpirationTime,Id,CreatedBy,CreatedAt,UpdatedBy,UpdatedAt,Deleted")]
             RefreshTokenEntity refreshTokenEntity)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             if (id != refreshTokenEntity.Id)
             {
                 return NotFound();
@@ -153,12 +116,6 @@ namespace WebApp.Controllers
         // GET: RefreshToken/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             if (id == null)
             {
                 return NotFound();
@@ -180,12 +137,6 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var tokenValidity = await IsTokenValidAsync(HttpContext);
-            if (!tokenValidity)
-            {
-                return Unauthorized("You cannot access admin panel without logging in!");
-            }
-
             var refreshTokenEntity = await context.RefreshTokens
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(r => r.Id == id);
