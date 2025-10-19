@@ -34,7 +34,8 @@ public class AuthService : IAuthService
         var storedUserNameBcrypt = _envInitializer.AdminUserBcrypt;
         var storedPasswordBcrypt = _envInitializer.AdminKeyBcrypt;
 
-        if (storedUserNameBcrypt == string.Empty && storedPasswordBcrypt == string.Empty)
+        if (string.IsNullOrWhiteSpace(storedUserNameBcrypt) || 
+            string.IsNullOrWhiteSpace(storedPasswordBcrypt))
         {
             _logger.LogError("Reading data from env failed (ADMIN_USER_BCRYPT or ADMIN_KEY_BCRYPT)");
             return null;
