@@ -225,7 +225,6 @@ public class UserManagementService : IUserManagementService
     {
         await _redisRepository.DeleteKeysByPatternAsync(user.Id.ToString());
         await _redisRepository.DeleteKeysByPatternAsync(user.Email);
-        await _courseRepository.DeleteCoursesByUserAsync(user.Id);
         
         bool status = await _userRepository.UpdateUserEntity(user);
         if (!status)

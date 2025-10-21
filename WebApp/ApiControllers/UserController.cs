@@ -252,7 +252,7 @@ namespace WebApp.ApiControllers
             }
         }
 
-        [Authorize(Policy = nameof(EAccessLevel.TertiaryLevel))]
+        [Authorize(Policy = nameof(EAccessLevel.PrimaryLevel))]
         [HttpDelete("{id}/RemovePhoto")]
         public async Task<ActionResult> RemoveUserPhoto(Guid id)
         {

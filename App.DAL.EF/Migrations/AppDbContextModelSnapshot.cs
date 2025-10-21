@@ -168,6 +168,9 @@ namespace App.DAL.EF.Migrations
                     b.Property<Guid>("AttendanceTypeId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AutomatedRegistration")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("ClassroomId")
                         .HasColumnType("uuid");
 
@@ -357,15 +360,20 @@ namespace App.DAL.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("Client")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
-                    b.Property<string>("CreatedByIp")
+                    b.Property<string>("ClientIp")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
@@ -376,10 +384,14 @@ namespace App.DAL.EF.Migrations
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("PushNotificationToken")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -430,7 +442,6 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("PhotoPath")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
@@ -493,6 +504,9 @@ namespace App.DAL.EF.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Verified")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
@@ -529,7 +543,6 @@ namespace App.DAL.EF.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("PhotoPath")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 

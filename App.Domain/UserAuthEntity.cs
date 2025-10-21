@@ -12,4 +12,6 @@ public class UserAuthEntity : BaseEntity
     [Required]
     [MaxLength(255)]
     public string PasswordHash { get; set; } = default!;
+    [Required] 
+    public bool Verified { get; set; } = false;
 }

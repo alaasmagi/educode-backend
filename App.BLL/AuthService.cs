@@ -118,10 +118,11 @@ public class AuthService : IAuthService
         {
             UserId = userId,
             Token = token,
-            CreatedByIp = creatorIp,
+            Client = creator,
+            ClientIp = creatorIp,
             ExpirationTime = DateTime.UtcNow + TimeSpan.FromDays(refreshTokenExpirationDays),
-            CreatedBy = creator,
-            UpdatedBy = creator
+            CreatedBy = Constants.BackendPrefix,
+            UpdatedBy = Constants.BackendPrefix
         };
         
         if (!await _refreshTokenRepository.AddRefreshTokenEntityToDb(tokenData))
@@ -202,7 +203,7 @@ public class AuthService : IAuthService
             await _redisRepository.SetDataAsync(Constants.RefreshTokenPrefix + tokenEntity.Token, json, Constants.DefaultCachePeriod);
         }
 
-        if (tokenEntity.UserId != userId || tokenEntity.Token != refreshToken || tokenEntity.CreatedByIp != ipAddress)
+        if (tokenEntity.UserId != userId || tokenEntity.Token != refreshToken || tokenEntity.ClientIp != ipAddress)
         {
             return false;
         }

@@ -16,7 +16,7 @@
         <tr>
             <th>User</th>
             <th>Password Hash</th>
-            <th>Created At</th>
+            <th>Verified</th>
             <th>Updated By</th>
             <th>Updated At</th>
             <th>Soft Deleted</th>
@@ -33,10 +33,7 @@
                 @Html.DisplayFor(modelItem => item.PasswordHash)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
+                @Html.DisplayFor(modelItem => item.Verified)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UpdatedBy)

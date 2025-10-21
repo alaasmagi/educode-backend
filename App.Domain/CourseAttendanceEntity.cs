@@ -18,6 +18,8 @@ public class CourseAttendanceEntity : BaseEntity
     public Guid AttendanceTypeId { get; set; }
     public AttendanceTypeEntity? AttendanceType { get; set; }
     [Required]
+    public bool AutomatedRegistration { get; set; } = false;
+    [Required]
     public DateTime StartTime { get; set; }
     [Required]
     public DateTime EndTime { get; set; }
