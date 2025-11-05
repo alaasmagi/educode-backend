@@ -99,8 +99,8 @@ namespace WebApp.Controllers
                 {
                     userAuthEntity.CreatedAt = DateTime.SpecifyKind(userAuthEntity.CreatedAt, DateTimeKind.Utc);
                     userAuthEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(userAuthEntity.Id.ToString());
-                    await redis.DeleteKeysByPatternAsync(userAuthEntity.UserId.ToString());
+                    await redis.DeleteKeysByPatternAsync($"*{userAuthEntity.Id.ToString()}*");
+                    await redis.DeleteKeysByPatternAsync($"*{userAuthEntity.UserId.ToString()}*");
                     context.Update(userAuthEntity);
                     await context.SaveChangesAsync();
                 }
@@ -151,8 +151,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(u => u.Id == id);
             if (userAuthEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(userAuthEntity.Id.ToString());
-                await redis.DeleteKeysByPatternAsync(userAuthEntity.UserId.ToString());
+                await redis.DeleteKeysByPatternAsync($"*{userAuthEntity.Id.ToString()}*");
+                await redis.DeleteKeysByPatternAsync($"*{userAuthEntity.UserId.ToString()}*");
                 context.UserAuthData.Remove(userAuthEntity);
             }
 

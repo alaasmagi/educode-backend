@@ -104,8 +104,8 @@ namespace WebApp.Controllers
                 {
                     courseAttendanceEntity.CreatedAt = DateTime.SpecifyKind(courseAttendanceEntity.CreatedAt, DateTimeKind.Utc);
                     courseAttendanceEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(courseAttendanceEntity.Id.ToString());
-                    await redis.DeleteKeysByPatternAsync(courseAttendanceEntity.Identifier);                     
+                    await redis.DeleteKeysByPatternAsync($"*{courseAttendanceEntity.Id.ToString()}*");
+                    await redis.DeleteKeysByPatternAsync($"*{courseAttendanceEntity.Identifier}*");                     
                     context.Update(courseAttendanceEntity);
                     await context.SaveChangesAsync();
                 }
@@ -158,8 +158,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (courseAttendanceEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(courseAttendanceEntity.Id.ToString());
-                await redis.DeleteKeysByPatternAsync(courseAttendanceEntity.Identifier);
+                await redis.DeleteKeysByPatternAsync($"*{courseAttendanceEntity.Id.ToString()}*");
+                await redis.DeleteKeysByPatternAsync($"*{courseAttendanceEntity.Identifier}*");
                 context.CourseAttendances.Remove(courseAttendanceEntity);
             }
 

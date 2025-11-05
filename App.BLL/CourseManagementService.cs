@@ -128,7 +128,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await _redisRepository.DeleteKeysByPatternAsync(courseId.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync($"*{courseId.ToString()}*");
         var status = await _courseRepository.UpdateCourseEntity(courseId, newCourse);
         if (!status)
         {
@@ -149,7 +149,7 @@ public class CourseManagementService : ICourseManagementService
             return false;
         }
         
-        await _redisRepository.DeleteKeysByPatternAsync(courseId.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync($"*{courseId.ToString()}*");
         
         var status = await _courseRepository.DeleteCourseEntity(course);
         

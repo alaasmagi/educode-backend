@@ -53,8 +53,8 @@ public class RedisRepository(IConnectionMultiplexer connection, ILogger<RedisRep
         foreach (var endpoint in endpoints)
         {
             var server = _database.Multiplexer.GetServer(endpoint);
-            var keys = server.Keys(pattern: pattern);
-            foreach (var key in keys)
+            
+            await foreach (var key in server.KeysAsync(pattern: pattern))
             {
                 await _database.KeyDeleteAsync(key);
                 _logger.LogInformation($"Deleted Redis key: {key}");

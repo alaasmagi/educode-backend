@@ -205,9 +205,9 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> DeleteUserAsync(UserEntity user)
     {
-        await _redisRepository.DeleteKeysByPatternAsync(user.Id.ToString());
-        await _redisRepository.DeleteKeysByPatternAsync(user.Email);
-        await _courseRepository.DeleteCoursesByUserAsync(user.Id);
+        await _redisRepository.DeleteKeysByPatternAsync($"*{user.Id.ToString()}*");
+        await _redisRepository.DeleteKeysByPatternAsync($"*{user.Email}*");
+        await _redisRepository.DeleteKeysByPatternAsync($"*{user.Id}*");
         bool status = await _userRepository.DeleteUserEntity(user);
         if (!status)
         {
@@ -223,8 +223,8 @@ public class UserManagementService : IUserManagementService
     
     public async Task<bool> UpdateUserAsync(UserEntity user)
     {
-        await _redisRepository.DeleteKeysByPatternAsync(user.Id.ToString());
-        await _redisRepository.DeleteKeysByPatternAsync(user.Email);
+        await _redisRepository.DeleteKeysByPatternAsync($"*{user.Id.ToString()}*");
+        await _redisRepository.DeleteKeysByPatternAsync($"*{user.Email}*");
         
         bool status = await _userRepository.UpdateUserEntity(user);
         if (!status)

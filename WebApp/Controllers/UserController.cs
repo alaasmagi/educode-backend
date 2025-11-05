@@ -109,8 +109,8 @@ namespace WebApp.Controllers
                 {
                     userEntity.CreatedAt = DateTime.SpecifyKind(userEntity.CreatedAt, DateTimeKind.Utc);
                     userEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(userEntity.Id.ToString());
-                    await redis.DeleteKeysByPatternAsync(userEntity.Email);
+                    await redis.DeleteKeysByPatternAsync($"*{userEntity.Id}*");
+                    await redis.DeleteKeysByPatternAsync($"*{userEntity.Email}*");
                     context.Update(userEntity);
                     await context.SaveChangesAsync();
                 }
@@ -163,8 +163,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(u => u.Id == id);
             if (userEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(userEntity.Id.ToString());
-                await redis.DeleteKeysByPatternAsync(userEntity.Email);
+                await redis.DeleteKeysByPatternAsync($"*{userEntity.Id}*");
+                await redis.DeleteKeysByPatternAsync($"*{userEntity.Email}*");
                 context.Users.Remove(userEntity);
             }
 

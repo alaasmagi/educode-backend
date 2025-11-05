@@ -94,7 +94,7 @@ namespace WebApp.Controllers
                 {
                     courseStatusEntity.CreatedAt = DateTime.SpecifyKind(courseStatusEntity.CreatedAt, DateTimeKind.Utc);
                     courseStatusEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(courseStatusEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync($"*{courseStatusEntity.Id.ToString()}*");
                     context.Update(courseStatusEntity);
                     await context.SaveChangesAsync();
                 }
@@ -143,7 +143,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
             if (courseStatusEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(courseStatusEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync($"*{courseStatusEntity.Id.ToString()}*");
                 context.CourseStatuses.Remove(courseStatusEntity);
             }
 

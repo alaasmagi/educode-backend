@@ -156,7 +156,7 @@ public class AuthService : IAuthService
         var user = await _userRepository.GetUserByIdAsync(userId.Value);
         var newJwtToken = GenerateJwtToken(user!);
         
-        await _redisRepository.DeleteKeysByPatternAsync(refreshToken);
+        await _redisRepository.DeleteKeysByPatternAsync($"*{refreshToken}*");
         var newRefreshToken = await GenerateRefreshToken(userId.Value, ipAddress, creator);
         
         _logger.LogInformation($"JWT and refresh tokens successfully refreshed for user with ID: {userId}");
@@ -220,7 +220,7 @@ public class AuthService : IAuthService
             return false;
         }
 
-        await _redisRepository.DeleteKeysByPatternAsync(refreshToken);
+        await _redisRepository.DeleteKeysByPatternAsync($"*{refreshToken}*");
         _logger.LogInformation($"Refresh token deletion successfully");
         return true;
     }

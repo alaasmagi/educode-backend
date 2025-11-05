@@ -380,7 +380,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
-        await _redisRepository.DeleteKeysByPatternAsync(attendanceId.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync($"*{attendanceId.ToString()}*");
         var status = await _attendanceRepository.UpdateAttendance(attendanceId, updatedAttendance);
 
         if (!status)
@@ -401,7 +401,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
-        await _redisRepository.DeleteKeysByPatternAsync(attendanceId.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync($"*{attendanceId.ToString()}*");
         var status = await _attendanceRepository.DeleteAttendanceEntity(attendance);
         
         if (!status)
@@ -422,7 +422,7 @@ public class AttendanceManagementService : IAttendanceManagementService
             return false;
         }
         
-        await _redisRepository.DeleteKeysByPatternAsync(attendanceCheckId.ToString());
+        await _redisRepository.DeleteKeysByPatternAsync($"*{attendanceCheckId.ToString()}*");
         var status = await _attendanceRepository.DeleteAttendanceCheckEntity(attendanceCheck);
 
         if (!status)
