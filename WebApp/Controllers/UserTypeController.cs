@@ -94,7 +94,7 @@ namespace WebApp.Controllers
                 {
                     userTypeEntity.CreatedAt = DateTime.SpecifyKind(userTypeEntity.CreatedAt, DateTimeKind.Utc);
                     userTypeEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(userTypeEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync($"*{userTypeEntity.Id.ToString()}*");
                     context.Update(userTypeEntity);
                     await context.SaveChangesAsync();
                 }
@@ -143,7 +143,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(u => u.Id == id);
             if (userTypeEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(userTypeEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync($"*{userTypeEntity.Id.ToString()}*");
                 context.UserTypes.Remove(userTypeEntity);
             }
 

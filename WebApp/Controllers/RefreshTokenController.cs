@@ -100,8 +100,8 @@ namespace WebApp.Controllers
                 {
                     refreshTokenEntity.CreatedAt = DateTime.SpecifyKind(refreshTokenEntity.CreatedAt, DateTimeKind.Utc);
                     refreshTokenEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Id.ToString());
-                    await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Token);
+                    await redis.DeleteKeysByPatternAsync($"*{refreshTokenEntity.Id.ToString()}*");
+                    await redis.DeleteKeysByPatternAsync($"*{refreshTokenEntity.Token}*");
                     context.Update(refreshTokenEntity);
                     await context.SaveChangesAsync();
                 }
@@ -142,8 +142,8 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
             if (refreshTokenEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Id.ToString());
-                await redis.DeleteKeysByPatternAsync(refreshTokenEntity.Token);
+                await redis.DeleteKeysByPatternAsync($"*{refreshTokenEntity.Id.ToString()}*");
+                await redis.DeleteKeysByPatternAsync($"*{refreshTokenEntity.Token}*");
                 context.RefreshTokens.Remove(refreshTokenEntity);
             }
 

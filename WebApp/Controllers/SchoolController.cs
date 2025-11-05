@@ -103,7 +103,7 @@ namespace WebApp.Controllers
                 {
                     schoolEntity.CreatedAt = DateTime.SpecifyKind(schoolEntity.CreatedAt, DateTimeKind.Utc);
                     schoolEntity.UpdatedAt = DateTime.UtcNow;
-                    await redis.DeleteKeysByPatternAsync(schoolEntity.Id.ToString());
+                    await redis.DeleteKeysByPatternAsync($"*{schoolEntity.Id.ToString()}*");
                     context.Update(schoolEntity);
                     await context.SaveChangesAsync();
                 }
@@ -144,7 +144,7 @@ namespace WebApp.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
             if (schoolEntity != null)
             {
-                await redis.DeleteKeysByPatternAsync(schoolEntity.Id.ToString());
+                await redis.DeleteKeysByPatternAsync($"*{schoolEntity.Id.ToString()}*");
                 context.Schools.Remove(schoolEntity);
             }
 
