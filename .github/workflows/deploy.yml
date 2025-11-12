@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM1_SSH }}
           script: |
-            echo "${{ secrets.ENV_FILE }}" | sudo tee .env > /dev/null
+	    echo "${{ secrets.ENV_FILE }}" | base64 --decode | sudo tee .env > /dev/null
             sudo docker pull alaasmagi/educode-backend:latest
             sudo docker stop educode-backend || true
             sudo docker container prune -f
@@ -63,7 +63,7 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM2_SSH }}
           script: |
-            echo "${{ secrets.ENV_FILE }}" | sudo tee .env > /dev/null
+	    echo "${{ secrets.ENV_FILE }}" | base64 --decode | sudo tee .env > /dev/null
             sudo docker pull alaasmagi/educode-backend:latest
             sudo docker stop educode-backend || true
             sudo docker container prune -f
