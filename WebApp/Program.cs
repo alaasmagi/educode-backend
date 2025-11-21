@@ -8,21 +8,28 @@ using System.Threading.RateLimiting;
 using App.BLL;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using StackExchange.Redis;
-using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
+using IPNetwork = System.Net.IPNetwork;
 
-var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load("../.env");
+var builder = WebApplication.CreateBuilder(args);
 
-var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var loggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit:14)  
     .CreateLogger();
+
+var keyPath = builder.Configuration["DATA_PROTECTION_KEYS_PATH"];
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keyPath ?? "/educode-backend"))
+    .SetApplicationName("educode-backend");
 
 var envInitializer = new EnvInitializer(loggerFactory.CreateLogger<EnvInitializer>());
 envInitializer.InitializeEnv();
@@ -35,7 +42,7 @@ builder.Services.AddDbContextPool<AppDbContext>(options =>
         npgsqlOptions.EnableRetryOnFailure(3);
     }), poolSize: 500);
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(envInitializer.RedisConnection));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(envInitializer.RedisConnection));
 
 builder.Services.AddSingleton<RedisRepository>(sp =>
 {
@@ -64,7 +71,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     
     // 10.0.0.0/24 is subnet in which load balancer and VMs are
-    options.KnownNetworks.Add(new IPNetwork(IPAddress.Parse("10.0.0.0"), 24));
+    options.KnownIPNetworks.Add(new IPNetwork(
+        IPAddress.Parse("10.0.0.0"),
+        24
+    ));
+
 });
 
 
@@ -99,7 +110,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(envInitializer.JwtKey!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(envInitializer.JwtKey)),
             ValidateIssuer = true,
             ValidIssuer = envInitializer.JwtIssuer,
             ValidateAudience = true,
