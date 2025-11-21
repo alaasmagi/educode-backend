@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Controllers
 {
+    [Authorize(Policy = nameof(EAccessLevel.QuaternaryLevel))]
     public class WorkplaceController(AppDbContext context, RedisRepository redis) : Controller
     {
         // GET: Workplace
@@ -46,7 +48,6 @@ namespace WebApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Identifier,ClassroomId,ClassRoom,ComputerCode,CreatedBy,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
         {
             if (ModelState.IsValid)
@@ -85,7 +86,6 @@ namespace WebApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Identifier,ClassroomId,ComputerCode,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] WorkplaceEntity workplaceEntity)
         {
             if (id != workplaceEntity.Id)
@@ -142,7 +142,6 @@ namespace WebApp.Controllers
 
         // POST: Workplace/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var workplaceEntity = await context.Workplaces

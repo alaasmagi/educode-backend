@@ -25,12 +25,6 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit:14)  
     .CreateLogger();
 
-var keyPath = builder.Configuration["DATA_PROTECTION_KEYS_PATH"];
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keyPath ?? "/educode-backend"))
-    .SetApplicationName("educode-backend");
-
 var envInitializer = new EnvInitializer(loggerFactory.CreateLogger<EnvInitializer>());
 envInitializer.InitializeEnv();
 builder.Services.AddSingleton(envInitializer);

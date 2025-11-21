@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using App.DAL.EF;
 using App.Domain;
 using Contracts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers
 {
+    [Authorize(Policy = nameof(EAccessLevel.QuaternaryLevel))]
     public class CourseTeacherController(AppDbContext context, RedisRepository redis) : Controller
     {
         // GET: CourseTeacher
@@ -49,7 +51,6 @@ namespace WebApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseId,TeacherId,CreatedBy,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             if (ModelState.IsValid)
@@ -89,7 +90,6 @@ namespace WebApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("CourseId,TeacherId,Id,CreatedBy,CreatedAt,UpdatedBy,Deleted")] CourseTeacherEntity courseTeacherEntity)
         {
             if (id != courseTeacherEntity.Id)
@@ -150,7 +150,6 @@ namespace WebApp.Controllers
 
         // POST: CourseTeacher/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var courseTeacherEntity = await context.CourseTeachers
