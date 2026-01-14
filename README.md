@@ -6,7 +6,7 @@ This repository has been **archived** and is no longer actively maintained as a 
 
 The educode backend is now part of a unified monorepo. Please visit:
 
-**[New EduCode monorepository](https://github.com/alaasmagi/educode)**
+**[The new EduCode monorepository](https://github.com/alaasmagi/educode)**
 
 All future development, issues, and pull requests should be directed to the monorepo.
 
