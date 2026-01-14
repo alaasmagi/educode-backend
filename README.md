@@ -1,5 +1,3 @@
-# educode-backend 
-
 # Repository Archived
 
 This repository has been **archived** and is no longer actively maintained as a standalone project.
