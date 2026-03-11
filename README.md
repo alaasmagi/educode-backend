@@ -1,4 +1,19 @@
 # educode-backend
+
+# Repository Archived
+
+This repository has been **archived** and is no longer actively maintained as a standalone project.
+
+## Current Repository
+
+The educode backend is now part of a unified monorepo. Please visit:
+
+**[The new EduCode monorepository](https://github.com/alaasmagi/educode)**
+
+All future development, issues, and pull requests should be directed to the monorepo.
+
+---
+
 ## Description
 
 * UI language (Admin UI): English
